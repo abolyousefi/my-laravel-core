@@ -9,6 +9,17 @@ use Illuminate\Support\Str;
 trait HasUuid
 {
     /**
+     * Initialize the trait.
+     */
+    public function initializeHasUuid(): void
+    {
+        $uuidColumn = $this->getUuidColumnName();
+        if (empty($this->{$uuidColumn})) {
+            $this->{$uuidColumn} = (string) Str::uuid();
+        }
+    }
+
+    /**
      * Boot the trait.
      */
     protected static function bootHasUuid(): void

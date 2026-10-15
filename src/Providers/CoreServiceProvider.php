@@ -44,6 +44,8 @@ class CoreServiceProvider extends ServiceProvider
         'dropdown-button' => \MyLaravelCore\Components\Design\DropdownButton::class,
         'card' => \MyLaravelCore\Components\Design\Card::class,
         'data-card' => \MyLaravelCore\Components\Design\DataCard::class,
+        'table' => \MyLaravelCore\Components\Design\Table::class,
+        'data-table' => \MyLaravelCore\Components\Design\Table::class,
         'file' => \MyLaravelCore\Components\Design\FileView::class,
         'icon' => \MyLaravelCore\Components\Design\Icon::class,
         'image' => \MyLaravelCore\Components\Design\ImageView::class,
@@ -83,6 +85,25 @@ class CoreServiceProvider extends ServiceProvider
         $this->registerBladeDirectives();
         $this->registerPublishing();
         $this->registerCommands();
+        $this->registerWorkbenchDocsRoute();
+    }
+
+    /**
+     * If running in standalone package workbench/testbench, route '/' to the documentation site.
+     */
+    protected function registerWorkbenchDocsRoute(): void
+    {
+        if (defined('TESTBENCH_WORKING_PATH') || str_contains(base_path(), 'testbench-core')) {
+            \Illuminate\Support\Facades\Route::get('/', function () {
+                $docsFile = realpath(__DIR__ . '/../../docs/index.html');
+                if ($docsFile && file_exists($docsFile)) {
+                    return response()->file($docsFile, [
+                        'Content-Type' => 'text/html; charset=UTF-8',
+                    ]);
+                }
+                return 'My Laravel Core Documentation';
+            });
+        }
     }
 
     /**
@@ -162,6 +183,7 @@ class CoreServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \MyLaravelCore\Commands\InstallCommand::class,
+                \MyLaravelCore\Commands\IdeHelperCommand::class,
                 \MyLaravelCore\Commands\DocsServeCommand::class,
                 \MyLaravelCore\Commands\MakeCrudCommand::class,
                 \MyLaravelCore\Commands\MakeServiceCommand::class,

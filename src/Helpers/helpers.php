@@ -18,6 +18,16 @@ if (!function_exists('persian_digits')) {
     }
 }
 
+if (!function_exists('persian_number')) {
+    /**
+     * Alias for persian_digits.
+     */
+    function persian_number(mixed $value): string
+    {
+        return persian_digits($value);
+    }
+}
+
 if (!function_exists('english_digits')) {
     /**
      * Convert Persian and Arabic digits to English digits.

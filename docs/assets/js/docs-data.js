@@ -317,19 +317,61 @@ window.DOCS_SECTIONS = [
 /&gt;</code></pre>
             </div>
 
-            <h2>۲. کارت محتوا (&lt;x-card&gt;)</h2>
+            <h2>۲. کارت محتوا پیشرفته (&lt;x-card&gt;)</h2>
+            <p>ساخت کارت‌های مدرن بدون نوشتن تگ‌های دستی div، به همراه بج، فوتر، تصویر سربرگ و افکت هاور:</p>
             <div class="code-box">
                 <div class="code-header">
                     <span class="code-lang">BLADE</span>
                     <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
                 </div>
-                <pre><code>&lt;x-card title="لیست سفارشات" icon="fa-shopping-bag" :collapsible="true"&gt;
-    &lt;x-slot:headerActions&gt;
-        &lt;x-button size="sm" variant="primary" icon="fa-plus"&gt;سفارش جدید&lt;/x-button&gt;
-    &lt;/x-slot:headerActions&gt;
+                <pre><code>&lt;x-card 
+    title="اطلاعات کیک و شیرینی" 
+    subtitle="ثبت شده در کارگاه قنادی" 
+    icon="fa-birthday-cake"
+    badge="پیشنهاد سرآشپز"
+    badgeVariant="danger"
+    :hover="true"
+    padding="4"
+    :collapsible="true"
+&gt;
+    &lt;x-slot:actions&gt;
+        &lt;x-button size="sm" variant="warning" icon="fa-plus"&gt;افزودن قلم جدید&lt;/x-button&gt;
+    &lt;/x-slot:actions&gt;
 
-    محتوای درون کارت...
+    محتوای اصلی بدنه کارت...
+
+    &lt;x-slot:footer&gt;
+        &lt;span class="text-muted small"&gt;تضمین کیفیت ۱۰۰٪&lt;/span&gt;
+    &lt;/x-slot:footer&gt;
 &lt;/x-card&gt;</code></pre>
+            </div>
+
+            <h2>۳. جدول هوشمند داده‌ها و فیلتر خودکار (&lt;x-table&gt; / &lt;x-data-table&gt;)</h2>
+            <p>رندر خودکار جدول داده‌ها با فرم جستجو، فیلترهای دلخواه، صفحه‌بندی و فرمت‌بندی خودکار فیلدهای قیمت (تومان)، تاریخ شمسی، وضعیت و عکس:</p>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">BLADE</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>&lt;x-table 
+    title="لیست محصولات" 
+    icon="fa-boxes"
+    :columns="[
+        ['key' => 'image', 'label' => 'عکس', 'type' => 'image'],
+        ['key' => 'title', 'label' => 'عنوان', 'sub' => 'slug', 'badge' => 'is_featured'],
+        ['key' => 'price', 'label' => 'قیمت', 'type' => 'toman'],
+        ['key' => 'status', 'label' => 'وضعیت', 'type' => 'status'],
+        [
+            'key' => 'actions', 
+            'label' => 'عملیات', 
+            'view' => fn($row) => route('products.show', $row->slug),
+            'edit' => fn($row) => route('admin.products.edit', $row->id),
+            'delete' => fn($row) => route('admin.products.destroy', $row->id),
+        ]
+    ]"
+    :rows="$products"
+    :searchable="true"
+/&gt;</code></pre>
             </div>
 
             <h2>۳. مودال تعاملی (&lt;x-modal&gt;)</h2>

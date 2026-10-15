@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 
 class DocsServeCommand extends Command
 {
-    protected $signature = 'core:docs {--port=8080 : Port to serve documentation on}';
+    protected $signature = 'core:docs {--port=8000 : Port to serve documentation on}';
     protected $description = 'Serve the interactive documentation website locally';
 
     public function handle(): int
@@ -19,7 +19,8 @@ class DocsServeCommand extends Command
             return self::FAILURE;
         }
 
-        $url = "http://localhost:{$port}";
+        $routerScript = $docsPath . DIRECTORY_SEPARATOR . 'server.php';
+        $url = "http://127.0.0.1:{$port}";
 
         $this->newLine();
         $this->info("📚 My Laravel Core Documentation Server running at: {$url}");
@@ -35,7 +36,7 @@ class DocsServeCommand extends Command
             exec("xdg-open {$url} > /dev/null 2>&1 &");
         }
 
-        passthru("php -S localhost:{$port} -t \"{$docsPath}\"");
+        passthru("php -S 127.0.0.1:{$port} -t \"{$docsPath}\" \"{$routerScript}\"");
 
         return self::SUCCESS;
     }

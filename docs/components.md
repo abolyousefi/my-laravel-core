@@ -364,15 +364,83 @@
 />
 ```
 
-### ۲.۶ کارت (`<x-card>`)
-```blade
-<x-card title="اطلاعات سفارش" icon="fa-shopping-cart" :collapsible="true">
-    <x-slot:headerActions>
-        <x-button size="sm" variant="light" icon="fa-print">چاپ فاکتور</x-button>
-    </x-slot:headerActions>
+### ۲.۶ کارت پیشرفته بدون نیاز به div دستی (`<x-card>`)
+کامپوننت کارت تمامی نیازهای UI را بدون نیاز به نوشتن دستی تگ‌های `card-header`، `card-body` و `card-footer` هندل می‌کند:
 
-    <p>محتوای بدنه کارت در اینجا قرار می‌گیرد...</p>
+```blade
+<x-card 
+    title="اطلاعات سفارش" 
+    subtitle="ثبت شده در سامانه" 
+    icon="fa-shopping-cart"
+    badge="ویژه"
+    badgeVariant="danger"
+    :hover="true"
+    padding="4"
+    rounded="4"
+    shadow="sm"
+    :collapsible="true"
+>
+    <x-slot:actions>
+        <x-button size="sm" variant="light" icon="fa-print">چاپ فاکتور</x-button>
+    </x-slot:actions>
+
+    <p>محتوای اصلی بدنه کارت بدون نیاز به ایجاد تگ‌های div دستی...</p>
+
+    <x-slot:footer>
+        <div class="d-flex justify-content-between align-items-center w-100">
+            <span class="text-muted small">آخرین بروزرسانی: دقایقی پیش</span>
+            <button class="btn btn-sm btn-primary">ذخیره تغییرات</button>
+        </div>
+    </x-slot:footer>
 </x-card>
+```
+
+### ۲.۷ جدول هوشمند داده‌ها و فیلتر خودکار (`<x-table>` یا `<x-data-table>`)
+این کامپوننت قدرتمند، تمامی مراحل رندر جدول، باکس فیلتر، فرم جستجو، آیکون‌ها، فرمت‌بندی تومان/تاریخ/عکس، حالت خالی (Empty State) و صفحه‌بندی را به صورت کاملاً خودکار و در ۳۰ ثانیه ایجاد می‌کند:
+
+```blade
+<x-table 
+    title="مدیریت محصولات"
+    subtitle="لیست کامل اقلام فروشگاه"
+    icon="fa-box"
+    :columns="[
+        ['key' => 'image', 'label' => 'تصویر', 'type' => 'image', 'width' => '70px'],
+        ['key' => 'title', 'label' => 'عنوان محصول', 'sub' => 'slug', 'badge' => 'is_featured', 'badgeLabel' => 'ویژه'],
+        ['key' => 'category.title', 'label' => 'دسته‌بندی', 'type' => 'badge', 'variant' => 'warning'],
+        ['key' => 'price', 'label' => 'قیمت', 'type' => 'toman'],
+        ['key' => 'stock', 'label' => 'موجودی', 'type' => 'number'],
+        ['key' => 'status', 'label' => 'وضعیت', 'type' => 'status'],
+        [
+            'key' => 'actions', 
+            'label' => 'عملیات', 
+            'align' => 'center', 
+            'width' => '130px',
+            'view' => fn($row) => route('products.show', $row->slug),
+            'edit' => fn($row) => route('admin.products.edit', $row->id),
+            'delete' => fn($row) => route('admin.products.destroy', $row->id),
+        ],
+    ]"
+    :rows="$products"
+    :searchable="true"
+    searchPlaceholder="جستجو در محصولات..."
+>
+    {{-- نوار ابزار بالا --}}
+    <x-slot:toolbar>
+        <a href="/admin/products/create" class="btn btn-warning text-dark fw-bold rounded-pill">
+            <i class="fa fa-plus me-1"></i> افزودن جدید
+        </a>
+    </x-slot:toolbar>
+
+    {{-- فیلترهای سفارشی کنار باکس جستجو --}}
+    <x-slot:filters>
+        <select name="category_id" class="form-select" onchange="this.form.submit()">
+            <option value="">همه دسته‌بندی‌ها</option>
+            @foreach($categories as $cat)
+                <option value="{{ $cat->id }}">{{ $cat->title }}</option>
+            @endforeach
+        </select>
+    </x-slot:filters>
+</x-table>
 ```
 
 ### ۲.۷ کارت آماری و شاخص کلیدی عملکرد (`<x-data-card>`)
