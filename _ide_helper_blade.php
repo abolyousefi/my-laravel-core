@@ -13,182 +13,765 @@ namespace App\View\Components {
      * Component: <x-card>
      * Class: \MyLaravelCore\Components\Design\Card
      */
-    class Card extends \MyLaravelCore\Components\Design\Card {}
+    class Card extends \MyLaravelCore\Components\Design\Card {
+        public function __construct(
+            public ?string $title = null,
+            public ?string $subtitle = null,
+            public ?string $icon = null,
+            public string $iconColor = 'warning',
+            public ?string $badge = null,
+            public string $badgeVariant = 'warning',
+            public bool $collapsible = false,
+            public bool $collapsed = false,
+            public bool $bordered = false,
+            public string $shadow = 'sm',
+            public string $rounded = '4',
+            public string|int $padding = '4',
+            public string $bg = 'white',
+            public bool $hover = false,
+            public bool $headerBorder = true,
+            public ?string $image = null,
+            public ?string $imageAlt = null,
+            public string $imageHeight = '200px',
+            public array $headerActions = [],
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-data-card>
      * Class: \MyLaravelCore\Components\Design\DataCard
      */
-    class DataCard extends \MyLaravelCore\Components\Design\DataCard {}
+    class DataCard extends \MyLaravelCore\Components\Design\DataCard {
+        public function __construct(
+            public string $title,
+            public mixed $value,
+            public ?string $icon = null,
+            public string $color = 'primary',
+            public int|float|null $trend = null,
+            public string $trendDirection = 'up',
+            public ?string $trendLabel = null,
+            public ?string $link = null,
+            public bool $loading = false,
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-table>
      * Class: \MyLaravelCore\Components\Design\Table
      */
-    class Table extends \MyLaravelCore\Components\Design\Table {}
+    class Table extends \MyLaravelCore\Components\Design\Table {
+        public function __construct(
+            public array $columns = [],
+            public mixed $rows = [],
+            public ?string $title = null,
+            public ?string $subtitle = null,
+            public ?string $icon = null,
+            public bool $searchable = true,
+            public string $searchField = 'search',
+            public string $searchPlaceholder = 'جستجو در اطلاعات...',
+            public ?string $searchAction = null,
+            public bool $striped = false,
+            public bool $hover = true,
+            public bool $bordered = false,
+            public bool $card = true,
+            public bool $pagination = true,
+            public string $emptyMessage = 'هیچ رکوردی برای نمایش یافت نشد.',
+            public string $emptyIcon = 'fa-folder-open',
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-data-table>
      * Class: \MyLaravelCore\Components\Design\Table
      */
-    class DataTable extends \MyLaravelCore\Components\Design\Table {}
+    class DataTable extends \MyLaravelCore\Components\Design\Table {
+        public function __construct(
+            public array $columns = [],
+            public mixed $rows = [],
+            public ?string $title = null,
+            public ?string $subtitle = null,
+            public ?string $icon = null,
+            public bool $searchable = true,
+            public string $searchField = 'search',
+            public string $searchPlaceholder = 'جستجو در اطلاعات...',
+            public ?string $searchAction = null,
+            public bool $striped = false,
+            public bool $hover = true,
+            public bool $bordered = false,
+            public bool $card = true,
+            public bool $pagination = true,
+            public string $emptyMessage = 'هیچ رکوردی برای نمایش یافت نشد.',
+            public string $emptyIcon = 'fa-folder-open',
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-button>
      * Class: \MyLaravelCore\Components\Design\Button
      */
-    class Button extends \MyLaravelCore\Components\Design\Button {}
+    class Button extends \MyLaravelCore\Components\Design\Button {
+        public function __construct(
+            public string $variant = 'primary',
+            public string $size = 'md',
+            public ?string $icon = null,
+            public string $iconPosition = 'left',
+            public string $type = 'button',
+            public bool $outline = false,
+            public bool $pill = false,
+            public bool $block = false,
+            public bool $disabled = false,
+            public bool $loading = false,
+            public ?string $href = null,
+            public ?string $target = null,
+            public ?string $confirm = null,
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-badge>
      * Class: \MyLaravelCore\Components\Design\Badge
      */
-    class Badge extends \MyLaravelCore\Components\Design\Badge {}
+    class Badge extends \MyLaravelCore\Components\Design\Badge {
+        public function __construct(
+            public string $variant = 'primary',
+            public string $size = 'md',
+            public bool $pill = false,
+            public bool $outline = false,
+            public bool $dot = false,
+            public ?string $icon = null,
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-alert>
      * Class: \MyLaravelCore\Components\Design\Alert
      */
-    class Alert extends \MyLaravelCore\Components\Design\Alert {}
+    class Alert extends \MyLaravelCore\Components\Design\Alert {
+        public function __construct(
+            public string $type = 'info',
+            public ?string $title = null,
+            public ?string $message = null,
+            public ?string $icon = null,
+            public bool $dismissible = false,
+            public bool $outline = false,
+            public string $size = 'md',
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-modal>
      * Class: \MyLaravelCore\Components\Design\Modal
      */
-    class Modal extends \MyLaravelCore\Components\Design\Modal {}
+    class Modal extends \MyLaravelCore\Components\Design\Modal {
+        public function __construct(
+            public ?string $title = null,
+            public string $size = 'md',
+            public bool $centered = true,
+            public bool $scrollable = false,
+            public bool $closeOnBackdrop = true,
+            public bool $closeOnEsc = true,
+            public bool $showCloseButton = true,
+            public bool $static = false,
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-banner>
      * Class: \MyLaravelCore\Components\Design\Banner
      */
-    class Banner extends \MyLaravelCore\Components\Design\Banner {}
+    class Banner extends \MyLaravelCore\Components\Design\Banner {
+        public function __construct(
+            public string $type = 'info',
+            public ?string $title = null,
+            public ?string $description = null,
+            public ?string $icon = null,
+            public array $actions = [],
+            public bool $dismissible = false,
+            public ?string $illustration = null,
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-dropdown-button>
      * Class: \MyLaravelCore\Components\Design\DropdownButton
      */
-    class DropdownButton extends \MyLaravelCore\Components\Design\DropdownButton {}
+    class DropdownButton extends \MyLaravelCore\Components\Design\DropdownButton {
+        public function __construct(
+            public string $label = 'عملیات',
+            public string $variant = 'primary',
+            public string $size = 'md',
+            public array $items = [],
+            public string $align = 'end',
+            public bool $split = false,
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-icon>
      * Class: \MyLaravelCore\Components\Design\Icon
      */
-    class Icon extends \MyLaravelCore\Components\Design\Icon {}
+    class Icon extends \MyLaravelCore\Components\Design\Icon {
+        public function __construct(
+            public string $name,
+            public string $size = 'md',
+            public ?string $color = null,
+            public bool $spin = false,
+            public ?string $flip = null,
+            public ?int $rotate = null,
+            public bool $fixedWidth = false,
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-image>
      * Class: \MyLaravelCore\Components\Design\ImageView
      */
-    class Image extends \MyLaravelCore\Components\Design\ImageView {}
+    class Image extends \MyLaravelCore\Components\Design\ImageView {
+        public function __construct(
+            public string $src,
+            public string $alt = '',
+            public string|int|null $width = null,
+            public string|int|null $height = null,
+            public ?string $ratio = null,
+            public bool $rounded = false,
+            public bool $circle = false,
+            public bool $thumbnail = false,
+            public bool $lazy = true,
+            public ?string $placeholder = null,
+            public bool $lightbox = false,
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-link>
      * Class: \MyLaravelCore\Components\Design\Link
      */
-    class Link extends \MyLaravelCore\Components\Design\Link {}
+    class Link extends \MyLaravelCore\Components\Design\Link {
+        public function __construct(
+            public string $href,
+            public ?string $label = null,
+            public ?string $icon = null,
+            public string $iconPosition = 'left',
+            public string $variant = 'primary',
+            public bool $underline = true,
+            public bool $external = false,
+            public ?string $target = null,
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-tooltip>
      * Class: \MyLaravelCore\Components\Design\Tooltip
      */
-    class Tooltip extends \MyLaravelCore\Components\Design\Tooltip {}
+    class Tooltip extends \MyLaravelCore\Components\Design\Tooltip {
+        public function __construct(
+            public string $text,
+            public string $placement = 'top',
+            public string $variant = 'dark',
+            public string $trigger = 'hover',
+            public int $delay = 200,
+            public bool $html = false,
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-timeline>
      * Class: \MyLaravelCore\Components\Design\Timeline
      */
-    class Timeline extends \MyLaravelCore\Components\Design\Timeline {}
+    class Timeline extends \MyLaravelCore\Components\Design\Timeline {
+        public function __construct(
+            public array $items = [],
+            public string $direction = 'vertical',
+            public string $color = 'primary',
+            public bool $animated = false,
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-timeline-item>
      * Class: \MyLaravelCore\Components\Design\TimelineItem
      */
-    class TimelineItem extends \MyLaravelCore\Components\Design\TimelineItem {}
+    class TimelineItem extends \MyLaravelCore\Components\Design\TimelineItem {
+        public function __construct(
+            public string $title,
+            public ?string $description = null,
+            public ?string $time = null,
+            public ?string $icon = 'fa-circle',
+            public string $color = 'primary',
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-accordion>
      * Class: \MyLaravelCore\Components\Design\Accordion
      */
-    class Accordion extends \MyLaravelCore\Components\Design\Accordion {}
+    class Accordion extends \MyLaravelCore\Components\Design\Accordion {
+        public function __construct(
+            public string $type = 'single',
+            public ?int $activeIndex = null,
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-accordion-item>
      * Class: \MyLaravelCore\Components\Design\AccordionItem
      */
-    class AccordionItem extends \MyLaravelCore\Components\Design\AccordionItem {}
+    class AccordionItem extends \MyLaravelCore\Components\Design\AccordionItem {
+        public function __construct(
+            public string $title,
+            public ?string $icon = null,
+            public bool $expanded = false,
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-text-input>
      * Class: \MyLaravelCore\Components\Form\TextInput
      */
-    class TextInput extends \MyLaravelCore\Components\Form\TextInput {}
+    class TextInput extends \MyLaravelCore\Components\Form\TextInput {
+        public function __construct(
+            string $name,
+            ?string $label = null,
+            mixed $value = null,
+            public string $type = 'text',
+            public ?string $placeholder = null,
+            bool $required = false,
+            bool $disabled = false,
+            bool $readonly = false,
+            ?string $hint = null,
+            public ?string $icon = null,
+            public string $iconPosition = 'right',
+            public string $size = 'md',
+            public ?int $maxlength = null,
+            public ?int $minlength = null,
+            public ?string $pattern = null,
+            public ?string $autocomplete = null,
+            string $dir = 'auto',
+            public ?string $addon = null,
+            public string $addonPosition = 'left',
+            ?string $id = null,
+            ?string $class = null,
+            ?string $error = null
+        ) {}
+    }
     /**
      * Component: <x-textarea>
      * Class: \MyLaravelCore\Components\Form\Textarea
      */
-    class Textarea extends \MyLaravelCore\Components\Form\Textarea {}
+    class Textarea extends \MyLaravelCore\Components\Form\Textarea {
+        public function __construct(
+            string $name,
+            ?string $label = null,
+            mixed $value = null,
+            public int $rows = 4,
+            public ?int $maxlength = null,
+            public bool $showCounter = true,
+            public bool $autoResize = false,
+            public ?string $placeholder = null,
+            bool $required = false,
+            bool $disabled = false,
+            bool $readonly = false,
+            ?string $hint = null,
+            string $dir = 'auto',
+            ?string $id = null,
+            ?string $class = null,
+            ?string $error = null
+        ) {}
+    }
     /**
      * Component: <x-number-input>
      * Class: \MyLaravelCore\Components\Form\NumberInput
      */
-    class NumberInput extends \MyLaravelCore\Components\Form\NumberInput {}
+    class NumberInput extends \MyLaravelCore\Components\Form\NumberInput {
+        public function __construct(
+            string $name,
+            ?string $label = null,
+            mixed $value = null,
+            public int|float|null $min = null,
+            public int|float|null $max = null,
+            public int|float $step = 1,
+            public int $decimals = 0,
+            public bool $thousandSeparator = true,
+            public string $separator = ',',
+            public bool $showButtons = true,
+            public bool $persianDigits = true,
+            public ?string $unit = null,
+            public ?string $placeholder = null,
+            bool $required = false,
+            bool $disabled = false,
+            bool $readonly = false,
+            ?string $hint = null,
+            string $dir = 'ltr',
+            ?string $id = null,
+            ?string $class = null,
+            ?string $error = null
+        ) {}
+    }
     /**
      * Component: <x-select-input>
      * Class: \MyLaravelCore\Components\Form\SelectInput
      */
-    class SelectInput extends \MyLaravelCore\Components\Form\SelectInput {}
+    class SelectInput extends \MyLaravelCore\Components\Form\SelectInput {
+        public function __construct(
+            string $name,
+            ?string $label = null,
+            mixed $value = null,
+            public array $options = [],
+            public bool $multiple = false,
+            public bool $searchable = true,
+            public string $placeholder = 'انتخاب کنید',
+            public bool $clearable = true,
+            public ?string $ajaxRoute = null,
+            public ?string $parentField = null,
+            public ?string $parentRoute = null,
+            public bool $tags = false,
+            public ?int $maxSelections = null,
+            bool $required = false,
+            bool $disabled = false,
+            bool $readonly = false,
+            ?string $hint = null,
+            string $dir = 'auto',
+            ?string $id = null,
+            ?string $class = null,
+            ?string $error = null
+        ) {}
+    }
     /**
      * Component: <x-checkbox>
      * Class: \MyLaravelCore\Components\Form\Checkbox
      */
-    class Checkbox extends \MyLaravelCore\Components\Form\Checkbox {}
+    class Checkbox extends \MyLaravelCore\Components\Form\Checkbox {
+        public function __construct(
+            string $name,
+            ?string $label = null,
+            mixed $value = 1,
+            public bool $checked = false,
+            public string $size = 'md',
+            public string $variant = 'primary',
+            bool $disabled = false,
+            ?string $hint = null,
+            ?string $id = null,
+            ?string $class = null,
+            ?string $error = null
+        ) {}
+    }
     /**
      * Component: <x-checkbox-group>
      * Class: \MyLaravelCore\Components\Form\CheckboxGroup
      */
-    class CheckboxGroup extends \MyLaravelCore\Components\Form\CheckboxGroup {}
+    class CheckboxGroup extends \MyLaravelCore\Components\Form\CheckboxGroup {
+        public function __construct(
+            string $name,
+            ?string $label = null,
+            public array $options = [],
+            mixed $value = [],
+            public int $columns = 2,
+            public string $direction = 'rtl',
+            public bool $selectAll = true,
+            public ?int $min = null,
+            public ?int $max = null,
+            bool $required = false,
+            bool $disabled = false,
+            ?string $hint = null,
+            ?string $id = null,
+            ?string $class = null,
+            ?string $error = null
+        ) {}
+    }
     /**
      * Component: <x-radio-group>
      * Class: \MyLaravelCore\Components\Form\RadioGroup
      */
-    class RadioGroup extends \MyLaravelCore\Components\Form\RadioGroup {}
+    class RadioGroup extends \MyLaravelCore\Components\Form\RadioGroup {
+        public function __construct(
+            string $name,
+            ?string $label = null,
+            public array $options = [],
+            mixed $value = null,
+            public int $columns = 1,
+            public bool $inline = false,
+            public string $variant = 'primary',
+            bool $required = false,
+            bool $disabled = false,
+            ?string $hint = null,
+            ?string $id = null,
+            ?string $class = null,
+            ?string $error = null
+        ) {}
+    }
     /**
      * Component: <x-datetime-picker>
      * Class: \MyLaravelCore\Components\Form\DatetimePicker
      */
-    class DatetimePicker extends \MyLaravelCore\Components\Form\DatetimePicker {}
+    class DatetimePicker extends \MyLaravelCore\Components\Form\DatetimePicker {
+        public function __construct(
+            string $name,
+            ?string $label = null,
+            mixed $value = null,
+            public string $mode = 'date',
+            public string $calendar = 'jalali',
+            public string $format = 'YYYY/MM/DD',
+            public string $outputFormat = 'YYYY-MM-DD',
+            public ?string $minDate = null,
+            public ?string $maxDate = null,
+            public bool $disablePast = false,
+            public bool $disableFuture = false,
+            public bool $inline = false,
+            public bool $withTime = false,
+            public int $timeStep = 15,
+            public ?string $placeholder = null,
+            bool $required = false,
+            bool $disabled = false,
+            bool $readonly = false,
+            ?string $hint = null,
+            string $dir = 'ltr',
+            ?string $id = null,
+            ?string $class = null,
+            ?string $error = null
+        ) {}
+    }
     /**
      * Component: <x-datetime-range-picker>
      * Class: \MyLaravelCore\Components\Form\DatetimeRangePicker
      */
-    class DatetimeRangePicker extends \MyLaravelCore\Components\Form\DatetimeRangePicker {}
+    class DatetimeRangePicker extends \MyLaravelCore\Components\Form\DatetimeRangePicker {
+        public function __construct(
+            string $name,
+            ?string $label = null,
+            public ?string $startName = null,
+            public ?string $endName = null,
+            public mixed $startValue = null,
+            public mixed $endValue = null,
+            public string $mode = 'date',
+            public string $calendar = 'jalali',
+            public string $format = 'YYYY/MM/DD',
+            public string $outputFormat = 'YYYY-MM-DD',
+            public array|bool $presets = true,
+            bool $required = false,
+            bool $disabled = false,
+            ?string $hint = null,
+            string $dir = 'ltr',
+            ?string $id = null,
+            ?string $class = null,
+            ?string $error = null
+        ) {}
+    }
     /**
      * Component: <x-editor>
      * Class: \MyLaravelCore\Components\Form\Editor
      */
-    class Editor extends \MyLaravelCore\Components\Form\Editor {}
+    class Editor extends \MyLaravelCore\Components\Form\Editor {
+        public function __construct(
+            string $name,
+            ?string $label = null,
+            mixed $value = null,
+            public int $height = 300,
+            public array|string $toolbar = 'full',
+            public string $direction = 'rtl',
+            public ?string $placeholder = null,
+            public ?string $uploadRoute = null,
+            public ?int $maxLength = null,
+            bool $required = false,
+            bool $disabled = false,
+            bool $readonly = false,
+            ?string $hint = null,
+            ?string $id = null,
+            ?string $class = null,
+            ?string $error = null
+        ) {}
+    }
     /**
      * Component: <x-file-picker>
      * Class: \MyLaravelCore\Components\Form\FilePicker
      */
-    class FilePicker extends \MyLaravelCore\Components\Form\FilePicker {}
+    class FilePicker extends \MyLaravelCore\Components\Form\FilePicker {
+        public function __construct(
+            string $name,
+            ?string $label = null,
+            mixed $value = null,
+            public string $accept = '*',
+            public int $maxSize = 10240,
+            public bool $multiple = false,
+            public string $disk = 'public',
+            public string $directory = 'uploads',
+            public bool $preview = true,
+            public bool $dropzone = true,
+            public bool $sortable = false,
+            bool $required = false,
+            bool $disabled = false,
+            ?string $hint = null,
+            ?string $id = null,
+            ?string $class = null,
+            ?string $error = null
+        ) {}
+    }
     /**
      * Component: <x-icon-picker>
      * Class: \MyLaravelCore\Components\Form\IconPicker
      */
-    class IconPicker extends \MyLaravelCore\Components\Form\IconPicker {}
+    class IconPicker extends \MyLaravelCore\Components\Form\IconPicker {
+        public function __construct(
+            string $name,
+            ?string $label = null,
+            mixed $value = null,
+            public string $iconSet = 'fontawesome',
+            public bool $searchable = true,
+            public bool $categories = true,
+            public bool $preview = true,
+            bool $required = false,
+            bool $disabled = false,
+            ?string $hint = null,
+            ?string $id = null,
+            ?string $class = null,
+            ?string $error = null
+        ) {}
+    }
     /**
      * Component: <x-item-collector>
      * Class: \MyLaravelCore\Components\Form\ItemCollector
      */
-    class ItemCollector extends \MyLaravelCore\Components\Form\ItemCollector {}
+    class ItemCollector extends \MyLaravelCore\Components\Form\ItemCollector {
+        public function __construct(
+            string $name,
+            ?string $label = null,
+            public array $items = [],
+            public array $fields = [],
+            public int $minItems = 0,
+            public ?int $maxItems = null,
+            public bool $sortable = true,
+            public bool $removable = true,
+            public string $addLabel = 'افزودن آیتم',
+            public ?string $template = null,
+            bool $required = false,
+            bool $disabled = false,
+            ?string $hint = null,
+            ?string $id = null,
+            ?string $class = null,
+            ?string $error = null
+        ) {}
+    }
     /**
      * Component: <x-tag-collector>
      * Class: \MyLaravelCore\Components\Form\TagCollector
      */
-    class TagCollector extends \MyLaravelCore\Components\Form\TagCollector {}
+    class TagCollector extends \MyLaravelCore\Components\Form\TagCollector {
+        public function __construct(
+            string $name,
+            ?string $label = null,
+            public array $tags = [],
+            public string $keyLabel = 'کلید',
+            public string $valueLabel = 'مقدار',
+            public array $suggestions = [],
+            public bool $allowCustom = true,
+            bool $required = false,
+            bool $disabled = false,
+            ?string $hint = null,
+            ?string $id = null,
+            ?string $class = null,
+            ?string $error = null
+        ) {}
+    }
     /**
      * Component: <x-tag-input>
      * Class: \MyLaravelCore\Components\Form\TagInput
      */
-    class TagInput extends \MyLaravelCore\Components\Form\TagInput {}
+    class TagInput extends \MyLaravelCore\Components\Form\TagInput {
+        public function __construct(
+            string $name,
+            ?string $label = null,
+            mixed $value = [],
+            public array $suggestions = [],
+            public ?int $maxTags = null,
+            public bool $allowCustom = true,
+            public string $separator = ',',
+            bool $required = false,
+            bool $disabled = false,
+            ?string $hint = null,
+            ?string $id = null,
+            ?string $class = null,
+            ?string $error = null
+        ) {}
+    }
     /**
      * Component: <x-nested-selects>
      * Class: \MyLaravelCore\Components\Form\NestedSelects
      */
-    class NestedSelects extends \MyLaravelCore\Components\Form\NestedSelects {}
+    class NestedSelects extends \MyLaravelCore\Components\Form\NestedSelects {
+        public function __construct(
+            string $name,
+            ?string $label = null,
+            mixed $value = null,
+            public ?string $source = null,
+            public ?string $routeName = null,
+            public string $labelColumn = 'title',
+            public string $parentColumn = 'parent_id',
+            public string $placeholder = 'انتخاب کنید',
+            bool $required = false,
+            bool $disabled = false,
+            ?string $hint = null,
+            ?string $id = null,
+            ?string $class = null,
+            ?string $error = null
+        ) {}
+    }
     /**
      * Component: <x-default-layout>
      * Class: \MyLaravelCore\Components\Layout\DefaultLayout
      */
-    class DefaultLayout extends \MyLaravelCore\Components\Layout\DefaultLayout {}
+    class DefaultLayout extends \MyLaravelCore\Components\Layout\DefaultLayout {
+        public function __construct(
+            public ?string $title = null,
+            public string $dir = 'rtl',
+            public bool $navbar = true,
+            public bool $sidebar = false,
+            public string|bool $container = 'container',
+            public bool $footer = true,
+            public bool $alerts = true,
+            public string $theme = 'light',
+            public ?string $brand = null,
+            public ?string $brandUrl = null,
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
     /**
      * Component: <x-layout>
      * Class: \MyLaravelCore\Components\Layout\DefaultLayout
      */
-    class Layout extends \MyLaravelCore\Components\Layout\DefaultLayout {}
+    class Layout extends \MyLaravelCore\Components\Layout\DefaultLayout {
+        public function __construct(
+            public ?string $title = null,
+            public string $dir = 'rtl',
+            public bool $navbar = true,
+            public bool $sidebar = false,
+            public string|bool $container = 'container',
+            public bool $footer = true,
+            public bool $alerts = true,
+            public string $theme = 'light',
+            public ?string $brand = null,
+            public ?string $brandUrl = null,
+            ?string $id = null,
+            ?string $class = null
+        ) {}
+    }
 }
 
 namespace Illuminate\View {

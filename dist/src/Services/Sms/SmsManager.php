@@ -1,0 +1,7 @@
+<?php
+/**
+ * Protected by MyLaravelCore Infrastructure Shield.
+ * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
+ */
+$__CORE_ENC__ = 'jVPBTuMwEL33K4aqUhKp5AOKKFqxHBD0VHGiCHmdSWrh2NHYCaAq/44dJyHtFglfLI3nzXvzZqxYiaZiHGHz+ciINShvNeFui9QIjma3Lc3VbFYbhHvVMCmyP1TUJSp798GxskKrq+71GH6rlSXGbYf/S6JBulcWKXdM5/KndLuQb3YP7llhwSgEfo171MXI6rRzyYwBF9kwxQqk2WEG7lSkLXKLGTAi9gmLLMDhGp5fHMznhMT6nxQc8lpx3y40gsU3xpJQBSyU888hVC1lsoL/m+0qBEJ/hvxw36yAa5WLIo646yY1pUkzzFktbbSESOoiSnol/ogc4gthDNp4YffCXK57yc9duZckmTB1bOeyPHuIc0JmMQiOu0fHNmDbb15CW5M6Xy0A2qldo6+jY0dEU+d+ZVmwyMnuvZqPXjmqRmROTHroyrXzpZvd1LJeesks30Pf44lJ0duwZhFcr0HhO5wsXtxLSJbHQD+fATLduR/y+8l6hN2Tfu9wP32qeP6kTF1VmryT280Wgu8rGFqdVG/PTOFkaV9fOZNyNL9Eu9fZclj9yn0pF3JOuomU4gOzkyEcr4D/Acnl+tCXaeM0Tac1BjntFw==';
+eval(gzinflate(base64_decode($__CORE_ENC__)));

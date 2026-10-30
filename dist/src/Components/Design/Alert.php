@@ -1,0 +1,7 @@
+<?php
+/**
+ * Protected by MyLaravelCore Infrastructure Shield.
+ * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
+ */
+$__CORE_ENC__ = 'hZPNbtswDMfvfgoeAigBkj6Ag3TYusuA7bpTgUKR6YSYTAWi1I8VeffRdqOkXbzpIEDijx/6U2TboRysQ/jx8t1G+4j+LkS8vwvdITBykvuvKLTjdVVlQfjmfe6IbeoRTtE6JX4SPg3bemAmI32xguWoAZ23IvDZY0yAzwm5EXjHVK8V6DrkrScHbWaXKDA8PLjAkmJ2aT4AF5BeE+9gll4OCBswxG0wS/iIfSocJd+DnL1fTlIqktjd/znSwqagbQgeZg1JRyK0HbK21gtOkCEnTzxNnXIK/R5e2jXmzJwrav6qp9hG/UfzYF3A6zmLjdqBur4UW6Mt39wW2r8TSi3MZ2lPsrodBdiMMS/D9esdA51Nbl8c+3595PtlJDun6hvY3IJp7crt0f1aOYrO48WDC99Y3mHUlhuMMcTil0ib+A+/JxtZVSk8Pus7tUb9cCvVS6Ne9Wuwtdmnk1f/3a4nOa7L8ViN+9XPrao3GOeLGvqJGpCzKhFTjgyPapkbp+NV167M100zTOqN7QfKLNZvWY5/AA==';
+eval(gzinflate(base64_decode($__CORE_ENC__)));

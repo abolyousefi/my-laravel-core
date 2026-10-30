@@ -14,7 +14,7 @@ $command = $args[1] ?? '';
 
 if ($command === 'serve' || $command === 'core:docs') {
     $port = 8000;
-    $host = '127.0.0.1';
+    $host = '0.0.0.0';
 
     foreach ($args as $arg) {
         if (str_starts_with($arg, '--port=')) {
@@ -26,7 +26,9 @@ if ($command === 'serve' || $command === 'core:docs') {
 
     $docsPath = realpath(__DIR__ . '/docs');
     $routerScript = $docsPath . DIRECTORY_SEPARATOR . 'server.php';
-    $url = "http://{$host}:{$port}";
+    $localUrl = "http://127.0.0.1:{$port}";
+    $lanIp = gethostbyname(gethostname());
+    $lanUrl = ($lanIp && !str_starts_with($lanIp, '127.')) ? "http://{$lanIp}:{$port}" : null;
 
     // Check if port is already occupied on Windows and free it
     if (PHP_OS_FAMILY === 'Windows') {
@@ -41,12 +43,17 @@ if ($command === 'serve' || $command === 'core:docs') {
 
     echo "\n";
     echo "  \033[33;1m 📚 My Laravel Core Documentation Server \033[0m\n";
-    echo "  \033[32;1m   INFO \033[0m Server running on [{$url}].\n\n";
+    echo "  ────────────────────────────────────────────────────────────\n";
+    echo "  \033[32;1m ➜  Local:   \033[0m \033[36m{$localUrl}\033[0m\n";
+    if ($lanUrl) {
+        echo "  \033[32;1m ➜  Network: \033[0m \033[33m{$lanUrl}\033[0m  \033[90m(Share with your team on Wi-Fi / LAN)\033[0m\n";
+    }
+    echo "  ────────────────────────────────────────────────────────────\n";
     echo "  Press Ctrl+C to stop the server\n\n";
 
     // Auto open browser on Windows
     if (PHP_OS_FAMILY === 'Windows') {
-        pclose(popen("start {$url}", "r"));
+        pclose(popen("start {$localUrl}", "r"));
     }
 
     passthru("php -S {$host}:{$port} -t \"{$docsPath}\" \"{$routerScript}\"");

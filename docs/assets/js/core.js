@@ -1,12 +1,15 @@
 /**
- * Core Laravel UI JavaScript Controller Library
- * Full Component Controllers, Utilities, and Lifecycle Events
+ * Core Laravel UI JavaScript Controller & Utilities Library
+ * Enterprise Persian RTL Components, Ajax Engine, Toast Notifications & Dialogs
+ * 
+ * Version: 2.0.0
  */
 
 (function (window, document) {
     'use strict';
 
-    const core = {
+    const Core = {
+        version: '2.0.0',
         controllers: {},
 
         ready: function (fn) {
@@ -21,7 +24,7 @@
             return new Promise(resolve => setTimeout(resolve, ms));
         },
 
-        debounce: function (fn, ms) {
+        debounce: function (fn, ms = 300) {
             let timer = null;
             return function (...args) {
                 clearTimeout(timer);
@@ -37,445 +40,446 @@
             });
         },
 
-        toPersianDigits: function (str) {
-            if (str === null || str === undefined) return '';
-            const farsi = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-            return String(str).replace(/[0-9]/g, w => farsi[+w]);
-        },
+        /* =========================================================================
+         * FORMATTING & CONVERSION UTILITIES (ابزارهای فرمت و تبدیل فارسی)
+         * ========================================================================= */
+        format: {
+            persianDigits: function (str) {
+                if (str === null || str === undefined) return '';
+                const farsi = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+                return String(str).replace(/[0-9]/g, w => farsi[+w]);
+            },
 
-        toEnglishDigits: function (str) {
-            if (str === null || str === undefined) return '';
-            const farsi = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-            const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-            let res = String(str);
-            for (let i = 0; i < 10; i++) {
-                res = res.replace(new RegExp(farsi[i], 'g'), i);
-                res = res.replace(new RegExp(arabic[i], 'g'), i);
+            englishDigits: function (str) {
+                if (str === null || str === undefined) return '';
+                const farsi = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+                const arabic = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+                let res = String(str);
+                for (let i = 0; i < 10; i++) {
+                    res = res.replace(new RegExp(farsi[i], 'g'), i);
+                    res = res.replace(new RegExp(arabic[i], 'g'), i);
+                }
+                return res;
+            },
+
+            toman: function (amount, showUnit = true, persianDigits = true) {
+                const raw = Core.format.englishDigits(amount).replace(/[^0-9.-]/g, '');
+                if (!raw) return '';
+                const parts = Number(raw).toLocaleString('en-US');
+                const res = persianDigits ? Core.format.persianDigits(parts) : parts;
+                return showUnit ? `${res} تومان` : res;
+            },
+
+            rial: function (amount, showUnit = true, persianDigits = true) {
+                const raw = Core.format.englishDigits(amount).replace(/[^0-9.-]/g, '');
+                if (!raw) return '';
+                const parts = Number(raw).toLocaleString('en-US');
+                const res = persianDigits ? Core.format.persianDigits(parts) : parts;
+                return showUnit ? `${res} ریال` : res;
+            },
+
+            cardNumber: function (card, separator = '-') {
+                const clean = Core.format.englishDigits(card).replace(/[^0-9]/g, '');
+                if (clean.length !== 16) return card;
+                return clean.match(/.{1,4}/g).join(separator);
+            },
+
+            sheba: function (sheba) {
+                let clean = Core.format.englishDigits(sheba).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                if (!clean.startsWith('IR')) clean = 'IR' + clean;
+                return clean.match(/.{1,4}/g).join('-');
+            },
+
+            /**
+             * Convert number to Persian words (e.g. 1500000 => یک میلیون و پانصد هزار).
+             */
+            numberToWords: function (number) {
+                number = parseInt(Core.format.englishDigits(number), 10);
+                if (isNaN(number) || number === 0) return 'صفر';
+                if (number < 0) return 'منفی ' + Core.format.numberToWords(Math.abs(number));
+
+                const ones = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
+                const teens = ['ده', 'یازده', 'دوازده', 'سیزده', 'چهارده', 'پانزده', 'شانزده', 'هفده', 'هجده', 'نوزده'];
+                const tens = ['', '', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
+                const hundreds = ['', 'صد', 'دویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
+                const scales = ['', 'هزار', 'میلیون', 'میلیارد', 'تریلیون'];
+
+                const numStr = number.toString();
+                const groups = [];
+                for (let i = numStr.length; i > 0; i -= 3) {
+                    groups.push(parseInt(numStr.substring(Math.max(0, i - 3), i), 10));
+                }
+
+                const result = [];
+                for (let idx = 0; idx < groups.length; idx++) {
+                    const group = groups[idx];
+                    if (group === 0) continue;
+
+                    const h = Math.floor(group / 100);
+                    const t = Math.floor((group % 100) / 10);
+                    const o = group % 10;
+
+                    const groupWords = [];
+                    if (h > 0) groupWords.push(hundreds[h]);
+
+                    if (t === 1) {
+                        groupWords.push(teens[o]);
+                    } else {
+                        if (t > 1) groupWords.push(tens[t]);
+                        if (o > 0) groupWords.push(ones[o]);
+                    }
+
+                    const scaleWord = scales[idx];
+                    const scaleSuffix = scaleWord ? ' ' + scaleWord : '';
+                    result.push(groupWords.join(' و ') + scaleSuffix);
+                }
+
+                return result.reverse().join(' و ');
             }
-            return res;
         },
 
-        formatMoney: function (amount, unit = 'تومان', persianDigits = true) {
-            const raw = core.toEnglishDigits(amount).replace(/[^0-9.-]/g, '');
-            if (!raw) return '';
-            const parts = Number(raw).toLocaleString('en-US');
-            const res = persianDigits ? core.toPersianDigits(parts) : parts;
-            return unit ? `${res} ${unit}` : res;
+        /* =========================================================================
+         * TOAST NOTIFICATION ENGINE (سیستم نوتیفیکیشن تست مدرن)
+         * ========================================================================= */
+        notify: {
+            container: null,
+
+            getContainer: function () {
+                if (!this.container) {
+                    this.container = document.getElementById('core-toast-container');
+                    if (!this.container) {
+                        this.container = document.createElement('div');
+                        this.container.id = 'core-toast-container';
+                        this.container.className = 'toast-container position-fixed bottom-0 start-0 p-3';
+                        this.container.style.zIndex = '99999';
+                        document.body.appendChild(this.container);
+                    }
+                }
+                return this.container;
+            },
+
+            show: function (message, title = '', type = 'info', duration = 4000) {
+                const container = this.getContainer();
+                const toast = document.createElement('div');
+                toast.className = `toast align-items-center text-bg-${type} border-0 show shadow-lg mb-2`;
+                toast.setAttribute('role', 'alert');
+                toast.setAttribute('aria-live', 'assertive');
+                toast.setAttribute('aria-atomic', 'true');
+
+                const icons = {
+                    success: 'fa-check-circle',
+                    danger: 'fa-circle-xmark',
+                    warning: 'fa-triangle-exclamation',
+                    info: 'fa-circle-info'
+                };
+                const icon = icons[type] || 'fa-bell';
+
+                toast.innerHTML = `
+                    <div class="d-flex">
+                        <div class="toast-body d-flex align-items-center gap-2">
+                            <i class="fa ${icon} fs-5"></i>
+                            <div>
+                                ${title ? `<div class="fw-bold">${title}</div>` : ''}
+                                <div>${message}</div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="بستن"></button>
+                    </div>
+                `;
+
+                container.appendChild(toast);
+
+                const closeBtn = toast.querySelector('.btn-close');
+                closeBtn?.addEventListener('click', () => toast.remove());
+
+                if (duration > 0) {
+                    setTimeout(() => {
+                        toast.classList.remove('show');
+                        setTimeout(() => toast.remove(), 300);
+                    }, duration);
+                }
+            },
+
+            success: function (message, title = 'موفقیت‌آمیز') {
+                this.show(message, title, 'success');
+            },
+
+            error: function (message, title = 'خطا') {
+                this.show(message, title, 'danger');
+            },
+
+            warning: function (message, title = 'هشدار') {
+                this.show(message, title, 'warning');
+            },
+
+            info: function (message, title = 'اطلاع‌رسانی') {
+                this.show(message, title, 'info');
+            }
         },
 
-        // Modal API
-        modal: {
-            open: function (id) {
-                const cleanId = id.replace(/^#/, '');
-                const el = document.getElementById(cleanId);
-                if (el && window.bootstrap && window.bootstrap.Modal) {
-                    const inst = window.bootstrap.Modal.getOrCreateInstance(el);
-                    inst.show();
+        /* =========================================================================
+         * MODAL & CONFIRM DIALOGS (دیالوگ تأیید و پنجره‌های پاپ‌آپ)
+         * ========================================================================= */
+        dialog: {
+            confirm: function (options) {
+                const title = options.title || 'آیا مطمئن هستید؟';
+                const message = options.message || 'این عملیات قابل بازگشت نخواهد بود.';
+                const confirmText = options.confirmText || 'بله، انجام بده';
+                const cancelText = options.cancelText || 'انصراف';
+                const variant = options.variant || 'danger';
+
+                const modalId = 'core-confirm-modal';
+                let modalEl = document.getElementById(modalId);
+                if (!modalEl) {
+                    modalEl = document.createElement('div');
+                    modalEl.id = modalId;
+                    modalEl.className = 'modal fade';
+                    modalEl.tabIndex = -1;
+                    document.body.appendChild(modalEl);
+                }
+
+                modalEl.innerHTML = `
+                    <div class="modal-dialog modal-dialog-centered modal-sm">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            <div class="modal-body text-center p-4">
+                                <div class="rounded-circle bg-${variant}-subtle text-${variant} d-inline-flex p-3 mb-3">
+                                    <i class="fa fa-triangle-exclamation fs-3"></i>
+                                </div>
+                                <h5 class="fw-bold mb-2">${title}</h5>
+                                <p class="text-muted small mb-4">${message}</p>
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <button type="button" class="btn btn-light border px-3" data-bs-dismiss="modal">${cancelText}</button>
+                                    <button type="button" class="btn btn-${variant} px-3" id="core-confirm-btn">${confirmText}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const bsModal = new window.bootstrap.Modal(modalEl);
+                bsModal.show();
+
+                const confirmBtn = modalEl.querySelector('#core-confirm-btn');
+                confirmBtn.onclick = function () {
+                    bsModal.hide();
+                    if (typeof options.onConfirm === 'function') {
+                        options.onConfirm();
+                    }
+                };
+            }
+        },
+
+        /* =========================================================================
+         * CLIPBOARD HELPER (کپی در کلیپ‌بورد با یک کلیک)
+         * ========================================================================= */
+        clipboard: {
+            copy: function (text, successMessage = 'در کلیپ‌بورد کپی شد!') {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        Core.notify.success(successMessage);
+                    }).catch(() => {
+                        Core.clipboard.fallbackCopy(text, successMessage);
+                    });
+                } else {
+                    Core.clipboard.fallbackCopy(text, successMessage);
                 }
             },
-            close: function (id) {
-                const cleanId = id.replace(/^#/, '');
-                const el = document.getElementById(cleanId);
-                if (el && window.bootstrap && window.bootstrap.Modal) {
-                    const inst = window.bootstrap.Modal.getInstance(el);
-                    if (inst) inst.hide();
+
+            fallbackCopy: function (text, successMessage) {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    Core.notify.success(successMessage);
+                } catch (err) {
+                    Core.notify.error('خطا در کپی متن!');
+                }
+                document.body.removeChild(textArea);
+            }
+        },
+
+        /* =========================================================================
+         * AJAX & HTTP ENGINE (موتور درخواست‌های AJAX با CSRF خودکار)
+         * ========================================================================= */
+        ajax: {
+            getCSRFToken: function () {
+                const meta = document.querySelector('meta[name="csrf-token"]');
+                return meta ? meta.getAttribute('content') : '';
+            },
+
+            request: async function (url, options = {}) {
+                const defaults = {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': Core.ajax.getCSRFToken()
+                    }
+                };
+
+                const merged = Object.assign({}, defaults, options);
+                merged.headers = Object.assign({}, defaults.headers, options.headers || {});
+
+                try {
+                    const response = await fetch(url, merged);
+                    const data = await response.json().catch(() => ({}));
+
+                    if (!response.ok) {
+                        const errMsg = data.message || `خطای سرور (${response.status})`;
+                        Core.notify.error(errMsg);
+                        throw data;
+                    }
+
+                    return data;
+                } catch (err) {
+                    throw err;
                 }
             },
-            on: function (event, id, callback) {
-                const cleanId = id.replace(/^#/, '');
-                const el = document.getElementById(cleanId);
-                if (el) {
-                    el.addEventListener(`${event}.bs.modal`, callback);
+
+            get: function (url, params = {}) {
+                const query = new URLSearchParams(params).toString();
+                const fullUrl = query ? `${url}?${query}` : url;
+                return Core.ajax.request(fullUrl, { method: 'GET' });
+            },
+
+            post: function (url, data = {}) {
+                return Core.ajax.request(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+            }
+        },
+
+        /* =========================================================================
+         * TABLE CONTROLLER (مدیریت جداول، جستجوی زنده، چک‌باکس‌ها و عملیات گروهی)
+         * ========================================================================= */
+        table: {
+            init: function () {
+                // Check all checkboxes
+                document.querySelectorAll('[data-core-check-all]').forEach(masterCheck => {
+                    masterCheck.addEventListener('change', function () {
+                        const table = masterCheck.closest('table');
+                        if (!table) return;
+
+                        const rowChecks = table.querySelectorAll('[data-core-row-check]');
+                        rowChecks.forEach(rc => rc.checked = masterCheck.checked);
+                        Core.table.updateBulkBar(table);
+                    });
+                });
+
+                // Row checkbox change
+                document.addEventListener('change', function (e) {
+                    if (e.target.matches('[data-core-row-check]')) {
+                        const table = e.target.closest('table');
+                        if (table) Core.table.updateBulkBar(table);
+                    }
+                });
+
+                // Live search with debounce
+                document.querySelectorAll('[data-core-table-search]').forEach(input => {
+                    input.addEventListener('input', Core.debounce(function () {
+                        input.closest('form')?.submit();
+                    }, 500));
+                });
+            },
+
+            updateBulkBar: function (table) {
+                const rowChecks = table.querySelectorAll('[data-core-row-check]:checked');
+                const count = rowChecks.length;
+                const wrapper = table.closest('.card') || table.parentElement;
+                const bulkBar = wrapper.querySelector('[data-core-bulk-bar]');
+                const countBadge = wrapper.querySelector('[data-core-selected-count]');
+
+                if (bulkBar) {
+                    if (count > 0) {
+                        bulkBar.classList.remove('d-none');
+                        bulkBar.classList.add('d-flex');
+                        if (countBadge) countBadge.textContent = Core.format.persianDigits(count);
+                    } else {
+                        bulkBar.classList.remove('d-flex');
+                        bulkBar.classList.add('d-none');
+                    }
                 }
+            },
+
+            getSelectedIds: function (tableSelector) {
+                const table = document.querySelector(tableSelector);
+                if (!table) return [];
+                return Array.from(table.querySelectorAll('[data-core-row-check]:checked')).map(c => c.value);
             }
         }
     };
 
-    // -------------------------------------------------------------
-    // Number Input Controller
-    // -------------------------------------------------------------
+    /* =========================================================================
+     * COMPONENT CONTROLLER CLASSES (کنترلرهای مستقل فرم و ویجت‌ها)
+     * ========================================================================= */
     class NumberInputController {
-        constructor(element) {
-            this.input = element;
-            this.container = element.closest('.core-number-group');
-            this.min = element.dataset.min ? Number(element.dataset.min) : null;
-            this.max = element.dataset.max ? Number(element.dataset.max) : null;
-            this.step = Number(element.dataset.step) || 1;
-            this.thousandSeparator = element.dataset.thousandSeparator === 'true';
-            this.persianDigits = element.dataset.persianDigits === 'true';
+        constructor(el) {
+            this.input = el;
+            this.decimals = parseInt(el.dataset.decimals || '0', 10);
+            this.separator = el.dataset.separator || ',';
+            this.persianDigits = el.dataset.persianDigits === 'true';
 
             this.init();
         }
 
         init() {
-            if (this.container) {
-                const btnDec = this.container.querySelector('.btn-decrement');
-                const btnInc = this.container.querySelector('.btn-increment');
-
-                if (btnDec) {
-                    btnDec.addEventListener('click', () => this.stepBy(-this.step));
-                }
-                if (btnInc) {
-                    btnInc.addEventListener('click', () => this.stepBy(this.step));
-                }
-            }
-
             this.input.addEventListener('input', () => this.formatValue());
-            this.formatValue();
-        }
-
-        stepBy(amount) {
-            let current = Number(core.toEnglishDigits(this.input.value).replace(/[^0-9.-]/g, '')) || 0;
-            current += amount;
-
-            if (this.min !== null && current < this.min) current = this.min;
-            if (this.max !== null && current > this.max) current = this.max;
-
-            this.input.value = current;
-            this.formatValue();
-
-            this.input.dispatchEvent(new CustomEvent('number:change', {
-                detail: { name: this.input.name, value: current },
-                bubbles: true
-            }));
+            this.input.addEventListener('blur', () => this.formatValue());
         }
 
         formatValue() {
-            let raw = core.toEnglishDigits(this.input.value).replace(/[^0-9.-]/g, '');
-            if (!raw) return;
+            let val = Core.format.englishDigits(this.input.value).replace(/[^0-9.-]/g, '');
+            if (!val) return;
 
-            if (this.thousandSeparator && !isNaN(raw)) {
-                let formatted = Number(raw).toLocaleString('en-US');
-                if (this.persianDigits) {
-                    formatted = core.toPersianDigits(formatted);
-                }
-                this.input.value = formatted;
+            let parts = val.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, this.separator);
+
+            if (this.decimals > 0 && parts[1]) {
+                parts[1] = parts[1].substring(0, this.decimals);
             }
+
+            let formatted = parts.join('.');
+            if (this.persianDigits) {
+                formatted = Core.format.persianDigits(formatted);
+            }
+
+            this.input.value = formatted;
         }
     }
 
-    // -------------------------------------------------------------
-    // Textarea Controller (Auto Resize & Counter)
-    // -------------------------------------------------------------
     class TextareaController {
-        constructor(element) {
-            this.textarea = element;
-            this.counter = document.getElementById(`${element.id}_counter`);
-            this.maxlength = element.getAttribute('maxlength') ? Number(element.getAttribute('maxlength')) : null;
-            this.autoResize = element.dataset.autoResize === 'true';
+        constructor(el) {
+            this.el = el;
+            this.max = parseInt(el.getAttribute('maxlength') || '0', 10);
+            this.counter = document.querySelector(el.dataset.counterTarget);
+            this.autoResize = el.dataset.autoResize === 'true';
 
             this.init();
         }
 
         init() {
-            this.textarea.addEventListener('input', () => {
+            this.el.addEventListener('input', () => {
                 this.updateCounter();
                 if (this.autoResize) this.resize();
             });
-
             this.updateCounter();
-            if (this.autoResize) this.resize();
         }
 
         updateCounter() {
-            if (this.counter && this.maxlength) {
-                const countEl = this.counter.querySelector('.current-count');
-                const len = this.textarea.value.length;
-                if (countEl) countEl.textContent = core.toPersianDigits(len);
-            }
+            if (!this.counter) return;
+            const current = this.el.value.length;
+            this.counter.textContent = `${Core.format.persianDigits(current)} / ${Core.format.persianDigits(this.max)}`;
         }
 
         resize() {
-            this.textarea.style.height = 'auto';
-            this.textarea.style.height = (this.textarea.scrollHeight + 4) + 'px';
-        }
-    }
-
-    // -------------------------------------------------------------
-    // Select Input Controller (Dependent Select & Events)
-    // -------------------------------------------------------------
-    class SelectInputController {
-        constructor(element) {
-            this.select = element;
-            this.parentField = element.dataset.parentField;
-            this.parentRoute = element.dataset.parentRoute;
-            this.ajaxRoute = element.dataset.ajaxRoute;
-
-            this.init();
-        }
-
-        init() {
-            this.select.addEventListener('change', () => {
-                this.select.dispatchEvent(new CustomEvent('select:change', {
-                    detail: {
-                        name: this.select.name,
-                        value: this.select.value,
-                        text: this.select.options[this.select.selectedIndex]?.text
-                    },
-                    bubbles: true
-                }));
-            });
-
-            if (this.parentField && this.parentRoute) {
-                const parentEl = document.querySelector(`[name="${this.parentField}"]`);
-                if (parentEl) {
-                    parentEl.addEventListener('change', () => this.loadChildren(parentEl.value));
-                }
-            }
-        }
-
-        async loadChildren(parentId) {
-            if (!parentId) {
-                this.select.innerHTML = '<option value="">انتخاب کنید</option>';
-                return;
-            }
-
-            try {
-                this.select.disabled = true;
-                const url = new URL(this.parentRoute, window.location.origin);
-                url.searchParams.append('parent_id', parentId);
-
-                const response = await fetch(url);
-                const items = await response.json();
-
-                this.select.innerHTML = '<option value="">انتخاب کنید</option>';
-                items.forEach(item => {
-                    const opt = document.createElement('option');
-                    opt.value = item.id;
-                    opt.textContent = item.title || item.name;
-                    this.select.appendChild(opt);
-                });
-            } catch (err) {
-                console.error('[SelectController] Failed to load dependent options', err);
-            } finally {
-                this.select.disabled = false;
-            }
-        }
-    }
-
-    // -------------------------------------------------------------
-    // Editor Controller
-    // -------------------------------------------------------------
-    class EditorController {
-        constructor(wrapper) {
-            this.wrapper = wrapper;
-            this.toolbar = wrapper.querySelector('.core-editor-toolbar');
-            this.content = wrapper.querySelector('.core-editor-content');
-            this.hidden = wrapper.querySelector('textarea');
-
-            this.init();
-        }
-
-        init() {
-            if (!this.content || !this.toolbar) return;
-
-            this.toolbar.querySelectorAll('[data-command]').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const cmd = btn.dataset.command;
-
-                    if (cmd === 'createLink') {
-                        const url = prompt('آدرس اینترنتی لینک را وارد نمایید:');
-                        if (url) document.execCommand(cmd, false, url);
-                    } else if (cmd === 'insertImage') {
-                        const url = prompt('آدرس اینترنتی تصویر را وارد نمایید:');
-                        if (url) document.execCommand('insertImage', false, url);
-                    } else {
-                        document.execCommand(cmd, false, null);
-                    }
-                    this.sync();
-                });
-            });
-
-            this.content.addEventListener('input', () => this.sync());
-        }
-
-        sync() {
-            if (this.hidden) {
-                this.hidden.value = this.content.innerHTML;
-            }
-        }
-    }
-
-    // -------------------------------------------------------------
-    // Item Collector Controller
-    // -------------------------------------------------------------
-    class ItemCollectorController {
-        constructor(wrapper) {
-            this.wrapper = wrapper;
-            this.container = wrapper.querySelector('.core-item-collector-container');
-            this.addBtn = wrapper.querySelector('.btn-add-row');
-            this.template = wrapper.querySelector('template');
-
-            this.init();
-        }
-
-        init() {
-            if (this.addBtn && this.template && this.container) {
-                this.addBtn.addEventListener('click', () => this.addRow());
-            }
-
-            this.wrapper.addEventListener('click', (e) => {
-                const removeBtn = e.target.closest('.btn-remove-row');
-                if (removeBtn) {
-                    const row = removeBtn.closest('.collector-row');
-                    if (row) row.remove();
-                }
-            });
-        }
-
-        addRow() {
-            const index = this.container.children.length;
-            const html = this.template.innerHTML.replace(/__INDEX__/g, index);
-            const temp = document.createElement('div');
-            temp.innerHTML = html;
-            this.container.appendChild(temp.firstElementChild);
-        }
-    }
-
-    // -------------------------------------------------------------
-    // Tag Collector Controller (Key/Value Metadata)
-    // -------------------------------------------------------------
-    class TagCollectorController {
-        constructor(wrapper) {
-            this.wrapper = wrapper;
-            this.rowsContainer = wrapper.querySelector('.tag-collector-rows');
-            this.addBtn = wrapper.querySelector('.btn-add-tag');
-            this.template = wrapper.querySelector('template');
-
-            this.init();
-        }
-
-        init() {
-            if (this.addBtn && this.template && this.rowsContainer) {
-                this.addBtn.addEventListener('click', () => {
-                    const index = this.rowsContainer.children.length;
-                    const html = this.template.innerHTML.replace(/__INDEX__/g, index);
-                    const temp = document.createElement('div');
-                    temp.innerHTML = html;
-                    this.rowsContainer.appendChild(temp.firstElementChild);
-                });
-            }
-
-            this.wrapper.addEventListener('click', (e) => {
-                const btn = e.target.closest('.btn-remove-tag');
-                if (btn) {
-                    btn.closest('.tag-row')?.remove();
-                }
-            });
-        }
-    }
-
-    // -------------------------------------------------------------
-    // Tag Input Controller
-    // -------------------------------------------------------------
-    class TagInputController {
-        constructor(container) {
-            this.container = container;
-            this.textInput = container.querySelector('.tag-text-input');
-            this.badgeWrapper = container.querySelector('.tags-badge-wrapper');
-            this.hiddenInput = container.querySelector('input[type="hidden"]');
-            this.separator = container.dataset.separator || ',';
-            this.maxTags = container.dataset.maxTags ? Number(container.dataset.maxTags) : null;
-
-            this.init();
-        }
-
-        init() {
-            if (!this.textInput || !this.hiddenInput) return;
-
-            this.textInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ',') {
-                    e.preventDefault();
-                    this.addTag(this.textInput.value.trim());
-                    this.textInput.value = '';
-                }
-            });
-
-            this.badgeWrapper.addEventListener('click', (e) => {
-                if (e.target.classList.contains('btn-remove-single-tag')) {
-                    e.target.closest('.badge')?.remove();
-                    this.sync();
-                }
-            });
-        }
-
-        addTag(text) {
-            if (!text) return;
-            const currentCount = this.badgeWrapper.querySelectorAll('.badge').length;
-            if (this.maxTags && currentCount >= this.maxTags) return;
-
-            const badge = document.createElement('span');
-            badge.className = 'badge bg-primary d-inline-flex align-items-center gap-1 py-1 px-2';
-            badge.innerHTML = `<span>${text}</span><i class="fa fa-times cursor-pointer btn-remove-single-tag" style="font-size: 0.75rem;"></i>`;
-            this.badgeWrapper.appendChild(badge);
-            this.sync();
-        }
-
-        sync() {
-            const tags = Array.from(this.badgeWrapper.querySelectorAll('.badge span')).map(s => s.textContent);
-            this.hiddenInput.value = tags.join(this.separator);
-        }
-    }
-
-    // -------------------------------------------------------------
-    // File Picker Controller
-    // -------------------------------------------------------------
-    class FilePickerController {
-        constructor(wrapper) {
-            this.wrapper = wrapper;
-            this.input = wrapper.querySelector('.core-file-input');
-            this.previewContainer = wrapper.querySelector('.file-picker-preview-container');
-            this.maxSize = Number(wrapper.dataset.maxSize) || 10240;
-
-            this.init();
-        }
-
-        init() {
-            if (!this.input) return;
-
-            ['dragenter', 'dragover'].forEach(name => {
-                this.wrapper.addEventListener(name, (e) => {
-                    e.preventDefault();
-                    this.wrapper.classList.add('dragover');
-                });
-            });
-
-            ['dragleave', 'drop'].forEach(name => {
-                this.wrapper.addEventListener(name, (e) => {
-                    e.preventDefault();
-                    this.wrapper.classList.remove('dragover');
-                });
-            });
-
-            this.input.addEventListener('change', () => this.handleFiles(this.input.files));
-        }
-
-        handleFiles(files) {
-            if (!files || !this.previewContainer) return;
-
-            this.previewContainer.innerHTML = '';
-            Array.from(files).forEach(file => {
-                if (file.size > this.maxSize * 1024) {
-                    alert(`حجم فایل "${file.name}" بیشتر از حد مجاز است!`);
-                    return;
-                }
-
-                const item = document.createElement('div');
-                item.className = 'file-preview-item position-relative border rounded p-2 bg-white shadow-sm d-flex align-items-center gap-2';
-
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        item.innerHTML = `<img src="${e.target.result}" style="width: 32px; height: 32px; object-fit: cover;" class="rounded"><span class="small text-truncate" style="max-width: 150px;">${file.name}</span>`;
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    item.innerHTML = `<i class="fa fa-file-alt text-primary"></i><span class="small text-truncate" style="max-width: 150px;">${file.name}</span>`;
-                }
-
-                this.previewContainer.appendChild(item);
-            });
+            this.el.style.height = 'auto';
+            this.el.style.height = this.el.scrollHeight + 'px';
         }
     }
 
@@ -484,62 +488,58 @@
     // -------------------------------------------------------------
     function initAll() {
         // Number Inputs
-        document.querySelectorAll('[data-component="number-input"]').forEach(el => new NumberInputController(el));
+        document.querySelectorAll('[data-component="number-input"], [data-thousand-separator]').forEach(el => new NumberInputController(el));
 
         // Textareas
-        document.querySelectorAll('textarea[data-component="textarea"]').forEach(el => new TextareaController(el));
+        document.querySelectorAll('textarea[data-component="textarea"], textarea[data-counter-target]').forEach(el => new TextareaController(el));
 
-        // Select Inputs
-        document.querySelectorAll('select[data-component="select-input"]').forEach(el => new SelectInputController(el));
+        // Confirm Dialogs via data-core-confirm
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('[data-core-confirm]');
+            if (!btn) return;
 
-        // Editors
-        document.querySelectorAll('[data-component="editor"]').forEach(el => new EditorController(el));
+            e.preventDefault();
+            const message = btn.dataset.coreConfirm || 'آیا مطمئن هستید؟';
+            const form = btn.closest('form');
+            const href = btn.getAttribute('href');
 
-        // Item Collectors
-        document.querySelectorAll('[data-component="item-collector"]').forEach(el => new ItemCollectorController(el));
-
-        // Tag Collectors
-        document.querySelectorAll('[data-component="tag-collector"]').forEach(el => new TagCollectorController(el));
-
-        // Tag Inputs
-        document.querySelectorAll('[data-component="tag-input"]').forEach(el => new TagInputController(el));
-
-        // File Pickers
-        document.querySelectorAll('[data-component="file-picker"]').forEach(el => new FilePickerController(el));
-
-        // Checkbox Group Select All
-        document.querySelectorAll('.btn-select-all').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const target = document.getElementById(btn.dataset.target);
-                if (target) {
-                    const checkboxes = target.querySelectorAll('input[type="checkbox"]');
-                    const allChecked = Array.from(checkboxes).every(c => c.checked);
-                    checkboxes.forEach(c => c.checked = !allChecked);
+            Core.dialog.confirm({
+                title: 'تأیید عملیات',
+                message: message,
+                onConfirm: function () {
+                    if (form && btn.type === 'submit') {
+                        form.submit();
+                    } else if (href && href !== '#') {
+                        window.location.href = href;
+                    }
                 }
             });
         });
 
-        // Confirm buttons
-        document.querySelectorAll('[data-confirm]').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const message = btn.dataset.confirm || 'آیا از انجام این عملیات اطمینان دارید؟';
-                if (!confirm(message)) {
-                    e.preventDefault();
-                }
-            });
+        // Copy buttons via data-core-copy
+        document.addEventListener('click', function (e) {
+            const copyBtn = e.target.closest('[data-core-copy]');
+            if (!copyBtn) return;
+
+            const text = copyBtn.dataset.coreCopy;
+            Core.clipboard.copy(text);
         });
 
-        // Initialize Bootstrap tooltips if available
+        // Table controllers
+        Core.table.init();
+
+        // Initialize Bootstrap tooltips
         if (window.bootstrap && window.bootstrap.Tooltip) {
             document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new window.bootstrap.Tooltip(el));
         }
     }
 
-    core.initAll = initAll;
-    core.ready(initAll);
+    Core.initAll = initAll;
+    Core.ready(initAll);
 
-    // Export core and doravel aliases
-    window.core = core;
-    window.doravel = core;
+    // Export Core globally (and aliases)
+    window.Core = Core;
+    window.core = Core;
+    window.doravel = Core;
 
 })(window, document);

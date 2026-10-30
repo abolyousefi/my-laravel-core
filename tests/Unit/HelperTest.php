@@ -86,4 +86,57 @@ class HelperTest extends TestCase
         $this->assertEquals('پست-جدید-شماره-12', slugify_fa('پست جدید شماره 12!'));
         $this->assertEquals('hello-world', slugify_fa('Hello World'));
     }
+
+    public function test_extended_financial_helpers(): void
+    {
+        $this->assertEquals('یک میلیون و دویست و پنجاه هزار تومان', toman_words(1250000));
+        $this->assertEquals('ده میلیون ریال', rial_words(10000000));
+
+        $bankInfo = card_bank_info('6037991234567890');
+        $this->assertNotNull($bankInfo);
+        $this->assertEquals('بانک ملی ایران', $bankInfo['name']);
+
+        $mellat = card_bank_info('6104331234567890');
+        $this->assertNotNull($mellat);
+        $this->assertEquals('بانک ملت', $mellat['name']);
+
+        $this->assertEquals('6037-****-****-7890', mask_card_number('6037991234567890'));
+        $this->assertEquals('6037-9912-3456-7890', card_number_format('6037991234567890'));
+    }
+
+    public function test_sheba_validation_and_format(): void
+    {
+        // Valid Iranian Sheba
+        $validSheba = 'IR060170000000100324200001';
+        $this->assertTrue(is_valid_sheba($validSheba));
+        $this->assertFalse(is_valid_sheba('IR060170000000100324200002')); // Wrong check digit
+
+        $this->assertEquals('IR06-0170-0000-0010-0324-2000-01', sheba_format($validSheba));
+    }
+
+    public function test_postal_code_and_mobile_helpers(): void
+    {
+        $this->assertTrue(is_valid_postal_code('1451234567'));
+        $this->assertFalse(is_valid_postal_code('0123456789')); // Starts with 0
+        $this->assertFalse(is_valid_postal_code('2123456789')); // Starts with 2
+
+        $this->assertEquals('همراه اول', mobile_operator('09121234567'));
+        $this->assertEquals('ایرانسل', mobile_operator('09351234567'));
+        $this->assertEquals('رایتل', mobile_operator('09211234567'));
+
+        $this->assertEquals('0912 123 4567', format_mobile('09121234567', 'pretty'));
+        $this->assertEquals('0912***4567', mask_mobile('09121234567'));
+    }
+
+    public function test_time_and_file_helpers(): void
+    {
+        $this->assertEquals('چند لحظه پیش', jdate_ago(time() - 10));
+        $this->assertEquals('۲ مگابایت', human_filesize(2097152));
+
+        $pdf = file_icon('document.pdf');
+        $this->assertEquals('fa-file-pdf', $pdf['icon']);
+
+        $this->assertEquals(2, reading_time(str_repeat('کلمه ', 400)));
+        $this->assertEquals('متن تستی فارسی', clean_persian_text('  متن   تستی  فارسی  '));
+    }
 }

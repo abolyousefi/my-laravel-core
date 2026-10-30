@@ -428,9 +428,62 @@ window.DOCS_SECTIONS = [
         icon: "fa-screwdriver-wrench",
         category: "توابع و سرویس‌ها",
         content: `
-            <h1>🛠️ لیست متدها و توابع کمکی گلوبال (Global Helpers)</h1>
-            <p>این توابع در تمام بخش‌های برنامه (کنترلرها، مدل‌ها و فایل‌های Blade) بدون نیاز به تعریف یا <code>use</code> در دسترس هستند.</p>
+            <h1>🛠️ لیست کامل توابع کمکی گلوبال (Global Helpers)</h1>
+            <p class="lead text-muted">بیش از ۳۵ تابع کاربردی بومی برای محاسبات مالی، تاریخ شمسی، اعتبارسنجی‌های ایرانی، فرمت‌بندی و دسترسی سریع به سرویس‌ها.</p>
 
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="card p-3 border rounded-3 bg-light text-center">
+                        <div class="fs-4 fw-bold text-primary">۳۵+</div>
+                        <small class="text-muted">توابع کمکی آماده</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card p-3 border rounded-3 bg-light text-center">
+                        <div class="fs-4 fw-bold text-success">۱۰۰٪</div>
+                        <small class="text-muted">سازگار با تقویم و زبان فارسی</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card p-3 border rounded-3 bg-light text-center">
+                        <div class="fs-4 fw-bold text-info">بانکی</div>
+                        <small class="text-muted">کارت، شبا و کد ملی</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card p-3 border rounded-3 bg-light text-center">
+                        <div class="fs-4 fw-bold text-warning">حروف</div>
+                        <small class="text-muted">تبدیل عدد به حروف فاکتور</small>
+                    </div>
+                </div>
+            </div>
+
+            <h2>۱. توابع مالی، بانکی و پولی (Financial & Banking)</h2>
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>تابع</th>
+                        <th>ورودی نمونه</th>
+                        <th>خروجی نمونه</th>
+                        <th>توضیح کاربرد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>toman($val)</code></td><td>1250000</td><td><span class="badge bg-light text-dark border">۱,۲۵۰,۰۰۰ تومان</span></td><td>جداکننده سه‌رقمی با ارقام فارسی و واحد تومان</td></tr>
+                    <tr><td><code>rial($val)</code></td><td>1250000</td><td><span class="badge bg-light text-dark border">۱,۲۵۰,۰۰۰ ریال</span></td><td>جداکننده سه‌رقمی با ارقام فارسی و واحد ریال</td></tr>
+                    <tr><td><code>toman_words($amount)</code></td><td>1250000</td><td><strong>یک میلیون و دویست و پنجاه هزار تومان</strong></td><td>تبدیل مبلغ به حروف فارسی مناسب فاکتور و رسید</td></tr>
+                    <tr><td><code>rial_words($amount)</code></td><td>12500000</td><td><strong>دوازده میلیون و پانصد هزار ریال</strong></td><td>تبدیل مبلغ ریال به حروف فارسی</td></tr>
+                    <tr><td><code>number_to_words_fa($num)</code></td><td>450</td><td>چهارصد و پنجاه</td><td>تبدیل هر نوع عدد به کلمات فارسی (تا تریلیون)</td></tr>
+                    <tr><td><code>is_valid_card_number($card)</code></td><td>'60379918...'</td><td><code>true / false</code></td><td>اعتبارسنجی ۱۶ رقم کارت بانکی شتاب با الگوریتم Luhn</td></tr>
+                    <tr><td><code>card_number_format($card)</code></td><td>'6037991812345678'</td><td><code>6037-9918-1234-5678</code></td><td>فرمت‌بندی چهار رقمی شماره کارت بانکی</td></tr>
+                    <tr><td><code>mask_card_number($card)</code></td><td>'6037991812345678'</td><td><code>6037-****-****-5678</code></td><td>ماسک کردن ارقام میانی کارت بانکی جهت امنیت</td></tr>
+                    <tr><td><code>card_bank_info($card)</code></td><td>'603799...'</td><td><code>['name' => 'بانک ملی', ...]</code></td><td>تشخیص خودکار نام و کد بانک از روی ۶ رقم اول کارت</td></tr>
+                    <tr><td><code>is_valid_sheba($sheba)</code></td><td>'IR12017000...'</td><td><code>true / false</code></td><td>اعتبارسنجی استاندارد شماره شبا با ISO 7064 Mod 97-10</td></tr>
+                    <tr><td><code>sheba_format($sheba)</code></td><td>'IR120170...'</td><td><code>IR12-0170-0000-...</code></td><td>فرمت‌بندی شماره شبا به بلوک‌های ۴ رقمی</td></tr>
+                </tbody>
+            </table>
+
+            <h2>۲. توابع احراز هویت و اطلاعات تماس (Identification & Contact)</h2>
             <table class="docs-table">
                 <thead>
                     <tr>
@@ -441,24 +494,373 @@ window.DOCS_SECTIONS = [
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td><code>persian_digits($val)</code></td><td>'123'</td><td>'۱۲۳'</td><td>تبدیل ارقام انگلیسی/عربی به فارسی</td></tr>
-                    <tr><td><code>english_digits($val)</code></td><td>'۱۲۳'</td><td>'123'</td><td>استانداردسازی ارقام جهت ثبت در DB</td></tr>
-                    <tr><td><code>is_valid_national_code($code)</code></td><td>'0010350810'</td><td>true</td><td>اعتبارسنجی الگوریتم ۱۰ رقمی کد ملی</td></tr>
-                    <tr><td><code>is_valid_card_number($card)</code></td><td>'6037...'</td><td>true</td><td>اعتبارسنجی شماره ۱۶ رقمی کارت بانکی (Luhn)</td></tr>
-                    <tr><td><code>is_valid_mobile($mobile)</code></td><td>'0912...'</td><td>true</td><td>بررسی صحت شماره موبایل ایران</td></tr>
-                    <tr><td><code>clean_mobile($mobile)</code></td><td>'+98912...'</td><td>'0912...'</td><td>فرمت‌بندی موبایل به ساختار 09...</td></tr>
-                    <tr><td><code>toman($amount)</code></td><td>150000</td><td>'۱۵۰,۰۰۰ تومان'</td><td>فرمت سه رقم و اضافه کردن تومان</td></tr>
-                    <tr><td><code>rial($amount)</code></td><td>150000</td><td>'۱۵۰,۰۰۰ ریال'</td><td>فرمت سه رقم و اضافه کردن ریال</td></tr>
-                    <tr><td><code>rial_to_toman($r)</code></td><td>10000</td><td>1000</td><td>تبدیل ریال به تومان</td></tr>
-                    <tr><td><code>toman_to_rial($t)</code></td><td>1000</td><td>10000</td><td>تبدیل تومان به ریال</td></tr>
-                    <tr><td><code>number_to_words_fa($n)</code></td><td>1250000</td><td>'یک میلیون و دویست و پنجاه هزار'</td><td>تبدیل عدد به حروف فارسی فاکتور</td></tr>
-                    <tr><td><code>jdate($format, $time)</code></td><td>'Y/m/d'</td><td>'۱۴۰۵/۰۱/۱۵'</td><td>فرمت زمان به تاریخ شمسی</td></tr>
-                    <tr><td><code>to_gregorian($jdate)</code></td><td>'1405/01/01'</td><td>'2026-03-21'</td><td>تبدیل تاریخ شمسی به میلادی</td></tr>
-                    <tr><td><code>slugify_fa($str)</code></td><td>'راهنمای لاراول'</td><td>'راهنمای-لاراول'</td><td>تولید اسلاگ سئو فارسی یکتا</td></tr>
-                    <tr><td><code>core()</code></td><td>-</td><td>CoreManager</td><td>دسترسی به تمامی سرویس‌های زیرساخت</td></tr>
-                    <tr><td><code>api_response()</code></td><td>-</td><td>ApiResponse</td><td>ارسال پاسخ‌های یکپارچه JSON</td></tr>
+                    <tr><td><code>is_valid_national_code($code)</code></td><td>'0010350810'</td><td><code>true</code></td><td>اعتبارسنجی رسمی کد ملی ایران با الگوریتم ثبت احوال</td></tr>
+                    <tr><td><code>is_valid_postal_code($postal)</code></td><td>'1451234567'</td><td><code>true</code></td><td>اعتبارسنجی کد پستی ۱۰ رقمی بدون ارقام نامعتبر</td></tr>
+                    <tr><td><code>is_valid_mobile($mobile)</code></td><td>'09121234567'</td><td><code>true</code></td><td>بررسی صحت شماره موبایل ایران</td></tr>
+                    <tr><td><code>mobile_operator($mobile)</code></td><td>'0912...'</td><td><strong>همراه اول</strong></td><td>تشخیص اپراتور تلفن همراه (همراه اول، ایرانسل، رایتل)</td></tr>
+                    <tr><td><code>format_mobile($mobile, 'pretty')</code></td><td>'09121234567'</td><td><code>0912 123 4567</code></td><td>فرمت‌بندی زیبا یا استاندارد شماره تلفن همراه</td></tr>
+                    <tr><td><code>mask_mobile($mobile)</code></td><td>'09121234567'</td><td><code>0912***4567</code></td><td>ماسک کردن شماره موبایل جهت حفظ حریم خصوصی</td></tr>
                 </tbody>
             </table>
+
+            <h2>۳. توابع زمان و تاریخ شمسی (Jalali Date & Time)</h2>
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>تابع</th>
+                        <th>ورودی</th>
+                        <th>خروجی نمونه</th>
+                        <th>کاربرد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>jdate($format, $time)</code></td><td>'Y/m/d'</td><td>'۱۴۰۵/۰۱/۱۵'</td><td>فرمت تاریخ میلادی یا Timestamp به تاریخ شمسی</td></tr>
+                    <tr><td><code>jdate_ago($datetime)</code></td><td>'2026-10-30 14:00'</td><td><strong>۲ ساعت پیش</strong></td><td>نمایش زمان سپری‌شده طبیعی به زبان فارسی</td></tr>
+                    <tr><td><code>jalali_month_name(7)</code></td><td>7</td><td>'مهر'</td><td>نام ماه شمسی از روی شماره ماه</td></tr>
+                    <tr><td><code>is_leap_jyear(1403)</code></td><td>1403</td><td><code>true</code></td><td>بررسی سال کبیسه در گاه‌شماری هجری خورشیدی</td></tr>
+                    <tr><td><code>to_gregorian($jdate)</code></td><td>'1405/01/01'</td><td>'2026-03-21'</td><td>تبدیل تاریخ شمسی به میلادی جهت ذخیره در دیتابیس</td></tr>
+                </tbody>
+            </table>
+
+            <h2>۴. توابع کار با متن، فایل و امنیت (Text, File & Security)</h2>
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>تابع</th>
+                        <th>ورودی</th>
+                        <th>خروجی نمونه</th>
+                        <th>کاربرد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>human_filesize($bytes)</code></td><td>2097152</td><td><strong>۲ مگابایت</strong></td><td>تبدیل حجم فایل به واحدهای قابل خواندن انسان</td></tr>
+                    <tr><td><code>file_icon('doc.pdf')</code></td><td>'report.pdf'</td><td><code>['icon' => 'fa-file-pdf', ...]</code></td><td>آیکون و رنگ FontAwesome متناسب با پسوند فایل</td></tr>
+                    <tr><td><code>reading_time($article)</code></td><td>متن ۱۰۰۰ کلمه‌ای</td><td><strong>۵ دقیقه</strong></td><td>تخمین زمان مطالعه مقالات فارسی</td></tr>
+                    <tr><td><code>random_otp(5)</code></td><td>5</td><td>'83921'</td><td>تولید کد امن اعتبارسنجی پیامکی (OTP)</td></tr>
+                    <tr><td><code>generate_tracking_code('INV')</code></td><td>'INV'</td><td>'INV-8F3B9A1C'</td><td>تولید کد رهگیری تصادفی و یکتا برای سفارشات</td></tr>
+                    <tr><td><code>clean_persian_text($text)</code></td><td>متن با ی/ک عربی</td><td>متن استاندارد فارسی</td><td>اصلاح نیم‌فاصله‌ها، علائم نگارشی و یکدست‌سازی حروف</td></tr>
+                    <tr><td><code>slugify_fa($title)</code></td><td>'محصول جدید من'</td><td>'محصول-جدید-من'</td><td>تولید اسلاگ سئو سازگار با URLهای فارسی</td></tr>
+                    <tr><td><code>api_response()</code></td><td>-</td><td>ApiResponse</td><td>هلپر زنجیره‌ای برای بازگرداندن پاسخ‌های استاندارد JSON</td></tr>
+                </tbody>
+            </table>
+        `
+    },
+    {
+        id: "controllers",
+        title: "معماری کنترلرها (Controllers)",
+        icon: "fa-diagram-project",
+        category: "معماری و کنترلرها",
+        content: `
+            <h1>🏛️ معماری و کلاس‌های کنترلر (Controllers Architecture)</h1>
+            <p class="lead text-muted">کنترلرهای سطح بالا برای حذف کدهای تکراری، مدیریت متمرکز نان‌ریزه‌ها (Breadcrumbs)، پیام‌های نشست (Flash)، فرمت استاندارد پاسخ‌ها و پیاده‌سازی سریع CRUD با یک خط کد.</p>
+
+            <h2>۱. کلاس <code>BaseController</code></h2>
+            <p>تمام کنترلرهای پروژه می‌توانند از این کلاس ارث‌بری کنند تا قابلیت‌های زیر را بلافاصله دریافت نمایند:</p>
+            <ul>
+                <li><strong>مدیریت نان‌ریزه:</strong> با متد <code>$this->addBreadcrumb('عنوان', 'لینک')</code></li>
+                <li><strong>پیام‌های وضعیت (Flash Messages):</strong> <code>$this->flashSuccess('عملیات موفق')</code>, <code>flashError()</code>, <code>flashWarning()</code></li>
+                <li><strong>دسترسی سریع به سرویس‌ها:</strong> <code>$this->uploader()</code>, <code>$this->payment()</code>, <code>$this->sms()</code></li>
+                <li><strong>ارسال متغیر به تمام ویوها:</strong> <code>$this->share('settings', $settings)</code></li>
+                <li><strong>پاسخ‌های API استاندارد:</strong> <code>$this->successResponse($data)</code>, <code>$this->errorResponse()</code></li>
+            </ul>
+
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>namespace App\\Http\\Controllers;
+
+use MyLaravelCore\\Controllers\\BaseController;
+
+class DashboardController extends BaseController
+{
+    public function index()
+    {
+        $this->setTitle('داشبورد مدیریت');
+        $this->addBreadcrumb('داشبورد', route('admin.dashboard'), 'fa-home');
+        
+        // ارسال پیام فلش
+        $this->flashSuccess('به پنل مدیریت خوش آمدید.');
+
+        return view('admin.dashboard');
+    }
+}</code></pre>
+            </div>
+
+            <h2>۲. کلاس <code>CrudController</code> (عملیات کامل CRUD خودکار)</h2>
+            <p>این کنترلر انتزاعی تمام عملیات‌های <code>index</code>, <code>create</code>, <code>store</code>, <code>show</code>, <code>edit</code>, <code>update</code>, <code>destroy</code>, <code>bulkDestroy</code> و <code>toggleStatus</code> را بدون نیاز به کدنویسی دستی پیاده می‌کند!</p>
+
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>namespace App\\Http\\Controllers\\Admin;
+
+use MyLaravelCore\\Controllers\\CrudController;
+use App\\Models\\Product;
+use App\\Tables\\ProductTable;
+use Illuminate\\Http\\Request;
+
+class ProductController extends CrudController
+{
+    protected string $modelClass = Product::class;
+    protected ?string $tableClass = ProductTable::class; // اتصال مستقیم به Table Generator
+    protected string $viewPath = 'admin.products';
+    protected string $routePrefix = 'admin.products';
+    protected string $resourceTitle = 'محصول';
+    
+    // فیلدهای آپلود فایل با حذف خودکار فایل قبلی
+    protected array $uploadFields = [
+        'image' => ['directory' => 'products']
+    ];
+
+    // قوانین اعتبارسنجی
+    protected function rules(Request $request, string $action = 'store', ?Model $model = null): array
+    {
+        return [
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'status' => 'required|in:active,draft,archived',
+        ];
+    }
+}</code></pre>
+            </div>
+
+            <h2>۳. کلاس <code>ApiController</code> (مخصوص وب‌سرویس‌های RESTful)</h2>
+            <p>برای کنترلرهای API با متدهای کمکی <code>respondWithPagination()</code>, <code>respondCreated()</code>, <code>respondNotFound()</code> و مدیریت استثناها:</p>
+
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>namespace App\\Http\\Controllers\\Api;
+
+use MyLaravelCore\\Controllers\\ApiController;
+use App\\Models\\Product;
+
+class ProductApiController extends ApiController
+{
+    public function index()
+    {
+        $products = Product::latest()->paginate(15);
+        return $this->respondWithPagination($products, 'لیست محصولات با موفقیت دریافت شد.');
+    }
+}</code></pre>
+            </div>
+        `
+    },
+    {
+        id: "table-generator",
+        title: "سازنده جدول و لیست‌ها (Table Generator)",
+        icon: "fa-table-columns",
+        category: "جداول و دیتا",
+        content: `
+            <h1>📊 سازنده جداول بیانی (Declarative Table Generator)</h1>
+            <p class="lead text-muted">سیستم پیشرفته ایجاد جداول اطلاعاتی مشابه لاراول فلامنت و دوراول با قابلیت تعریف ستون‌ها، فیلترهای پیشرفته، مرتب‌سازی، جستجوی زنده، عملیات گروهی و صفحه‌بندی هوشمند.</p>
+
+            <h2>۱. تولید کلاس جدول با دستور Artisan</h2>
+            <p>با اجرای دستور زیر، یک کلاس جدول اختصاصی برای مدل شما ساخته می‌شود:</p>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">Bash</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>php artisan core:table ProductTable --model=Product --title="مدیریت محصولات"</code></pre>
+            </div>
+
+            <h2>۲. ساختار یک کلاس Table</h2>
+            <p>فایل ایجاد شده در <code>app/Tables/ProductTable.php</code> به صورت زیر است:</p>
+
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>namespace App\\Tables;
+
+use MyLaravelCore\\Tables\\BaseTable;
+use MyLaravelCore\\Tables\\Columns\\TextColumn;
+use MyLaravelCore\\Tables\\Columns\\BadgeColumn;
+use MyLaravelCore\\Tables\\Columns\\CurrencyColumn;
+use MyLaravelCore\\Tables\\Columns\\DateColumn;
+use MyLaravelCore\\Tables\\Columns\\ImageColumn;
+use MyLaravelCore\\Tables\\Columns\\ToggleColumn;
+use MyLaravelCore\\Tables\\Columns\\ActionColumn;
+use MyLaravelCore\\Tables\\Filters\\SelectFilter;
+use MyLaravelCore\\Tables\\Filters\\DateRangeFilter;
+use MyLaravelCore\\Tables\\Actions\\TableAction;
+use App\\Models\\Product;
+
+class ProductTable extends BaseTable
+{
+    protected ?string $model = Product::class;
+    protected string $title = 'مدیریت محصولات فروشگاه';
+    protected ?string $icon = 'fa-boxes-stacked';
+    protected int $perPage = 15;
+
+    public function columns(): array
+    {
+        return [
+            ImageColumn::make('image', 'تصویر')->rounded('circle')->height(45),
+            TextColumn::make('name', 'نام محصول')->searchable()->sortable()->copyable(),
+            CurrencyColumn::make('price', 'قیمت فروش')->toman()->sortable()->showWords(),
+            BadgeColumn::make('status', 'وضعیت')->map([
+                'active' => ['label' => 'موجود', 'variant' => 'success'],
+                'draft' => ['label' => 'پیش‌نویس', 'variant' => 'secondary'],
+                'out_of_stock' => ['label' => 'ناموجود', 'variant' => 'danger'],
+            ]),
+            ToggleColumn::make('is_featured', 'ویژه')->endpoint('/admin/products/toggle'),
+            DateColumn::make('created_at', 'تاریخ ثبت')->jalali()->timeAgo()->sortable(),
+            ActionColumn::make('عملیات')->actions([
+                TableAction::make('edit', 'ویرایش')->icon('fa-edit')->url(fn($p) => route('admin.products.edit', $p)),
+                TableAction::make('delete', 'حذف')->icon('fa-trash')->variant('danger')->confirm('آیا از حذف مطمئن هستید؟'),
+            ]),
+        ];
+    }
+
+    public function filters(): array
+    {
+        return [
+            SelectFilter::make('status', 'وضعیت موجودی')->options([
+                'active' => 'موجود در انبار',
+                'out_of_stock' => 'ناموجود',
+            ]),
+            DateRangeFilter::make('created_at', 'بازه زمانی ایجاد'),
+        ];
+    }
+
+    public function bulkActions(): array
+    {
+        return [
+            TableAction::make('bulk_delete', 'حذف دسته‌جمعی')->icon('fa-trash')->variant('danger')->confirm('آیا مطمئن هستید؟'),
+        ];
+    }
+}</code></pre>
+            </div>
+
+            <h2>۳. استفاده در کنترلر و فایل ویو Blade</h2>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP (Controller)</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>public function index()
+{
+    $table = \\App\\Tables\\ProductTable::make();
+    return view('admin.products.index', compact('table'));
+}</code></pre>
+            </div>
+
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">Blade (View)</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>&lt;x-default-layout title="محصولات"&gt;
+    &lt;x-table-view :table="$table" /&gt;
+&lt;/x-default-layout&gt;</code></pre>
+            </div>
+        `
+    },
+    {
+        id: "javascript-sdk",
+        title: "کتابخانه جاوااسکریپت و متدهای آماده (Core JS SDK)",
+        icon: "fa-code",
+        category: "فرانت‌اند و جاوااسکریپت",
+        content: `
+            <h1>⚡ متدها و کنترلرهای جاوااسکریپت (Core JavaScript SDK)</h1>
+            <p class="lead text-muted">مجموعه متدهای آماده فرانت‌اند روی شیء سراسری <code>Core</code> برای ارسال درخواست‌های AJAX، نمایش اعلان‌های تست (Toast)، دیالوگ‌های مدرن تأیید، فرمت‌بندی اعداد و مبالغ، و کپی در کلیپ‌بورد.</p>
+
+            <h2>۱. تست زنده نوتیفیکیشن‌ها (Toast Notifications)</h2>
+            <p>روی دکمه‌های زیر کلیک کنید تا اعلان‌های زنده را مشاهده نمایید:</p>
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                <button type="button" class="btn btn-success" onclick="Core.notify.success('اطلاعات با موفقیت ذخیره گردید.', 'ثبت رکورد')">
+                    <i class="fa fa-check-circle me-1"></i> اعلان موفقیت (Success)
+                </button>
+                <button type="button" class="btn btn-danger" onclick="Core.notify.error('خطایی در ارتباط با سرور رخ داد!', 'خطای سیستمی')">
+                    <i class="fa fa-circle-xmark me-1"></i> اعلان خطا (Error)
+                </button>
+                <button type="button" class="btn btn-warning" onclick="Core.notify.warning('حجم فایل انتخابی بیش از حد مجاز است.', 'هشدار')">
+                    <i class="fa fa-triangle-exclamation me-1"></i> اعلان هشدار (Warning)
+                </button>
+                <button type="button" class="btn btn-info text-white" onclick="Core.notify.info('نسخه جدید زیرساخت منتشر شد.', 'اطلاعیه')">
+                    <i class="fa fa-circle-info me-1"></i> اعلان اطلاع‌رسانی (Info)
+                </button>
+            </div>
+
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">JavaScript</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>Core.notify.success('اطلاعات ذخیره شد.', 'موفقیت');
+Core.notify.error('خطایی رخ داد!', 'خطا');
+Core.notify.warning('دقت کنید...', 'هشدار');
+Core.notify.info('پیام سیستم', 'اطلاع‌رسانی');</code></pre>
+            </div>
+
+            <h2>۲. تست زنده دیالوگ تأیید مدرن (Confirm Dialog)</h2>
+            <p>دیالوگ‌های مدرن جایگزین <code>confirm()</code> پیش‌فرض مرورگر:</p>
+            <button type="button" class="btn btn-outline-danger mb-4" onclick="Core.dialog.confirm({
+                title: 'آیا از حذف این کاربر مطمئن هستید؟',
+                message: 'با حذف کاربر، تمامی دسترسی‌ها و تراکنش‌های وی نیز معلق خواهد شد.',
+                confirmText: 'بله، حذف کن',
+                onConfirm: function() { Core.notify.success('کاربر با موفقیت حذف شد.'); }
+            })">
+                <i class="fa fa-trash me-1"></i> نمایش دیالوگ تأیید حذف
+            </button>
+
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">JavaScript</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>Core.dialog.confirm({
+    title: 'آیا مطمئن هستید؟',
+    message: 'این رکورد برای همیشه حذف خواهد شد.',
+    variant: 'danger',
+    confirmText: 'بله، انجام بده',
+    cancelText: 'انصراف',
+    onConfirm: function() {
+        // اجرای عملیات یا ارسال درخواست AJAX
+    }
+});</code></pre>
+            </div>
+
+            <h2>۳. تست زنده تبدیل عدد به حروف فارسی فاکتور (Number to Words)</h2>
+            <p>یک عدد در کادر زیر تایپ کنید تا بلافاصله به کلمات فارسی فاکتور تبدیل شود:</p>
+            <div class="card p-3 border rounded-3 mb-4 bg-light">
+                <label class="form-label fw-bold">مبلغ فاکتور (تومان):</label>
+                <input type="text" class="form-control form-control-lg" id="demo-amount-input" value="1540000" oninput="document.getElementById('demo-words-output').textContent = Core.format.numberToWords(this.value) + ' تومان'">
+                <div class="mt-2 text-primary fw-bold fs-5" id="demo-words-output">یک میلیون و پانصد و چهل هزار تومان</div>
+            </div>
+
+            <h2>۴. کپی فوری در کلیپ‌بورد (Clipboard Copy)</h2>
+            <div class="d-flex align-items-center gap-2 mb-4">
+                <input type="text" class="form-control" style="max-width: 300px;" value="IR120170000000123456789012" readonly>
+                <button type="button" class="btn btn-primary" data-core-copy="IR120170000000123456789012">
+                    <i class="fa fa-copy me-1"></i> کپی شبا
+                </button>
+            </div>
+
+            <h2>۵. موتور درخواست‌های AJAX با توکن CSRF خودکار</h2>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">JavaScript</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>// درخواست GET
+const data = await Core.ajax.get('/api/products', { status: 'active' });
+
+// درخواست POST با مدیریت خودکار خطاها و توکن CSRF
+Core.ajax.post('/api/products', { name: 'کیک شکلاتی', price: 120000 })
+    .then(res => {
+        Core.notify.success('محصول با موفقیت ثبت شد!');
+    });</code></pre>
+            </div>
         `
     },
     {

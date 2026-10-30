@@ -20,6 +20,7 @@ class IdeHelperCommand extends Command
             'data-card' => \MyLaravelCore\Components\Design\DataCard::class,
             'table' => \MyLaravelCore\Components\Design\Table::class,
             'data-table' => \MyLaravelCore\Components\Design\Table::class,
+            'table-view' => \MyLaravelCore\Components\Design\TableView::class,
             'button' => \MyLaravelCore\Components\Design\Button::class,
             'badge' => \MyLaravelCore\Components\Design\Badge::class,
             'alert' => \MyLaravelCore\Components\Design\Alert::class,
@@ -77,15 +78,18 @@ class IdeHelperCommand extends Command
         $content .= " * Do not include this file in production execution.\n";
         $content .= " */\n\n";
 
-        // Global Blade Component Stubs
+        // Global Blade Component Stubs with Constructor-Only definitions
         $content .= "namespace App\\View\\Components {\n";
         foreach ($components as $alias => $class) {
             $className = str_replace(' ', '', ucwords(str_replace(['-', '.'], ' ', $alias)));
+            $constructorParams = $this->extractConstructorParams($class);
             $content .= "    /**\n";
             $content .= "     * Component: <x-{$alias}>\n";
             $content .= "     * Class: \\{$class}\n";
             $content .= "     */\n";
-            $content .= "    class {$className} extends \\{$class} {}\n";
+            $content .= "    class {$className} extends \\{$class} {\n";
+            $content .= "        public function __construct({$constructorParams}) {}\n";
+            $content .= "    }\n";
         }
         $content .= "}\n\n";
 
@@ -138,6 +142,54 @@ class IdeHelperCommand extends Command
             return implode(', ', $docs);
         } catch (\Throwable) {
             return '...$attributes';
+        }
+    }
+
+    protected function extractConstructorParams(string $class): string
+    {
+        if (!class_exists($class)) {
+            return '';
+        }
+
+        try {
+            $ref = new ReflectionClass($class);
+            $constructor = $ref->getConstructor();
+            if (!$constructor) {
+                return '';
+            }
+
+            $params = [];
+            foreach ($constructor->getParameters() as $param) {
+                $p = '';
+                if ($param->isPromoted()) {
+                    $p .= 'public ';
+                }
+                if ($param->hasType()) {
+                    $p .= (string) $param->getType() . ' ';
+                }
+                $p .= '$' . $param->getName();
+                if ($param->isDefaultValueAvailable()) {
+                    $val = $param->getDefaultValue();
+                    if (is_array($val) && empty($val)) {
+                        $p .= ' = []';
+                    } elseif (is_null($val)) {
+                        $p .= ' = null';
+                    } elseif (is_bool($val)) {
+                        $p .= ' = ' . ($val ? 'true' : 'false');
+                    } else {
+                        $p .= ' = ' . var_export($val, true);
+                    }
+                }
+                $params[] = $p;
+            }
+
+            if (empty($params)) {
+                return '';
+            }
+
+            return "\n            " . implode(",\n            ", $params) . "\n        ";
+        } catch (\Throwable) {
+            return '';
         }
     }
 }
