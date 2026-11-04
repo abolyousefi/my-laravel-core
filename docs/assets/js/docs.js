@@ -68,7 +68,7 @@
     }
 
     // Load Section Content
-    function loadSection(id) {
+    function loadSection(id, anchorId = null) {
         const sec = window.DOCS_SECTIONS.find(s => s.id === id) || window.DOCS_SECTIONS[0];
         if (!sec) return;
 
@@ -82,8 +82,36 @@
         const mainContent = document.getElementById('main-content');
         if (mainContent) {
             mainContent.innerHTML = sec.content;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Bind in-page Quick-Jump Table of Contents pills
+            mainContent.querySelectorAll('.toc-jump-pill').forEach(pill => {
+                pill.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const href = pill.getAttribute('href') || '';
+                    const targetAnchor = href.replace(/^#/, '');
+                    scrollToHeading(targetAnchor);
+                });
+            });
+
+            if (anchorId) {
+                setTimeout(() => scrollToHeading(anchorId), 60);
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
+    }
+
+    function scrollToHeading(anchorId) {
+        const el = document.getElementById(anchorId);
+        if (!el) return;
+        const headerOffset = 84;
+        const elementPosition = el.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({
+            top: elementPosition - headerOffset,
+            behavior: 'smooth'
+        });
+        el.classList.add('heading-highlight-pulse');
+        setTimeout(() => el.classList.remove('heading-highlight-pulse'), 2200);
     }
 
     // Copy to clipboard helper
@@ -101,12 +129,31 @@
         });
     };
 
-    // Quick Search & Modal
+    // Quick Search & Modal (Deep Chapter + Subsection Search)
     function initSearch() {
         const modal = document.getElementById('search-modal');
         const searchInput = document.getElementById('search-input');
         const resultsList = document.getElementById('search-results');
         const openBtn = document.getElementById('btn-open-search');
+
+        // Build deep heading index once
+        const headingIndex = [];
+        const headingRegex = /<h([23])\s+id="([^"]+)"[^>]*>([\s\S]*?)<\/h\1>/gi;
+        (window.DOCS_SECTIONS || []).forEach(sec => {
+            let match;
+            while ((match = headingRegex.exec(sec.content)) !== null) {
+                const rawText = match[3].replace(/<[^>]+>/g, '').trim();
+                if (rawText) {
+                    headingIndex.push({
+                        sectionId: sec.id,
+                        sectionTitle: sec.title,
+                        icon: sec.icon,
+                        anchorId: match[2],
+                        headingTitle: rawText
+                    });
+                }
+            }
+        });
 
         function openSearch() {
             if (!modal) return;
@@ -145,33 +192,55 @@
         function renderSearchResults(query) {
             if (!resultsList) return;
             if (!query) {
-                resultsList.innerHTML = '<li class="p-3 text-muted text-center small">عبارت مورد نظر خود را تایپ کنید (مثال: jdate, x-card, payment)...</li>';
+                resultsList.innerHTML = '<li class="p-3 text-muted text-center small">نام کامپوننت، تابع کمکی، تریت یا کلاس را جستجو کنید (مثال: x-plate-input, stringMaskFormatter, SelectController, DeleteDependency)...</li>';
                 return;
             }
 
             const q = query.toLowerCase();
-            const matches = [];
+            const results = [];
 
+            // 1. Exact/partial heading matches (high priority)
+            headingIndex.forEach(h => {
+                if (h.headingTitle.toLowerCase().includes(q)) {
+                    results.push({
+                        sectionId: h.sectionId,
+                        anchorId: h.anchorId,
+                        icon: h.icon,
+                        title: h.headingTitle,
+                        subtitle: `${h.sectionTitle}`
+                    });
+                }
+            });
+
+            // 2. Full-text section matches
             window.DOCS_SECTIONS.forEach(sec => {
                 const titleMatch = sec.title.toLowerCase().includes(q);
                 const contentMatch = sec.content.toLowerCase().includes(q);
 
                 if (titleMatch || contentMatch) {
-                    matches.push(sec);
+                    results.push({
+                        sectionId: sec.id,
+                        anchorId: null,
+                        icon: sec.icon,
+                        title: sec.title,
+                        subtitle: sec.category
+                    });
                 }
             });
 
-            if (matches.length === 0) {
+            if (results.length === 0) {
                 resultsList.innerHTML = '<li class="p-3 text-muted text-center small">موردی یافت نشد.</li>';
                 return;
             }
 
-            resultsList.innerHTML = matches.map(m => `
-                <li class="search-result-item" data-target="${m.id}">
+            const topResults = results.slice(0, 35);
+
+            resultsList.innerHTML = topResults.map(m => `
+                <li class="search-result-item" data-target="${m.sectionId}" data-anchor="${m.anchorId || ''}">
                     <i class="fa ${m.icon} text-primary"></i>
                     <div>
                         <div class="fw-semibold">${m.title}</div>
-                        <small class="text-muted">${m.category}</small>
+                        <small class="text-muted">${m.subtitle}</small>
                     </div>
                 </li>
             `).join('');
@@ -179,7 +248,8 @@
             resultsList.querySelectorAll('.search-result-item').forEach(item => {
                 item.addEventListener('click', () => {
                     const target = item.dataset.target;
-                    loadSection(target);
+                    const anchor = item.dataset.anchor || null;
+                    loadSection(target, anchor);
                     window.location.hash = target;
                     closeSearch();
                 });

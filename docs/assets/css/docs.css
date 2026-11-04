@@ -441,3 +441,21 @@ body {
         padding: 1.5rem 1rem 4rem 1rem;
     }
 }
+
+.scroll-mt-header {
+    scroll-margin-top: 85px;
+    transition: background-color 0.4s ease, padding 0.3s ease;
+}
+
+.heading-highlight-pulse {
+    background-color: var(--core-primary-light);
+    border-radius: 8px;
+    padding: 0.4rem 0.75rem;
+}
+
+.toc-jump-pill:hover {
+    background-color: var(--core-primary) !important;
+    color: #ffffff !important;
+    border-color: var(--core-primary) !important;
+}
+
