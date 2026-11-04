@@ -1626,5 +1626,262 @@ class BankTable extends BaseTable
     ->withFlash(message: 'با موفقیت ثبت شد.', type: 'success');</code></pre>
             </div>
         `
+    },
+    {
+        id: "abolframe-form-components",
+        title: "۱۰. کامپوننت‌های فرم (Form Components)",
+        icon: "fa-rectangle-list",
+        category: "مستندات جامع ابول فریم (AbolFrame)",
+        content: `
+            <h1>۱۰. مرجع کامل کامپوننت‌های فرم در ابول فریم (AbolFrame)</h1>
+            <p class="lead text-muted">۳۲+ کامپوننت استاندارد Blade برای ساخت فرم‌های سازمانی با پشتیبانی خودکار از <code>old()</code>، نمایش خطای اعتبارسنجی، کنترل مجوز با <code>permission</code> و مدیریت با <code>componentManagement(id)</code>.</p>
+
+            <h2>بخش A — جدول جامع کامپوننت‌های فرم ابول فریم</h2>
+            <table class="docs-table">
+                <thead>
+                    <tr><th>تگ Blade</th><th>کلاس</th><th>کاربرد و پراپ‌های کلیدی</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>&lt;x-text-input&gt;</code></td><td><code>TextInput</code></td><td>ورودی متنی یک‌خطی با ماسک، پیشوند، پسوند و شمارنده کاراکتر</td></tr>
+                    <tr><td><code>&lt;x-textarea&gt;</code> / <code>&lt;x-text-area&gt;</code></td><td><code>Textarea</code></td><td>ورودی متنی چندخطی با قابلیت تنظیم خودکار ارتفاع</td></tr>
+                    <tr><td><code>&lt;x-number-input&gt;</code></td><td><code>NumberInput</code></td><td>ورودی عددی و مبالغ مالی با جداکننده سه‌رقمی و تبدیل عدد به حروف فارسی</td></tr>
+                    <tr><td><code>&lt;x-email-input&gt;</code></td><td><code>EmailInput</code></td><td>ورودی ایمیل LTR با پیشنهاد دامنه (<code>:domains="['gmail.com']"</code>)</td></tr>
+                    <tr><td><code>&lt;x-url-input&gt;</code></td><td><code>UrlInput</code></td><td>ورودی آدرس وب با پروتکل پیش‌فرض و دکمه باز کردن لینک</td></tr>
+                    <tr><td><code>&lt;x-password-input&gt;</code></td><td><code>PasswordInput</code></td><td>ورودی رمز عبور با دکمه نمایش/مخفی، سنجش قدرت رمز و تولید رمز تصادفی</td></tr>
+                    <tr><td><code>&lt;x-slug-input&gt;</code></td><td><code>SlugInput</code></td><td>تولید خودکار اسلاگ فارسی/انگلیسی متصل به فیلد منبع (<code>source</code>)</td></tr>
+                    <tr><td><code>&lt;x-search-input&gt;</code></td><td><code>SearchInput</code></td><td>جستجوی زنده با Debounce، دکمه پاک‌سازی و پشتیبانی از AJAX</td></tr>
+                    <tr><td><code>&lt;x-color-input&gt;</code></td><td><code>ColorInput</code></td><td>انتخابگر رنگ Hex/RGB به همراه پالت رنگ‌های پیش‌فرض <code>presetColors()</code></td></tr>
+                    <tr><td><code>&lt;x-plate-input&gt;</code></td><td><code>PlateInput</code></td><td>ورودی استاندارد پلاک خودرو، موتورسیکلت و مناطق آزاد ایران</td></tr>
+                    <tr><td><code>&lt;x-select-input&gt;</code> / <code>&lt;x-select&gt;</code> / <code>&lt;x-multi-select&gt;</code></td><td><code>SelectInput</code></td><td>لیست کشویی تک‌انتخابی و چندانتخابی با جستجو و بارگذاری AJAX</td></tr>
+                    <tr><td><code>&lt;x-nested-selects&gt;</code></td><td><code>NestedSelects</code></td><td>سلکت‌های زنجیره‌ای وابسته (مانند استان ← شهرستان ← شهر با <code>Regionalizer</code>)</td></tr>
+                    <tr><td><code>&lt;x-checkbox&gt;</code> / <code>&lt;x-checkbox-group&gt;</code></td><td><code>Checkbox</code> / <code>CheckboxGroup</code></td><td>چک‌باکس تکی و گروهی با چیدمان شبکه‌ای</td></tr>
+                    <tr><td><code>&lt;x-radio-group&gt;</code></td><td><code>RadioGroup</code></td><td>دکمه‌های رادیویی گروهی</td></tr>
+                    <tr><td><code>&lt;x-switch-input&gt;</code></td><td><code>SwitchInput</code></td><td>کلید تغییر وضعیت (Toggle Switch) با متن فعال/غیرفعال و رنگ‌بندی</td></tr>
+                    <tr><td><code>&lt;x-datetime-picker&gt;</code> / <code>&lt;x-datetime-range-picker&gt;</code></td><td><code>DatetimePicker</code></td><td>تقویم شمسی (جلالی) و میلادی تکی و بازه‌ای به همراه <code>makeDatetimeRangePickerID()</code></td></tr>
+                    <tr><td><code>&lt;x-file-picker&gt;</code> / <code>&lt;x-image-picker&gt;</code> / <code>&lt;x-select-image&gt;</code></td><td><code>FilePicker</code> / <code>ImagePicker</code> / <code>SelectImage</code></td><td>آپلود فایل، انتخاب تصویر با برش (Cropper) و انتخاب کارت تصویری</td></tr>
+                    <tr><td><code>&lt;x-icon-picker&gt;</code></td><td><code>IconPicker</code></td><td>انتخابگر بصری آیکن‌های FontAwesome</td></tr>
+                    <tr><td><code>&lt;x-editor&gt;</code></td><td><code>Editor</code></td><td>ویرایشگر متن غنی (Rich Text) متصل به سرویس <code>abolframeEditorService</code></td></tr>
+                    <tr><td><code>&lt;x-item-collector&gt;</code> / <code>&lt;x-tag-collector&gt;</code> / <code>&lt;x-tag-input&gt;</code></td><td><code>ItemCollector</code> / <code>TagCollector</code></td><td>جمع‌آوری لیست آیتم‌ها و تگ‌های ساختاریافته با اعتبارسنجی <code>itemCollectorRules()</code></td></tr>
+                    <tr><td><code>&lt;x-repeater-inputs&gt;</code> و <code>&lt;x-repeater-input.column&gt;</code></td><td><code>RepeaterInputs</code></td><td>فرم تکرارشونده پویا با قابلیت افزودن، حذف و مرتب‌سازی ردیف‌ها</td></tr>
+                    <tr><td><code>&lt;x-map&gt;</code></td><td><code>Map</code></td><td>نقشه تعاملی GIS با پشتیبانی از <code>LatLongPoint</code>، <code>UtmPoint</code>، <code>BaseMap</code> و ترسیم Polygon</td></tr>
+                    <tr><td><code>&lt;x-reset-button&gt;</code></td><td><code>ResetButton</code></td><td>دکمه بازنشانی مقادیر فرم و پاک‌سازی خطاهای اعتبارسنجی</td></tr>
+                </tbody>
+            </table>
+
+            <h2>بخش B — نمونه استفاده ترکیبی در Blade</h2>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">BLADE</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>&lt;x-text-input name="title" id="post_title" label="عنوان" :required="true" /&gt;
+&lt;x-slug-input name="slug" source="post_title" prefixUrl="https://example.com/posts" label="نامک (Slug)" /&gt;
+&lt;x-plate-input name="vehicle_plate" label="پلاک خودرو" plateType="car" /&gt;
+&lt;x-color-input name="theme_color" label="رنگ سازمانی" :presets="presetColors()" /&gt;
+&lt;x-switch-input name="is_active" label="وضعیت نمایش" :checked="true" activeText="فعال" inactiveText="غیرفعال" /&gt;
+&lt;x-map name="location" label="موقعیت جغرافیایی" :lat="35.6892" :lng="51.3890" mode="point" /&gt;</code></pre>
+            </div>
+        `
+    },
+    {
+        id: "abolframe-ui-components",
+        title: "۱۱. کامپوننت‌های رابط کاربری (UI Components)",
+        icon: "fa-layer-group",
+        category: "مستندات جامع ابول فریم (AbolFrame)",
+        content: `
+            <h1>۱۱. مرجع کامل کامپوننت‌های رابط کاربری و نمایش داده در ابول فریم</h1>
+            <p class="lead text-muted">۳۸+ کامپوننت نمایشی شامل کارت‌های آماری، نمودارهای HighChart و Gantt، تایم‌لاین، تب‌های استاندارد و مینیمال، مودال‌های تأیید و Audit، چت و استپر.</p>
+
+            <h2>بخش A — فهرست کامپوننت‌های UI و نمایش داده</h2>
+            <table class="docs-table">
+                <thead>
+                    <tr><th>تگ Blade</th><th>کلاس</th><th>شرح کاربرد</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>&lt;x-alert&gt;</code> / <code>&lt;x-badge&gt;</code> / <code>&lt;x-banner&gt;</code></td><td><code>Alert</code> / <code>Badge</code> / <code>Banner</code></td><td>پیام‌های هشدار، بج‌های وضعیت و بنر خلاصه اطلاعات رکورد</td></tr>
+                    <tr><td><code>&lt;x-button&gt;</code> / <code>&lt;x-dropdown-button&gt;</code> / <code>&lt;x-dropdown-item&gt;</code></td><td><code>Button</code> / <code>DropdownButton</code></td><td>دکمه‌های عملیاتی با وضعیت Loading، تأییدیه و منوی کشویی</td></tr>
+                    <tr><td><code>&lt;x-card&gt;</code> / <code>&lt;x-data-card&gt;</code> / <code>&lt;x-stat-card&gt;</code></td><td><code>Card</code> / <code>DataCard</code> / <code>StatCard</code></td><td>کارت‌های محتوا، کارت داده و کارت‌های آماری داشبورد با شاخص روند (Trend)</td></tr>
+                    <tr><td><code>&lt;x-data-display&gt;</code> / <code>&lt;x-data-item&gt;</code></td><td><code>DataDisplay</code> / <code>DataItem</code></td><td>نمایش ساختاریافته فیلدهای رکورد در صفحات Show با گرید چندستونه</td></tr>
+                    <tr><td><code>&lt;x-data-list&gt;</code> / <code>&lt;x-data-row&gt;</code></td><td><code>DataList</code> / <code>DataRow</code></td><td>لیست کلید-مقدار با قابلیت کپی سریع و بج وضعیت</td></tr>
+                    <tr><td><code>&lt;x-audit-log&gt;</code> / <code>&lt;x-audit-detail-modal&gt;</code></td><td><code>AuditLog</code> / <code>AuditDetailModal</code></td><td>نمایش تاریخچه تغییرات رکورد و مودال مقایسه مقادیر قدیم و جدید (<code>AuditDetailModal</code>)</td></tr>
+                    <tr><td><code>&lt;x-modal&gt;</code> / <code>&lt;x-confirmation-modal&gt;</code></td><td><code>Modal</code> / <code>ConfirmationModal</code></td><td>مودال عمومی و مودال تأیید عملیات حساس</td></tr>
+                    <tr><td><code>&lt;x-tab&gt;</code>، <code>&lt;x-tab-item&gt;</code>، <code>&lt;x-tab-panel&gt;</code></td><td><code>TabComponent</code> / <code>TabItem</code> / <code>TabPanel</code></td><td>سیستم تب‌بندی کامل با قابلیت ذخیره تب فعال</td></tr>
+                    <tr><td><code>&lt;x-minimal-tab&gt;</code> و <code>&lt;x-minimal-tab.item&gt;</code></td><td><code>MinimalTab</code> / <code>MinimalTabItem</code></td><td>تب‌های فشرده و مینیمال مناسب فیلترهای سریع</td></tr>
+                    <tr><td><code>&lt;x-stepper&gt;</code> و <code>&lt;x-stepper.step&gt;</code></td><td><code>Stepper</code> / <code>StepperStep</code></td><td>نمایشگر مراحل فرآیندهای چندمرحله‌ای (Wizard)</td></tr>
+                    <tr><td><code>&lt;x-progress-bar&gt;</code> و <code>&lt;x-progress-bar-item&gt;</code></td><td><code>ProgressBar</code></td><td>نوار پیشرفت تکی یا چندبخشی متصل به <code>ProgressBarBaseController</code></td></tr>
+                    <tr><td><code>&lt;x-high-chart&gt;</code> / <code>&lt;x-gantt-chart&gt;</code></td><td><code>HighChart</code> / <code>GanttChart</code></td><td>نمودارهای تحلیلی (خطی، ستونی، دایره‌ای) و نمودار گانت پروژه</td></tr>
+                    <tr><td><code>&lt;x-chat&gt;</code></td><td><code>Chat</code></td><td>پنجره گفتگوی تعاملی با پشتیبانی از پیوست فایل</td></tr>
+                    <tr><td><code>&lt;x-slider&gt;</code> و <code>&lt;x-slider-item&gt;</code></td><td><code>Slider</code> / <code>SliderItem</code></td><td>اسلایدر تصاویر و محتوا با پخش خودکار</td></tr>
+                    <tr><td><code>&lt;x-file&gt;</code> / <code>&lt;x-image&gt;</code> / <code>&lt;x-video&gt;</code></td><td><code>FileView</code> / <code>ImageView</code> / <code>VideoView</code></td><td>نمایشگر استاندارد فایل، تصویر و پلیر ویدیو</td></tr>
+                    <tr><td><code>&lt;x-table&gt;</code> / <code>&lt;x-table-header&gt;</code> / <code>&lt;x-table.column&gt;</code></td><td><code>Table</code> / <code>TableHeader</code> / <code>TableColumn</code></td><td>جدول داده‌ها، هدر جدول با جستجو/اکسل و ستون‌های قابل مرتب‌سازی</td></tr>
+                </tbody>
+            </table>
+
+            <h2>بخش B — نمونه استفاده در Blade</h2>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">BLADE</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>&lt;x-stat-card title="کل تراکنش‌ها" value="۱,۲۴۰" unit="مورد" trend="+14.5%" trendLabel="نسبت به ماه قبل" variant="success" icon="fa-solid fa-chart-line" /&gt;
+
+&lt;x-progress-bar id="upload_progress" :value="65" label="پیشرفت آپلود" variant="primary" :striped="true" :animated="true" /&gt;
+
+&lt;x-stepper id="order_stepper" :currentStep="2" :steps="['ثبت سفارش', 'پرداخت', 'ارسال مرسوله']" /&gt;</code></pre>
+            </div>
+        `
+    },
+    {
+        id: "abolframe-component-management-select-controller",
+        title: "۱۲. Component Management و SelectController",
+        icon: "fa-sliders",
+        category: "مستندات جامع ابول فریم (AbolFrame)",
+        content: `
+            <h1>۱۲. مدیریت جاوااسکریپتی کامپوننت‌ها (<code>componentManagement</code>) و <code>SelectController</code></h1>
+            <p class="lead text-muted">رابط زنجیره‌ای یکپارچه برای کنترل تمام کامپوننت‌های ابول فریم در جاوااسکریپت به همراه کنترلر بک‌اند <code>SelectController</code> برای تغذیه ایمن سلکت‌های AJAX.</p>
+
+            <h2>بخش A — متدهای زنجیره‌ای <code>componentManagement(id)</code></h2>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">JAVASCRIPT</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>// مدیریت وضعیت، برچسب، راهنما و مقدار هر کامپوننت با شناسه
+componentManagement('city_select')
+    .updateLabel('انتخاب شهر مقصد')
+    .updateHint('ابتدا استان را انتخاب کنید')
+    .setParams({ province_id: 8 })
+    .setOptions([{ value: 101, label: 'تهران' }, { value: 102, label: 'شمیرانات' }], 101)
+    .enable();
+
+// کنترل مودال، نوار پیشرفت، تب و استپر
+componentManagement('confirm_delete_modal').setTitle('حذف رکورد').open();
+componentManagement('upload_progress').setProgress(85);
+componentManagement('order_stepper').goToStep(3);
+componentManagement('main_tabs').activateTab('financial');</code></pre>
+            </div>
+
+            <h2>بخش B — پیاده‌سازی <code>SelectController</code> برای سلکت‌های پویا</h2>
+            <p>کلاس پایه <code>MyLaravelCore\\Controllers\\SelectController</code> پارامترهای رمزنگاری‌شده، فیلترها، صفحه‌بندی و فرمت استاندارد <code>prepareSelectComponentData()</code> را به‌صورت خودکار مدیریت می‌کند:</p>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>namespace App\\Http\\Controllers\\Admin;
+
+use App\\Models\\City;
+use Illuminate\\Database\\Eloquent\\Builder;
+use MyLaravelCore\\Controllers\\SelectController;
+
+class CitySelectController extends SelectController
+{
+    protected string $model = City::class;
+    protected string $labelColumn = 'name';
+    protected string $valueColumn = 'id';
+    protected array $searchableColumns = ['name', 'code'];
+
+    protected function modifyQuery(Builder $query, array $params): Builder
+    {
+        if (!empty($params['province_id'])) {
+            $query->where('province_id', $params['province_id']);
+        }
+        return $query->active();
+    }
+}</code></pre>
+            </div>
+        `
+    },
+    {
+        id: "abolframe-auth-user-management",
+        title: "۱۳. احراز هویت و مدیریت کاربران",
+        icon: "fa-user-lock",
+        category: "مستندات جامع ابول فریم (AbolFrame)",
+        content: `
+            <h1>۱۳. سیستم احراز هویت، مجوزدهی و مدیریت کاربران در ابول فریم</h1>
+            <p class="lead text-muted">مدیریت کامل کاربر جاری، فیلدهای پویای ورود/ثبت‌نام، سیاست‌های رمز عبور، بررسی مجوزها با <code>authorizer()</code> و میدل‌ور <code>authorized</code>.</p>
+
+            <h2>بخش A — توابع احراز هویت و پروفایل کاربر</h2>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>$user = authUser();
+$id = authId();
+$isLogged = authCheck();
+
+// فیلدهای احراز هویت، ثبت‌نام و بازیابی رمز از کانفیگ ابول فریم
+$fields = authFieldDefinitions();
+$regFields = registrationAuthFieldDefinitions();
+$passwordRule = generatePasswordRule(); // Password rule بر اساس کانفیگ
+
+// تولید لینک و اطلاعات کاربر با بررسی دسترسی
+$href = resolveUserHref($user, 'national_code');
+$userHtml = linkUserInfo($user, 'full_name', ['national_code']);</code></pre>
+            </div>
+
+            <h2>بخش B — بررسی دسترسی با <code>authorizer()</code>، دایرکتیو <code>@canAccess</code> و پراپ <code>permission</code></h2>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">BLADE</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>{{-- ۱. استفاده از دایرکتیو Blade --}}
+@canAccess(['admin.users.edit', 'admin.users.update'], onlyOne: true)
+    &lt;x-button label="ویرایش کاربر" variant="primary" /&gt;
+@endcanAccess
+
+{{-- ۲. استفاده مستقیم از پراپ permission روی هر کامپوننت ابول فریم --}}
+&lt;x-button label="حذف کاربر" variant="danger" permission="admin.users.destroy" /&gt;</code></pre>
+            </div>
+        `
+    },
+    {
+        id: "abolframe-css-color-palette",
+        title: "۱۴. پالت رنگ و متغیرهای CSS",
+        icon: "fa-palette",
+        category: "مستندات جامع ابول فریم (AbolFrame)",
+        content: `
+            <h1>۱۴. سیستم پالت رنگ و Design Tokens در ابول فریم (CSS Variables)</h1>
+            <p class="lead text-muted">طیف کامل متغیرهای رنگی CSS از سطح <code>25</code> تا <code>900</code> برای ۱۱ خانواده رنگی به همراه متغیرهای معنایی و تابع کمکی <code>presetColors()</code> و <code>renderColor()</code>.</p>
+
+            <h2>بخش A — خانواده‌های رنگی (Shades 25 تا 900)</h2>
+            <table class="docs-table">
+                <thead>
+                    <tr><th>خانواده رنگ</th><th>متغیرهای CSS (از روشن‌ترین تا تیره‌ترین)</th><th>نمونه کد رنگ (500 / 600)</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>Blue</strong></td><td><code>--blue-25</code> تا <code>--blue-900</code></td><td><code>#2e90fa</code> / <code>#1570ef</code></td></tr>
+                    <tr><td><strong>Indigo</strong></td><td><code>--indigo-25</code> تا <code>--indigo-900</code></td><td><code>#6172f3</code> / <code>#444ce7</code></td></tr>
+                    <tr><td><strong>Purple (Primary)</strong></td><td><code>--purple-25</code> تا <code>--purple-900</code></td><td><code>#7a5af8</code> / <code>#6938ef</code></td></tr>
+                    <tr><td><strong>Pink</strong></td><td><code>--pink-25</code> تا <code>--pink-900</code></td><td><code>#ee46bc</code> / <code>#dd2590</code></td></tr>
+                    <tr><td><strong>Red (Danger)</strong></td><td><code>--red-25</code> تا <code>--red-900</code></td><td><code>#f04438</code> / <code>#d92d20</code></td></tr>
+                    <tr><td><strong>Orange (Warning)</strong></td><td><code>--orange-25</code> تا <code>--orange-900</code></td><td><code>#fb6514</code> / <code>#ec4a0a</code></td></tr>
+                    <tr><td><strong>Yellow</strong></td><td><code>--yellow-25</code> تا <code>--yellow-900</code></td><td><code>#eaaa08</code> / <code>#ca8504</code></td></tr>
+                    <tr><td><strong>Green (Success)</strong></td><td><code>--green-25</code> تا <code>--green-900</code></td><td><code>#12b76a</code> / <code>#039855</code></td></tr>
+                    <tr><td><strong>Teal</strong></td><td><code>--teal-25</code> تا <code>--teal-900</code></td><td><code>#15b79e</code> / <code>#0e9384</code></td></tr>
+                    <tr><td><strong>Cyan</strong></td><td><code>--cyan-25</code> تا <code>--cyan-900</code></td><td><code>#06aed4</code> / <code>#088ab2</code></td></tr>
+                    <tr><td><strong>Gray</strong></td><td><code>--gray-25</code> تا <code>--gray-900</code></td><td><code>#667085</code> / <code>#475467</code></td></tr>
+                </tbody>
+            </table>
+
+            <h2>بخش B — استفاده در CSS و PHP</h2>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">CSS</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>.custom-panel-card {
+    background-color: var(--purple-25);
+    border: 1px solid var(--purple-200);
+    color: var(--gray-800);
+}
+.custom-panel-card .badge-active {
+    background-color: var(--green-50);
+    color: var(--green-700);
+}</code></pre>
+            </div>
+        `
     }
 ];

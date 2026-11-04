@@ -9,15 +9,27 @@ abstract class BaseComponent extends Component
     public ?string $id;
     public ?string $class;
     public ?string $error;
+    public ?string $permission;
 
     public function __construct(
         ?string $id = null,
         ?string $class = null,
-        ?string $error = null
+        ?string $error = null,
+        ?string $permission = null
     ) {
         $this->id = $id;
         $this->class = $class;
         $this->error = $error;
+        $this->permission = $permission;
+    }
+
+    public function shouldRender(): bool
+    {
+        if (!empty($this->permission) && function_exists('authorizer')) {
+            return authorizer()->canAccess($this->permission);
+        }
+
+        return true;
     }
 
     /**

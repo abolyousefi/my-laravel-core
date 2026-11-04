@@ -1269,6 +1269,485 @@
         };
     }
 
+    // --- Section I: Unified Component Management API (Doc 10, 11, 12) ---
+
+    const _editorRegistry = new Map();
+
+    const abolframeEditorService = {
+        register(id, instance) {
+            _editorRegistry.set(String(id).replace(/^#/, ''), instance);
+            return instance;
+        },
+        get(id) {
+            return _editorRegistry.get(String(id).replace(/^#/, '')) || null;
+        },
+        getContent(id) {
+            const cleanId = String(id).replace(/^#/, '');
+            const inst = _editorRegistry.get(cleanId);
+            if (inst && typeof inst.getData === 'function') return inst.getData();
+            if (inst && typeof inst.getContent === 'function') return inst.getContent();
+            const el = document.getElementById(cleanId);
+            return el ? (el.value !== undefined ? el.value : el.innerHTML) : '';
+        },
+        setContent(id, html) {
+            const cleanId = String(id).replace(/^#/, '');
+            const inst = _editorRegistry.get(cleanId);
+            if (inst && typeof inst.setData === 'function') {
+                inst.setData(html);
+                return true;
+            }
+            if (inst && typeof inst.setContent === 'function') {
+                inst.setContent(html);
+                return true;
+            }
+            const el = document.getElementById(cleanId);
+            if (el) {
+                if (el.value !== undefined) el.value = html;
+                else el.innerHTML = html;
+                return true;
+            }
+            return false;
+        },
+        destroy(id) {
+            const cleanId = String(id).replace(/^#/, '');
+            const inst = _editorRegistry.get(cleanId);
+            if (inst && typeof inst.destroy === 'function') inst.destroy();
+            _editorRegistry.delete(cleanId);
+        }
+    };
+
+    const AuditDetailModal = {
+        renderDiffTable(changes = {}) {
+            const rows = [];
+            Object.keys(changes).forEach(field => {
+                const entry = changes[field] || {};
+                const oldVal = entry.old !== undefined ? entry.old : (Array.isArray(entry) ? entry[0] : '-');
+                const newVal = entry.new !== undefined ? entry.new : (Array.isArray(entry) ? entry[1] : '-');
+                rows.push(
+                    `<tr>` +
+                    `<td><strong>${field}</strong></td>` +
+                    `<td class="text-danger">${oldVal ?? '-'}</td>` +
+                    `<td class="text-success">${newVal ?? '-'}</td>` +
+                    `</tr>`
+                );
+            });
+            return rows.join('');
+        },
+        open(changes = {}, options = {}) {
+            const modalId = options.modalId || 'audit_detail_modal';
+            let modal = document.getElementById(modalId) || document.querySelector('[data-component="audit-detail-modal"]');
+            if (modal) {
+                const tbody = modal.querySelector('[data-audit-diff-rows], tbody');
+                if (tbody) tbody.innerHTML = this.renderDiffTable(changes);
+                if (options.title) setModalTitle(modal, options.title);
+                modal.classList.add('is-open', 'show');
+                modal.removeAttribute('aria-hidden');
+            }
+            return modal;
+        },
+        close(modalId = null) {
+            const modal = modalId
+                ? document.getElementById(modalId)
+                : document.querySelector('[data-component="audit-detail-modal"].is-open, [data-component="audit-detail-modal"].show');
+            if (modal) {
+                modal.classList.remove('is-open', 'show');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+        }
+    };
+
+    class ProgressBarBaseController {
+        constructor(id) {
+            this.id = String(id).replace(/^#/, '');
+            this.el = document.getElementById(this.id) || resolveTargetElement(id);
+        }
+
+        getValue() {
+            return Number(this.el?.dataset.value ?? 0);
+        }
+
+        getMax() {
+            return Number(this.el?.dataset.max ?? 100) || 100;
+        }
+
+        getPercentage() {
+            const max = this.getMax();
+            return max > 0 ? Math.round(Math.min(100, Math.max(0, (this.getValue() / max) * 100)) * 10) / 10 : 0;
+        }
+
+        setValue(value, max = null) {
+            if (!this.el) return this;
+            if (max !== null) this.el.dataset.max = String(max);
+            this.el.dataset.value = String(value);
+            const pct = this.getPercentage();
+            const fill = this.el.querySelector('[data-progress-fill], .core-progress-bar');
+            if (fill) fill.style.width = `${pct}%`;
+            const text = this.el.querySelector('[data-progress-text], .core-progress-percent');
+            if (text) text.textContent = `${pct}%`;
+            return this;
+        }
+
+        setMax(max) {
+            return this.setValue(this.getValue(), max);
+        }
+
+        increment(step = 1) {
+            return this.setValue(this.getValue() + Number(step));
+        }
+
+        reset() {
+            return this.setValue(0);
+        }
+
+        setVariant(variant) {
+            const fill = this.el?.querySelector('[data-progress-fill], .core-progress-bar');
+            if (fill) {
+                fill.className = fill.className.replace(/core-progress-bar-(primary|secondary|success|danger|warning|info)/g, '').trim();
+                fill.classList.add(`core-progress-bar-${variant}`);
+            }
+            return this;
+        }
+    }
+
+    function componentManagement(target) {
+        const cleanId = typeof target === 'string' ? target.replace(/^#/, '') : null;
+        const el = (cleanId && document.getElementById(cleanId)) ||
+            (cleanId && document.querySelector(`[data-component-id="${cleanId}"]`)) ||
+            resolveTargetElement(target);
+
+        const wrapper = el?.closest('.core-field, .form-group, .mb-3, .x-form-component, [data-component]') || el?.parentElement || el;
+
+        const api = {
+            id: cleanId,
+            el,
+            wrapper,
+
+            getElement() {
+                return el;
+            },
+
+            getWrapper() {
+                return wrapper;
+            },
+
+            getInstance() {
+                return el?._coreInstance || (cleanId ? abolframeEditorService.get(cleanId) : null) || null;
+            },
+
+            disable() {
+                if (el) {
+                    el.disabled = true;
+                    el.setAttribute('data-force-disabled', 'true');
+                    el.classList.add('disabled', 'is-disabled');
+                    el.querySelectorAll?.('input, select, textarea, button').forEach(child => {
+                        child.disabled = true;
+                    });
+                }
+                return api;
+            },
+
+            enable() {
+                if (el) {
+                    el.disabled = false;
+                    el.removeAttribute('data-force-disabled');
+                    el.classList.remove('disabled', 'is-disabled');
+                    el.querySelectorAll?.('input, select, textarea, button').forEach(child => {
+                        child.disabled = false;
+                    });
+                }
+                return api;
+            },
+
+            setReadonly(state = true) {
+                if (el) {
+                    if (state) el.setAttribute('readonly', 'readonly');
+                    else el.removeAttribute('readonly');
+                }
+                return api;
+            },
+
+            show() {
+                const targetBox = wrapper || el;
+                if (targetBox) {
+                    targetBox.hidden = false;
+                    targetBox.classList.remove('d-none');
+                    targetBox.style.display = '';
+                }
+                return api;
+            },
+
+            hide() {
+                const targetBox = wrapper || el;
+                if (targetBox) {
+                    targetBox.hidden = true;
+                    targetBox.classList.add('d-none');
+                }
+                return api;
+            },
+
+            toggle(state = undefined) {
+                const targetBox = wrapper || el;
+                if (!targetBox) return api;
+                const shouldShow = state !== undefined ? Boolean(state) : (targetBox.hidden || targetBox.classList.contains('d-none'));
+                return shouldShow ? api.show() : api.hide();
+            },
+
+            updateLabel(text) {
+                const labelEl = wrapper?.querySelector(`[data-label-for="${cleanId}"], label, [data-component-label]`);
+                if (labelEl) labelEl.textContent = text;
+                return api;
+            },
+
+            updateHint(text) {
+                let hintEl = wrapper?.querySelector(`[data-hint-for="${cleanId}"], .core-hint, .form-text, [data-component-hint]`);
+                if (!hintEl && wrapper) {
+                    hintEl = document.createElement('small');
+                    hintEl.className = 'core-hint';
+                    if (cleanId) hintEl.setAttribute('data-hint-for', cleanId);
+                    wrapper.appendChild(hintEl);
+                }
+                if (hintEl) hintEl.textContent = text;
+                return api;
+            },
+
+            showError(message) {
+                if (el) {
+                    showComponentMessage({
+                        type: 'error',
+                        style: 'message',
+                        targetElement: el,
+                        message
+                    });
+                }
+                return api;
+            },
+
+            clearError() {
+                if (el) clearComponentMessage(el);
+                return api;
+            },
+
+            getValue() {
+                if (!el) return null;
+                if (el.type === 'checkbox') return el.checked;
+                if (el.tagName === 'SELECT' && el.multiple) {
+                    return Array.from(el.selectedOptions).map(o => o.value);
+                }
+                if (el.value !== undefined) return el.value;
+                return el.dataset.value ?? null;
+            },
+
+            setValue(val, triggerChange = true) {
+                if (!el) return api;
+                if (el.type === 'checkbox') {
+                    el.checked = Boolean(val);
+                } else if (el.tagName === 'SELECT' && el.multiple && Array.isArray(val)) {
+                    const strVals = val.map(String);
+                    Array.from(el.options).forEach(opt => {
+                        opt.selected = strVals.includes(String(opt.value));
+                    });
+                } else if (el.value !== undefined) {
+                    el.value = val ?? '';
+                } else {
+                    el.dataset.value = val ?? '';
+                }
+                if (triggerChange) {
+                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+                return api;
+            },
+
+            clear() {
+                return api.setValue('');
+            },
+
+            reset() {
+                if (el && el.defaultValue !== undefined) {
+                    return api.setValue(el.defaultValue);
+                }
+                return api.clear();
+            },
+
+            setParams(params = {}) {
+                if (el) {
+                    const existing = el.dataset.componentParams ? JSON.parse(el.dataset.componentParams) : {};
+                    el.dataset.componentParams = JSON.stringify(mergeRecursive(existing, params));
+                }
+                return api;
+            },
+
+            getParams() {
+                if (!el || !el.dataset.componentParams) return {};
+                try {
+                    return JSON.parse(el.dataset.componentParams);
+                } catch (_) {
+                    return {};
+                }
+            },
+
+            refresh(resetParams = false) {
+                if (!el) return api;
+                if (resetParams) delete el.dataset.componentParams;
+                el.dispatchEvent(new CustomEvent('abolframe:refresh', {
+                    bubbles: true,
+                    detail: { resetParams, params: api.getParams() }
+                }));
+                return api;
+            },
+
+            toggleLoading(isLoading = true, text = null) {
+                if (!el) return api;
+                if (el.tagName === 'BUTTON' || el.classList.contains('core-btn')) {
+                    toggleButtonLoading(el, isLoading, text);
+                } else if (['INPUT', 'SELECT', 'TEXTAREA'].includes(el.tagName)) {
+                    toggleFormElementLoading(el, isLoading);
+                } else {
+                    toggleLoading(el, isLoading);
+                }
+                return api;
+            },
+
+            // Select / NestedSelects methods
+            setOptions(options = [], selectedValue = null) {
+                const selectEl = el?.tagName === 'SELECT' ? el : el?.querySelector?.('select');
+                if (!selectEl) return api;
+                selectEl.innerHTML = '';
+                const entries = Array.isArray(options)
+                    ? options.map(item => (typeof item === 'object' ? [item.value ?? item.id, item.label ?? item.title ?? item.text] : [item, item]))
+                    : Object.entries(options);
+
+                entries.forEach(([val, label]) => {
+                    const opt = document.createElement('option');
+                    opt.value = val;
+                    opt.textContent = label;
+                    if (selectedValue !== null && String(val) === String(selectedValue)) {
+                        opt.selected = true;
+                    }
+                    selectEl.appendChild(opt);
+                });
+                return api;
+            },
+
+            addOption(value, label, selected = false) {
+                const selectEl = el?.tagName === 'SELECT' ? el : el?.querySelector?.('select');
+                if (!selectEl) return api;
+                const opt = document.createElement('option');
+                opt.value = value;
+                opt.textContent = label;
+                opt.selected = Boolean(selected);
+                selectEl.appendChild(opt);
+                return api;
+            },
+
+            removeOption(value) {
+                const selectEl = el?.tagName === 'SELECT' ? el : el?.querySelector?.('select');
+                if (!selectEl) return api;
+                const opt = selectEl.querySelector(`option[value="${value}"]`);
+                if (opt) opt.remove();
+                return api;
+            },
+
+            clearOptions() {
+                return api.setOptions([]);
+            },
+
+            getSelectedText() {
+                return el ? getFormElementValueText(el) : null;
+            },
+
+            // Modal methods
+            open() {
+                if (el) {
+                    el.classList.add('is-open', 'show');
+                    el.removeAttribute('aria-hidden');
+                }
+                return api;
+            },
+
+            close() {
+                if (el) {
+                    el.classList.remove('is-open', 'show');
+                    el.setAttribute('aria-hidden', 'true');
+                }
+                return api;
+            },
+
+            setTitle(newTitle) {
+                if (el) setModalTitle(el, newTitle);
+                return api;
+            },
+
+            toggleConfirmation(state = true) {
+                if (el) {
+                    el.setAttribute('data-confirmation-enabled', state ? 'true' : 'false');
+                }
+                return api;
+            },
+
+            // ProgressBar methods
+            setProgress(value, max = null) {
+                if (el) new ProgressBarBaseController(el).setValue(value, max);
+                return api;
+            },
+
+            // Stepper & Tabs methods
+            goToStep(stepIndex) {
+                const container = wrapper || el;
+                if (!container) return api;
+                container.dataset.currentStep = String(stepIndex);
+                container.querySelectorAll('.core-stepper-step').forEach(stepEl => {
+                    const idx = Number(stepEl.dataset.stepIndex || 0);
+                    stepEl.classList.remove('is-completed', 'is-active', 'is-pending');
+                    if (idx < stepIndex) stepEl.classList.add('is-completed');
+                    else if (idx === Number(stepIndex)) stepEl.classList.add('is-active');
+                    else stepEl.classList.add('is-pending');
+                });
+                return api;
+            },
+
+            activateTab(tabName) {
+                const container = wrapper || el;
+                if (!container) return api;
+                container.dataset.activeTab = tabName;
+                container.querySelectorAll('[data-tab-target]').forEach(btn => {
+                    const active = btn.dataset.tabTarget === tabName;
+                    btn.classList.toggle('is-active', active);
+                    btn.setAttribute('aria-selected', active ? 'true' : 'false');
+                });
+                container.querySelectorAll('[data-tab-panel]').forEach(panel => {
+                    const active = panel.dataset.tabPanel === tabName;
+                    panel.classList.toggle('is-active', active);
+                    panel.hidden = !active;
+                });
+                return api;
+            },
+
+            // Events
+            on(eventName, handler) {
+                if (el && typeof handler === 'function') {
+                    el.addEventListener(eventName, handler);
+                }
+                return api;
+            },
+
+            off(eventName, handler) {
+                if (el && typeof handler === 'function') {
+                    el.removeEventListener(eventName, handler);
+                }
+                return api;
+            },
+
+            trigger(eventName, detail = {}) {
+                if (el) {
+                    el.dispatchEvent(new CustomEvent(eventName, { bubbles: true, detail }));
+                }
+                return api;
+            }
+        };
+
+        return api;
+    }
+
     // Export functions to Core and window globals
     Object.assign(Core, {
         mergeRecursive,
@@ -1300,7 +1779,11 @@
         calculateCentroid,
         calculateCenterOfMath,
         getVideoThumbnail,
-        setModalTitle
+        setModalTitle,
+        componentManagement,
+        abolframeEditorService,
+        AuditDetailModal,
+        ProgressBarBaseController
     });
 
     Object.assign(window, {
@@ -1336,7 +1819,11 @@
         calculateCentroid,
         calculateCenterOfMath,
         getVideoThumbnail,
-        setModalTitle
+        setModalTitle,
+        componentManagement,
+        abolframeEditorService,
+        AuditDetailModal,
+        ProgressBarBaseController
     });
 
     // Export Core globally (and aliases)

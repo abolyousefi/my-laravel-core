@@ -28,9 +28,10 @@ abstract class BaseFormComponent extends BaseComponent
         string $dir = 'auto',
         ?string $id = null,
         ?string $class = null,
-        ?string $error = null
+        ?string $error = null,
+        ?string $permission = null
     ) {
-        parent::__construct($id, $class, $error);
+        parent::__construct($id, $class, $error, $permission);
 
         $this->name = $name;
         $this->label = $label;

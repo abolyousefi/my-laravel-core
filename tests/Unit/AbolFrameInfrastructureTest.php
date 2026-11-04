@@ -187,4 +187,53 @@ class AbolFrameInfrastructureTest extends TestCase
         BladeLayout::data('custom_key', 'custom_val');
         $this->assertSame('custom_val', bladeLayout()->data('custom_key'));
     }
+
+    public function test_form_ui_components_map_and_select_controller(): void
+    {
+        // Map coordinate helpers & BaseMap
+        $latLng = new \MyLaravelCore\Support\Map\DTO\LatLongPoint(35.6892, 51.3890);
+        $utm = $latLng->toUtmPoint();
+        $this->assertSame(39, $utm->getZ());
+        $roundTrip = $utm->toLatLongPoint();
+        $this->assertEqualsWithDelta(35.6892, $roundTrip->getLatitude(), 0.01);
+        $this->assertEqualsWithDelta(51.3890, $roundTrip->getLongitude(), 0.01);
+
+        // itemCollectorRules
+        $rules = itemCollectorRules('items', ['title' => ['required', 'string'], 'qty' => ['required', 'integer']]);
+        $this->assertArrayHasKey('items.*.title', $rules);
+        $this->assertArrayHasKey('items.*.qty', $rules);
+
+        // Blade rendering of newly added Form & UI components
+        $renderedForm = \Illuminate\Support\Facades\Blade::render(
+            '<x-switch-input name="active" label="فعال" :checked="true" />' .
+            '<x-email-input name="email" label="ایمیل" />' .
+            '<x-url-input name="website" label="وب سایت" />' .
+            '<x-password-input name="pass" label="رمز" />' .
+            '<x-plate-input name="plate" label="پلاک" />' .
+            '<x-color-input name="color" label="رنگ" />' .
+            '<x-slug-input name="slug" label="اسلاگ" source="title" />' .
+            '<x-search-input name="q" label="جستجو" />' .
+            '<x-map name="loc" label="نقشه" />'
+        );
+
+        $this->assertStringContainsString('data-component="switch-input"', $renderedForm);
+        $this->assertStringContainsString('data-component="plate-input"', $renderedForm);
+        $this->assertStringContainsString('data-component="color-input"', $renderedForm);
+        $this->assertStringContainsString('data-component="slug-input"', $renderedForm);
+        $this->assertStringContainsString('data-component="map"', $renderedForm);
+
+        $renderedUi = \Illuminate\Support\Facades\Blade::render(
+            '<x-stat-card title="کاربران" value="150" trend="+12%" />' .
+            '<x-progress-bar :value="70" label="پیشرفت" />' .
+            '<x-stepper :currentStep="2" :steps="[\'گام اول\', \'گام دوم\']" />' .
+            '<x-confirmation-modal id="del_modal" title="حذف" />' .
+            '<x-audit-log :audits="[]" />'
+        );
+
+        $this->assertStringContainsString('data-component="stat-card"', $renderedUi);
+        $this->assertStringContainsString('data-component="progress-bar"', $renderedUi);
+        $this->assertStringContainsString('data-component="stepper"', $renderedUi);
+        $this->assertStringContainsString('data-component="confirmation-modal"', $renderedUi);
+        $this->assertStringContainsString('data-component="audit-log"', $renderedUi);
+    }
 }
