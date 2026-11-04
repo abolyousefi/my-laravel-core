@@ -2,6 +2,7 @@
 
 namespace MyLaravelCore;
 
+use Closure;
 use MyLaravelCore\Contracts\PaymentGatewayInterface;
 use MyLaravelCore\Contracts\SmsDriverInterface;
 use MyLaravelCore\Contracts\UploaderInterface;
@@ -9,9 +10,26 @@ use MyLaravelCore\Services\ApiResponse;
 use MyLaravelCore\Services\Payment\PaymentManager;
 use MyLaravelCore\Services\Sms\SmsManager;
 use MyLaravelCore\Services\UploaderService;
+use MyLaravelCore\Support\RoutePropertyCollector\RoutePropertyCollector;
 
 class CoreManager
 {
+    /**
+     * Register sidebar menu groups/subgroups via AbolFrame::menu().
+     */
+    public function menu(Closure $callback): void
+    {
+        app(RoutePropertyCollector::class)->registerMenuCallback($callback);
+    }
+
+    /**
+     * Resolve model class registered in AbolFrame configuration.
+     */
+    public function getModel(string $key, mixed $component = null): ?string
+    {
+        return config("core.models.{$key}");
+    }
+
     public function uploader(): UploaderInterface
     {
         return app(UploaderService::class);

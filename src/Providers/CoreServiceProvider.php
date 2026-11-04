@@ -2,13 +2,28 @@
 
 namespace MyLaravelCore\Providers;
 
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use MyLaravelCore\CoreManager;
+use MyLaravelCore\Middleware\AuthorizedMiddleware;
 use MyLaravelCore\Services\ApiResponse;
 use MyLaravelCore\Services\Payment\PaymentManager;
 use MyLaravelCore\Services\Sms\SmsManager;
 use MyLaravelCore\Services\UploaderService;
+use MyLaravelCore\Support\Auth\Authenticator;
+use MyLaravelCore\Support\Auth\Authorizer;
+use MyLaravelCore\Support\BladeLayout\BladeLayoutManager;
+use MyLaravelCore\Support\BooleanScopes\BooleanScopeRegistrar;
+use MyLaravelCore\Support\DataProvider\DataProvider;
+use MyLaravelCore\Support\DeleteDependency\DeleteProtection;
+use MyLaravelCore\Support\FileManager\FileManager;
+use MyLaravelCore\Support\Generators\Audit\AuditManager;
+use MyLaravelCore\Support\Localization\Localization;
+use MyLaravelCore\Support\RoutePropertyCollector\RouteMacroRegistrar;
+use MyLaravelCore\Support\RoutePropertyCollector\RoutePropertyCollector;
+use MyLaravelCore\Support\Validation\JalaliValidationRegistrar;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -35,6 +50,7 @@ class CoreServiceProvider extends ServiceProvider
         'tag-collector' => \MyLaravelCore\Components\Form\TagCollector::class,
         'tag-input' => \MyLaravelCore\Components\Form\TagInput::class,
         'nested-selects' => \MyLaravelCore\Components\Form\NestedSelects::class,
+        'reset-button' => \MyLaravelCore\Components\Form\ResetButton::class,
 
         // Design Components
         'alert' => \MyLaravelCore\Components\Design\Alert::class,
@@ -44,6 +60,8 @@ class CoreServiceProvider extends ServiceProvider
         'dropdown-button' => \MyLaravelCore\Components\Design\DropdownButton::class,
         'card' => \MyLaravelCore\Components\Design\Card::class,
         'data-card' => \MyLaravelCore\Components\Design\DataCard::class,
+        'data-display' => \MyLaravelCore\Components\Design\DataDisplay::class,
+        'data-item' => \MyLaravelCore\Components\Design\DataItem::class,
         'table' => \MyLaravelCore\Components\Design\Table::class,
         'data-table' => \MyLaravelCore\Components\Design\Table::class,
         'table-view' => \MyLaravelCore\Components\Design\TableView::class,
@@ -74,12 +92,28 @@ class CoreServiceProvider extends ServiceProvider
         $this->app->singleton(UploaderService::class, fn () => new UploaderService());
         $this->app->singleton(PaymentManager::class, fn () => new PaymentManager());
         $this->app->singleton(SmsManager::class, fn () => new SmsManager());
+        $this->app->singleton(Authenticator::class, fn () => new Authenticator());
+        $this->app->singleton(Authorizer::class, fn () => new Authorizer());
+        $this->app->singleton(Localization::class, fn () => new Localization());
+        $this->app->singleton(FileManager::class, fn () => new FileManager());
+        $this->app->singleton(DataProvider::class, fn () => new DataProvider());
+        $this->app->singleton(DeleteProtection::class, fn () => new DeleteProtection());
+        $this->app->singleton(RoutePropertyCollector::class, fn () => new RoutePropertyCollector());
+        $this->app->singleton(BladeLayoutManager::class, fn () => new BladeLayoutManager());
+        $this->app->singleton(AuditManager::class, fn () => new AuditManager());
 
         $this->app->alias(CoreManager::class, 'core');
+        $this->app->alias(CoreManager::class, 'abolframe');
     }
 
     public function boot(): void
     {
+        BooleanScopeRegistrar::register();
+        RouteMacroRegistrar::register();
+        JalaliValidationRegistrar::register();
+        $this->registerRedirectMacros();
+        $this->registerMiddlewareAliases();
+
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'core');
 
         $this->registerBladeComponents();
@@ -89,9 +123,28 @@ class CoreServiceProvider extends ServiceProvider
         $this->registerWorkbenchDocsRoute();
     }
 
-    /**
-     * If running in standalone package workbench/testbench, route '/' to the documentation site.
-     */
+    protected function registerRedirectMacros(): void
+    {
+        if (!RedirectResponse::hasMacro('withFlash')) {
+            RedirectResponse::macro('withFlash', function (string $message, string $type = 'success') {
+                /** @var RedirectResponse $this */
+                return $this->with($type, $message)->with('flash_message', [
+                    'message' => $message,
+                    'type' => $type,
+                ]);
+            });
+        }
+    }
+
+    protected function registerMiddlewareAliases(): void
+    {
+        if ($this->app->bound('router')) {
+            /** @var Router $router */
+            $router = $this->app->make('router');
+            $router->aliasMiddleware('authorized', AuthorizedMiddleware::class);
+        }
+    }
+
     protected function registerWorkbenchDocsRoute(): void
     {
         if (defined('TESTBENCH_WORKING_PATH') || str_contains(base_path(), 'testbench-core')) {
@@ -102,33 +155,25 @@ class CoreServiceProvider extends ServiceProvider
                         'Content-Type' => 'text/html; charset=UTF-8',
                     ]);
                 }
-                return 'My Laravel Core Documentation';
+                return 'AbolFrame Documentation';
             });
         }
     }
 
-    /**
-     * Register UI components with standard and dual prefix.
-     */
     protected function registerBladeComponents(): void
     {
         $prefix = config('core.ui.prefix', '');
         $dualPrefix = config('core.ui.dual_prefix', true);
 
         foreach ($this->components as $alias => $class) {
-            // Register under configured prefix (e.g. <x-text-input> when prefix is '')
             Blade::component($class, $alias, $prefix);
 
-            // If dual prefix is enabled, also register with 'core' prefix (<x-core-text-input>)
             if ($dualPrefix && $prefix !== 'core') {
                 Blade::component($class, $alias, 'core');
             }
         }
     }
 
-    /**
-     * Register useful Blade helper directives.
-     */
     protected function registerBladeDirectives(): void
     {
         Blade::directive('persianDigits', function ($expression) {
@@ -147,6 +192,15 @@ class CoreServiceProvider extends ServiceProvider
             return "<?php echo rial($expression); ?>";
         });
 
+        Blade::directive('title', function ($expression) {
+            $arg = trim($expression) !== '' ? $expression : 'null';
+            return "<?php echo e(getPageTitle($arg)); ?>";
+        });
+
+        Blade::if('canAccess', function (string|array $permissions, bool $onlyOne = true) {
+            return authorizer()->canAccess($permissions, $onlyOne);
+        });
+
         Blade::directive('coreStyles', function () {
             return '<?php echo \'<link rel="stylesheet" href="\' . core_asset(\'css/core.css\') . \'">\'; ?>';
         });
@@ -156,9 +210,6 @@ class CoreServiceProvider extends ServiceProvider
         });
     }
 
-    /**
-     * Register publishing configuration, views, and assets.
-     */
     protected function registerPublishing(): void
     {
         if ($this->app->runningInConsole()) {
@@ -176,9 +227,6 @@ class CoreServiceProvider extends ServiceProvider
         }
     }
 
-    /**
-     * Register Artisan commands.
-     */
     protected function registerCommands(): void
     {
         if ($this->app->runningInConsole()) {

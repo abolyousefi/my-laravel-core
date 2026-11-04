@@ -156,4 +156,83 @@ return [
         'track_ip' => true,
         'track_user_agent' => true,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Encryption & Hashed ID Configuration
+    |--------------------------------------------------------------------------
+    */
+    'encrypt_method' => env('CORE_ENCRYPT_METHOD', 'app_key'), // none | app_key | session_salt
+
+    /*
+    |--------------------------------------------------------------------------
+    | Boolean Scopes Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Additional boolean columns to register only{Field}() and except{Field}() macros.
+    |
+    */
+    'additional_boolean_scope_fields' => [
+        // 'is_published',
+        // 'is_featured',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Polymorphic User Activity Tracking
+    |--------------------------------------------------------------------------
+    */
+    'user_activity_polymorphic' => [
+        'tables' => [
+            // 'roles' => ['created_by', 'updated_by', 'deleted_by'],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Delete Dependency Protection
+    |--------------------------------------------------------------------------
+    */
+    'delete_dependency' => [
+        'default_mode' => env('CORE_DELETE_DEPENDENCY_MODE', 'general'), // first | all | general
+        'general_message' => 'امکان حذف این رکورد به دلیل وجود وابستگی وجود ندارد.',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authentication & Panel Configuration
+    |--------------------------------------------------------------------------
+    */
+    'panel' => [
+        'route_prefix' => env('CORE_PANEL_ROUTE_PREFIX', 'admin'),
+    ],
+
+    'localization' => [
+        'enabled' => env('CORE_LOCALIZATION_ENABLED', false),
+        'portal' => env('CORE_PORTAL', 'admin'),
+    ],
+
+    'auth' => [
+        'password_min' => 8,
+        'password_max' => 32,
+        'user_type_plural' => 'users',
+        'activation_model' => 'App\\Models\\UserActivation',
+        'status_model' => null,
+        'fields' => [
+            'code' => [
+                'name' => 'code',
+                'label' => 'کد ملی / نام کاربری',
+                'rules' => ['required', 'string'],
+                'registration' => true,
+                'password_recovery' => true,
+            ],
+            'mobile' => [
+                'name' => 'mobile',
+                'label' => 'شماره موبایل',
+                'rules' => ['required', 'string'],
+                'registration' => true,
+                'password_recovery' => true,
+            ],
+        ],
+    ],
 ];

@@ -1,5 +1,5 @@
 /**
- * My Laravel Core - Documentation Content Store
+ * ابول فریم (AbolFrame) - Documentation Content Store
  * Complete structured guides, examples, and search index
  */
 
@@ -10,7 +10,7 @@ window.DOCS_SECTIONS = [
         icon: "fa-rocket",
         category: "شروع کار",
         content: `
-            <h1>🚀 زیرساخت مدرن My Laravel Core</h1>
+            <h1>🚀 زیرساخت مدرن ابول فریم (AbolFrame)</h1>
             <p class="lead text-muted">زیرساخت سازمانی، ماژولار و بومی لاراول به همراه ۳۳ کامپوننت غنی Blade، چیدمان RTL، تقویم شمسی، درگاه‌های پرداخت، ارسال پیامک و جنریتورهای سریع کدهای Artisan.</p>
 
             <div class="callout success">
@@ -1100,6 +1100,530 @@ php artisan make:core-crud Product --api</code></pre>
                     <span class="badge bg-danger rounded-pill px-3 py-2">مسدود شده</span>
                     <span class="badge bg-primary px-3 py-2">مدیر کل</span>
                 </div>
+            </div>
+        `
+    },
+    {
+        id: "abolframe-php-helpers",
+        title: "۱. توابع کمکی PHP (AbolFrame)",
+        icon: "fa-code",
+        category: "مستندات جامع ابول فریم (AbolFrame)",
+        content: `
+            <h1>۱. توابع کمکی PHP (ابول فریم (AbolFrame)) — مرجع کامل</h1>
+            <p class="lead text-muted">تمامی helperهای PHP مخصوص توسعه‌دهنده اپلیکیشن در زیرساخت، دسته‌بندی‌شده در ۷ بخش (احراز هویت، بومی‌سازی و تاریخ، فرمت و متن، فرم و کامپوننت‌ها، فایل و آپلود، مسیر و فیلتر، دسترسی و کاربران).</p>
+
+            <div class="callout warning">
+                <i class="fa fa-exclamation-triangle callout-icon"></i>
+                <div>
+                    <strong>قانون پروژه:</strong> اگر برای کاری helper وجود دارد، همان استفاده شود؛ نوشتن نسخه دستی ممنوع است.
+                </div>
+            </div>
+
+            <h2>بخش A — احراز هویت (Authentication)</h2>
+            <table class="docs-table">
+                <thead>
+                    <tr><th>تابع</th><th>خروجی</th><th>توضیح و کاربرد</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>authenticator()</code></td><td><code>Authenticator</code></td><td>برگرداندن instance جاری سرویس احراز هویت</td></tr>
+                    <tr><td><code>authUser()</code></td><td><code>mixed</code></td><td>کاربر احراز هویت‌شده از guard فعال</td></tr>
+                    <tr><td><code>authId()</code></td><td><code>int|string|null</code></td><td>شناسه کاربر لاگین‌شده</td></tr>
+                    <tr><td><code>authCheck()</code></td><td><code>bool</code></td><td>بررسی وضعیت لاگین بودن کاربر</td></tr>
+                    <tr><td><code>authLogout(?Request $request)</code></td><td><code>bool</code></td><td>خروج کاربر از سشن یا توکن</td></tr>
+                    <tr><td><code>authFieldDefinitions()</code> / <code>authFieldNames()</code></td><td><code>array</code></td><td>تعریف کامل یا لیست نام فیلدهای احراز هویت</td></tr>
+                    <tr><td><code>authFieldDefinition($field, $default)</code></td><td><code>array</code></td><td>دریافت تنظیمات و rules یک فیلد خاص (مثلاً <code>mobile</code>)</td></tr>
+                    <tr><td><code>registrationAuthFieldDefinitions()</code></td><td><code>array</code></td><td>فیلدهای فعال برای ثبت‌نام</td></tr>
+                    <tr><td><code>passwordRecoveryAuthFieldDefinitions()</code></td><td><code>array</code></td><td>فیلدهای فعال برای فراموشی رمز</td></tr>
+                    <tr><td><code>userMetaFieldGroups()</code> / <code>userMetaFields(?PersonType)</code></td><td><code>array</code></td><td>فیلدهای متا به تفکیک حقیقی (<code>PersonType::REAL</code>) یا حقوقی</td></tr>
+                    <tr><td><code>authPasswordLength()</code></td><td><code>array{0:int,1:int}</code></td><td>حداقل و حداکثر طول مجاز رمز (مثلاً <code>[8, 32]</code>)</td></tr>
+                    <tr><td><code>userActivationModel()</code></td><td><code>string</code></td><td>کلاس مدل فعال‌سازی کاربر</td></tr>
+                    <tr><td><code>generatePasswordRule($min, $max)</code></td><td><code>array</code></td><td>تولید آرایه قوانین اعتبارسنجی رمز عبور</td></tr>
+                </tbody>
+            </table>
+
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>use MyLaravelCore\\Enums\\UserLoginType;
+
+$mask = UserLoginType::composeLoginTypeMask([UserLoginType::PASSWORD, UserLoginType::OTP_EMAIL]);
+$types = UserLoginType::parseLoginTypeMask($mask);</code></pre>
+            </div>
+
+            <h2>بخش B — بومی‌سازی و تاریخ</h2>
+            <table class="docs-table">
+                <thead>
+                    <tr><th>تابع</th><th>خروجی</th><th>توضیح</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>localizor()</code></td><td><code>Localization</code></td><td>سرویس بومی‌سازی جاری</td></tr>
+                    <tr><td><code>getLanguage()</code> / <code>getPortal()</code></td><td><code>string</code></td><td>زبان جاری (مثلاً <code>fa</code>) و پرتال جاری (مثلاً <code>admin</code>)</td></tr>
+                    <tr><td><code>isProjectLocalized()</code></td><td><code>bool</code></td><td>آیا چندزبانگی در پروژه فعال است؟</td></tr>
+                    <tr><td><code>hijri($datetime = null, $timezone = null)</code></td><td><code>Hijri</code></td><td>شیء تغییرناپذیر تاریخ هجری قمری</td></tr>
+                    <tr><td><code>jalali($datetime = null, $timezone = null)</code></td><td><code>Jalali</code></td><td>شیء تاریخ شمسی (رشته‌ها همیشه شمسی فرض می‌شوند)</td></tr>
+                </tbody>
+            </table>
+
+            <h2>بخش C — فرمت، نمایش و متن</h2>
+            <table class="docs-table">
+                <thead>
+                    <tr><th>تابع</th><th>مثال</th><th>خروجی</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>stringMaskFormatter($mask, $input)</code></td><td><code>stringMaskFormatter('XXX-XXX', '123456')</code></td><td><code>"123-456"</code></td></tr>
+                    <tr><td><code>numberSeparator($value)</code></td><td><code>numberSeparator(1250000)</code></td><td><code>"1,250,000"</code></td></tr>
+                    <tr><td><code>spellNumber($number, $suffix = '')</code></td><td><code>spellNumber(2500000, 'تومان')</code></td><td><code>"دو میلیون و پانصد هزار تومان"</code></td></tr>
+                    <tr><td><code>formatBytes($bytes, $precision, $persian)</code></td><td><code>formatBytes(15360, 2, true)</code></td><td><code>"15 کیلوبایت"</code></td></tr>
+                    <tr><td><code>formatFileSize($bytes)</code></td><td><code>formatFileSize(5242880)</code></td><td><code>"5 MB"</code></td></tr>
+                    <tr><td><code>parseSize($size)</code></td><td><code>parseSize('10M')</code></td><td><code>10240</code> (کیلوبایت)</td></tr>
+                    <tr><td><code>convertExtensionsToDotFormat($ext)</code></td><td><code>convertExtensionsToDotFormat('jpg,png')</code></td><td><code>".jpg,.png"</code></td></tr>
+                    <tr><td><code>groupBodyTooltip($val, $title, $class)</code></td><td><code>groupBodyTooltip('فعال', 'وضعیت')</code></td><td>HTML دارای <code>data-bs-toggle="tooltip"</code></td></tr>
+                    <tr><td><code>presetColors()</code> / <code>renderColor()</code></td><td><code>$fn = renderColor(); echo $fn('#0d6efd');</code></td><td>پالت رنگ و Closure رندر دایره رنگ</td></tr>
+                    <tr><td><code>enumBadgeVariant($val, $custom)</code></td><td><code>enumBadgeVariant(1)</code></td><td><code>"success"</code></td></tr>
+                    <tr><td><code>getEnumName($enum, $item, $module)</code></td><td><code>getEnumName(ConfirmationStatus::class, 1)</code></td><td><code>"تایید شده"</code></td></tr>
+                    <tr><td><code>parsedUserAgentInfo($ua)</code></td><td><code>parsedUserAgentInfo(request()->userAgent())</code></td><td><code>['os'=>..., 'browser'=>..., 'platform'=>...]</code></td></tr>
+                    <tr><td><code>renderComponent($class, $props)</code></td><td><code>renderComponent(Badge::class, ['value'=>'کد'])</code></td><td>رندر کامپوننت Blade از داخل PHP</td></tr>
+                </tbody>
+            </table>
+
+            <h2>بخش D تا G — فرم، فایل، مسیر و دسترسی</h2>
+            <ul>
+                <li><strong>فرم و کامپوننت:</strong> <code>prepareSelectComponentData(...)</code>، <code>makeDatetimeRangePickerID(...)</code>، <code>filterValidation($rules)</code>، <code>encryptStaticValue($val)</code>، <code>decryptStaticValue($val)</code></li>
+                <li><strong>فایل و آپلود:</strong> <code>getFile($fileID)</code>، <code>uploadFile(...)</code>، <code>FileManager::url($fileId)</code></li>
+                <li><strong>مسیر و جستجو:</strong> <code>makePanelRouteName($name)</code>، <code>appendFilterQueryParamsToLinks($name, $params)</code>، <code>handleSearchAndResetPage(...)</code>، <code>getPageTitle()</code>، <code>getNextSortValue(Model::class)</code>، <code>generateUserManagementRouteName($suffix)</code></li>
+                <li><strong>دسترسی و کاربران:</strong> <code>policyCheck($ability, $entity)</code>، <code>policyAuthorize($ability, $entity)</code>، <code>renderConditionalLink(...)</code>، <code>resolveUserHref($user)</code>، <code>getUserStatuses()</code>، <code>linkUserInfo(...)</code></li>
+            </ul>
+        `
+    },
+    {
+        id: "abolframe-js-helpers",
+        title: "۲. توابع کمکی JS (AbolFrame)",
+        icon: "fa-brands fa-js",
+        category: "مستندات جامع ابول فریم (AbolFrame)",
+        content: `
+            <h1>۲. توابع کمکی JavaScript (AbolFrame) — مرجع کامل</h1>
+            <p class="lead text-muted">تمامی توابع کمکی جاوااسکریپت روی <code>window</code> و آبجکت <code>abolframe</code> / <code>Core</code> در دسترس هستند.</p>
+
+            <h2>بخش A و B — راه‌اندازی، ابزارها، ترجمه و تبدیل داده</h2>
+            <table class="docs-table">
+                <thead>
+                    <tr><th>تابع</th><th>کاربرد و مثال</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>abolframe.ready(callback, zone?)</code></td><td>اجرای کد پس از آماده‌شدن DOM (با امکان محدودسازی به سلکتور <code>zone</code>)</td></tr>
+                    <tr><td><code>delay(ms)</code> / <code>debounce(fn, wait)</code></td><td>تأخیر با Promise و جلوگیری از فراخوانی مکرر رویدادها</td></tr>
+                    <tr><td><code>generateUUID()</code> / <code>mergeRecursive(a, b)</code></td><td>تولید UUID یکتا و ادغام بازگشتی آبجکت/آرایه‌ها</td></tr>
+                    <tr><td><code>__(key, attributes)</code></td><td>ترجمه کلیدها از <code>abolframe.translations</code> با جایگزینی متغیرها</td></tr>
+                    <tr><td><code>replacePersianDigits(value)</code></td><td>تبدیل ارقام فارسی و عربی به انگلیسی (<code>"۱۲۳" &rarr; "123"</code>)</td></tr>
+                    <tr><td><code>convertAmountToText(amount, suffix)</code></td><td>تبدیل عدد به حروف فارسی در مرورگر (معادل <code>spellNumber</code> در سرور)</td></tr>
+                    <tr><td><code>getFormElementValueText(name, value, form)</code></td><td>دریافت متن نمایشی (Label) یک فیلد input/select/radio/checkbox</td></tr>
+                </tbody>
+            </table>
+
+            <h2>بخش C و D — پیام‌ها، لودینگ و اعتبارسنجی فرم</h2>
+            <table class="docs-table">
+                <thead>
+                    <tr><th>تابع</th><th>توضیح</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>showAlert(type, message, title, options)</code></td><td>نمایش آلرت (SweetAlert2 یا دیالوگ Core)</td></tr>
+                    <tr><td><code>showToast(type, message, title, options)</code></td><td>اعلان کوتاه (برای خطای فیلد الزامی استفاده نشود!)</td></tr>
+                    <tr><td><code>showConfirmationMessage(config)</code></td><td>دیالوگ تأیید عملیات دارای <code>onConfirm</code> و <code>onCancel</code></td></tr>
+                    <tr><td><code>showComponentMessage(config)</code></td><td>استاندارد نمایش خطای inline روی کامپوننت فرم</td></tr>
+                    <tr><td><code>hasComponentMessage(el, type, formValidation)</code></td><td>بررسی وجود پیام فعال روی یک فیلد</td></tr>
+                    <tr><td><code>clearComponentMessage(el)</code> / <code>clearFormMessages(form)</code></td><td>پاک‌سازی پیام خطای یک فیلد یا کل فرم</td></tr>
+                    <tr><td><code>reinitializeFormValidation(formRequest, selector, options)</code></td><td>اعمال مجدد قوانین اعتبارسنجی FormRequest با حفظ خطاهای قبلی</td></tr>
+                    <tr><td><code>toggleButtonLoading</code> / <code>toggleFormElementLoading</code> / <code>toggleLoading</code></td><td>مدیریت حالت لودینگ روی دکمه، فیلد فرم یا سکشن کامل</td></tr>
+                    <tr><td><code>validateForm(form)</code> / <code>validateField(field)</code> / <code>triggerOnChange(...)</code></td><td>اعتبارسنجی فرم/فیلد و بروزرسانی فیلدهای وابسته</td></tr>
+                </tbody>
+            </table>
+
+            <h2>بخش E تا H — افزونه‌های jQuery، نقشه (GIS) و رسانه</h2>
+            <ul>
+                <li><strong>فرم و فایل:</strong> <code>addHiddenInputs(form, inputs)</code>، <code>appendFilterQueryParamsToLinks(hashKey, container)</code>، <code>downloadFile(url, filename)</code></li>
+                <li><strong>متدهای jQuery:</strong> <code>$(el).updateHint(text)</code>، <code>$(el).updateLabel(text)</code>، <code>$(el).disable()</code>، <code>$(el).enable()</code>، <code>$(el).getInstance()</code>، <code>$(el).toggleConfirmation(state)</code>، <code>$(el).refreshComponent(resetParams)</code>، <code>$(el).setComponentParams(params)</code></li>
+                <li><strong>موقعیت جغرافیایی و نقشه:</strong> <code>getDistanceBetweenPoints(p1, p2)</code>، <code>convertUtmToLatLng(point)</code>، <code>convertLatLngToUtm(point)</code>، <code>calculateArea(polygon)</code>، <code>calculateCentroid(polygon)</code>، <code>calculateCenterOfMath(polygon)</code></li>
+                <li><strong>رسانه و مودال:</strong> <code>getVideoThumbnail(videoSource, options)</code>، <code>setModalTitle(id, newTitle)</code></li>
+            </ul>
+        `
+    },
+    {
+        id: "abolframe-traits-scopes-enums",
+        title: "۳. Traits، Scopes و ۵۵ Enum",
+        icon: "fa-layer-group",
+        category: "مستندات جامع ابول فریم (AbolFrame)",
+        content: `
+            <h1>۳. Core Traits، Boolean Scopes و ۵۵ Enum</h1>
+            <p class="lead text-muted">مجموعه تریت‌های هسته، سیستم تولید خودکار ماکروهای Boolean Scope روی Query Builder و ۵۵ کلاس Enum استاندارد.</p>
+
+            <h2>بخش A — Core Traits</h2>
+            <table class="docs-table">
+                <thead>
+                    <tr><th>تریت</th><th>محل استفاده</th><th>کاربرد</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>SoftDeletes</code></td><td>مدل</td><td>حذف نرم دوستونی با <code>is_deleted</code> (مبنای Global Scope) و <code>deleted_at</code> + ثبت خودکار حذف‌کننده</td></tr>
+                    <tr><td><code>UserActivityTracking</code></td><td>مدل</td><td>ساخت خودکار روابط <code>createdBy</code>، <code>existingCreatedBy</code>، <code>updatedBy</code>، <code>deletedBy</code> (ساده و Polymorphic)</td></tr>
+                    <tr><td><code>AppendHashedColumns</code></td><td>مدل</td><td>افزودن خودکار <code>hashed_id</code> رمزنگاری‌شده به خروجی مدل</td></tr>
+                    <tr><td><code>InitializeSortColumn</code></td><td>مدل</td><td>مقداردهی خودکار ستون <code>sort</code> به <code>max(sort) + 1</code> هنگام ایجاد رکورد</td></tr>
+                    <tr><td><code>CustomFilterable</code></td><td>مدل</td><td>اعمال فیلترهای Query String از طریق Pipeline با متدهای <code>filter{StudlyName}</code></td></tr>
+                    <tr><td><code>EnumTools</code></td><td>Enum</td><td>متدهای <code>names()</code>، <code>values()</code>، <code>array()</code>، <code>componentOptions()</code>، <code>selectComponentItems()</code>، <code>asBool()</code></td></tr>
+                    <tr><td><code>MagicMethods</code></td><td>DTO</td><td>دسترسی جادویی و آرایه‌ای به <code>$attributes</code></td></tr>
+                    <tr><td><code>ExceptionHandler</code></td><td>Handler</td><td>رندر یکپارچه خطاهای Web و API منطبق با <code>SystemMessage</code></td></tr>
+                </tbody>
+            </table>
+
+            <h2>بخش B — Boolean Scopes</h2>
+            <p>به‌ازای تمام فیلدهای پیش‌فرض (<code>is_active</code>، <code>is_archive</code>، <code>is_started</code>، <code>is_start</code>، <code>is_success</code>، <code>is_verified</code>، <code>is_expired</code>، <code>is_archived</code>، <code>is_count</code>، <code>is_default</code>، <code>is_end</code>، <code>is_lock</code>، <code>is_required</code>) و فیلدهای سفارشی در <code>additional_boolean_scope_fields</code>، دو متد روی Query Builder ساخته می‌شود:</p>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>User::onlyIsActive()->exceptIsExpired()->onlyIsVerified()->get();</code></pre>
+            </div>
+
+            <h2>بخش C — فهرست ۵۵ Enum زیرساخت</h2>
+            <p>تمامی Enumها در فضای نام <code>MyLaravelCore\\Enums\\*</code> (و همچنین با Alias سازگار <code>MyLaravelCore\\Foundation\\Core\\Enums\\*</code>) مجهز به تریت <code>EnumTools</code> هستند؛ از جمله: <code>ConfirmationStatus</code>، <code>IsActive</code>، <code>IsDeleted</code>، <code>IsLock</code>، <code>IsStart</code>، <code>Gender</code>، <code>PersonType</code>، <code>UserLoginType</code>، <code>SystemMessage</code>، <code>DeleteDependencyMode</code>، <code>DestroyType</code>، <code>EncryptMethod</code> و غیره.</p>
+        `
+    },
+    {
+        id: "abolframe-dataprovider-deletedependency-jalali",
+        title: "۴. DataProvider، وابستگی حذف و Jalali",
+        icon: "fa-calendar-check",
+        category: "مستندات جامع ابول فریم (AbolFrame)",
+        content: `
+            <h1>۴. DataProvider، DeleteDependency و Jalali — توضیح کامل</h1>
+
+            <h2>بخش A — DataProvider</h2>
+            <p>ارائه داده‌های مرتب‌شده و فیلترشده (به‌طور پیش‌فرض <code>onlyActives()</code> در صورت وجود ستون <code>is_active</code>) برای مدل‌ها، کوئری‌ها و Enumها:</p>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>use MyLaravelCore\\Facades\\DataProvider;
+use MyLaravelCore\\Enums\\IsLock;
+
+DataProvider::source(Bank::class)->latest()->label('title')->shouldEncryptValue()->formatSelectOptions();
+DataProvider::source(IsLock::class)->formatComponentOptions();</code></pre>
+            </div>
+
+            <h2>بخش B — DeleteDependency (محافظت از حذف رکوردهای دارای وابستگی)</h2>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>use MyLaravelCore\\Support\\DeleteDependency\\DTO\\DeleteDependency;
+use MyLaravelCore\\Support\\DeleteDependency\\Traits\\HasDeleteDependency;
+use MyLaravelCore\\Facades\\DeleteProtection;
+
+class Category extends Model
+{
+    use HasDeleteDependency;
+
+    public function deleteDependencies(): array
+    {
+        return [
+            DeleteDependency::relation('products')->label('محصولات'),
+            DeleteDependency::condition(fn () => !$this->is_locked)->label('رکورد قفل‌شده'),
+        ];
+    }
+}
+
+// بررسی و حذف محافظت‌شده:
+if ($msg = $category->getDeleteErrorMessage()) {
+    return back()->with('error', $msg);
+}
+$service = DeleteProtection::destroy(Category::class)->target([1, 2, 3])->atomic()->execute();</code></pre>
+            </div>
+
+            <h2>بخش C — تقویم شمسی پیشرفته (Jalali) و Cast مدل</h2>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>use MyLaravelCore\\Support\\Jalali\\Jalali;
+use MyLaravelCore\\Support\\Jalali\\Casts\\JalaliDate;
+
+$d = jalali('1403/05/14 12:00:00');
+$nextYear = $d->copy()->addYear();
+$storageCarbon = $d->toStorage(); // UTC Carbon برای دیتابیس
+
+// در مدل Eloquent:
+protected function casts(): array
+{
+    return [
+        'published_at' => JalaliDate::class,
+        'birth_date'   => JalaliDate::class . ':Y-m-d',
+    ];
+}</code></pre>
+            </div>
+        `
+    }
+    ,
+    {
+        id: "abolframe-validation",
+        title: "۵. اعتبارسنجی، جلالی و مکانی (Geo)",
+        icon: "fa-shield-halved",
+        category: "مستندات جامع ابول فریم (AbolFrame)",
+        content: `
+            <h1>۵. Validation: Ruleهای هسته، تاریخ جلالی، مکانی و FormValidation</h1>
+            <p class="lead text-muted">مجموعه متمرکز قوانین اعتبارسنجی رشته‌ای، عددی، تاریخ شمسی، مختصات جغرافیایی (Geo/UTM/Polygon) و اتصال خودکار به فرم‌های مرورگر.</p>
+
+            <h2>بخش A — Ruleهای متمرکز رشته‌ای و اندازه (<code>MyLaravelCore\\Rules\\*</code>)</h2>
+            <table class="docs-table">
+                <thead>
+                    <tr><th>کلاس Rule</th><th>مجاز / کاربرد</th><th>نمونه استفاده</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>CodeRule</code> / <code>SlugRule</code></td><td>اعداد، حروف لاتین، <code>-</code> و <code>_</code></td><td><code>new CodeRule()</code></td></tr>
+                    <tr><td><code>StyleRule</code></td><td>مانند CodeRule به همراه فاصله</td><td><code>new StyleRule()</code></td></tr>
+                    <tr><td><code>PersianSlugRule</code></td><td>اعداد، حروف لاتین، حروف فارسی، <code>-</code> و <code>_</code></td><td><code>new PersianSlugRule()</code></td></tr>
+                    <tr><td><code>PersianNameRule</code></td><td>فقط حروف فارسی و فاصله</td><td><code>new PersianNameRule()</code></td></tr>
+                    <tr><td><code>BasicTitleRule</code></td><td>حروف فارسی، اعداد، فاصله، پرانتز، <code>-</code> و <code>_</code></td><td><code>new BasicTitleRule()</code></td></tr>
+                    <tr><td><code>AddressStringRule</code></td><td>جلوگیری از ثبت آدرس فقط عددی</td><td><code>new AddressStringRule()</code></td></tr>
+                    <tr><td><code>UrlRule</code></td><td>URL معتبر (با یا بدون <code>http(s)://</code>)</td><td><code>new UrlRule()</code></td></tr>
+                    <tr><td><code>NumberSeparatorRule($max, $isString)</code></td><td>بررسی سقف عددی یا طول رشته با نمایش هزارگان در خطا</td><td><code>new NumberSeparatorRule(max: 999999999)</code></td></tr>
+                    <tr><td><code>NormalizedStringRule($max, $isEditor)</code></td><td>نرمال‌سازی HTML/خطوط پیش از شمارش کاراکتر</td><td><code>new NormalizedStringRule(max: 65000, isEditor: true)</code></td></tr>
+                </tbody>
+            </table>
+
+            <h2>بخش B — قوانین تاریخ جلالی در Validator لاراول</h2>
+            <ul>
+                <li><code>jalali_date:Y/m/d</code> و <code>jalali_datetime:Y/m/d H:i:s</code></li>
+                <li>مقایسه تاریخ: <code>jalali_date_equal</code>، <code>jalali_date_not_equal</code>، <code>jalali_date_after</code>، <code>jalali_date_after_equal</code>، <code>jalali_date_before</code>، <code>jalali_date_before_equal</code></li>
+                <li>مقایسه تاریخ‌وزمان: <code>jalali_datetime_equal</code>، <code>jalali_datetime_not_equal</code>، <code>jalali_datetime_after</code>، <code>jalali_datetime_after_equal</code>، <code>jalali_datetime_before</code>، <code>jalali_datetime_before_equal</code></li>
+            </ul>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>$request->validate([
+    'start_date' => 'jalali_date:Y/m/d',
+    'expire_at'  => 'jalali_datetime_after:1403/01/01 00:00:00,Y/m/d H:i:s',
+]);</code></pre>
+            </div>
+
+            <h2>بخش C — قوانین مکانی (Geospatial) و <code>GeometryValidator</code></h2>
+            <table class="docs-table">
+                <thead>
+                    <tr><th>کلاس</th><th>توضیح</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>ValidPoint</code></td><td>اعتبارسنجی نقطه جغرافیایی (<code>lat,lng</code> یا آرایه) در بازه <code>-90..90</code> و <code>-180..180</code></td></tr>
+                    <tr><td><code>ValidPolygon($minPoints = 3)</code></td><td>بررسی حداقل نقاط متمایز چندضلعی</td></tr>
+                    <tr><td><code>ValidMultiPolygon($minPoints = 3)</code></td><td>بررسی آرایه‌ای از چندضلعی‌ها</td></tr>
+                    <tr><td><code>ValidGeoJson($expectedType = null)</code></td><td>بررسی ساختار استاندارد GeoJSON (<code>Point</code>, <code>Polygon</code>, <code>MultiPolygon</code>)</td></tr>
+                    <tr><td><code>ValidUtmPoint</code></td><td>اعتبارسنجی مختصات UTM شامل <code>x, y</code> و <code>z/zone</code> (۱ تا ۶۰)</td></tr>
+                    <tr><td><code>PointWithinBoundary($boundary = null)</code></td><td>بررسی قرارگیری نقطه درون محدوده چندضلعی با الگوریتم Ray-Casting</td></tr>
+                    <tr><td><code>ValidGeometry($minPoints, $minArea, $maxArea)</code></td><td>بررسی کامل حلقه بسته، عدم تقاطع اضلاع و محدوده مساحت (مترمربع)</td></tr>
+                </tbody>
+            </table>
+
+            <h2>بخش D — FormValidation سمت مرورگر</h2>
+            <p>پشتیبانی از متا-قوانین <code>force_remote</code>، <code>no_form_validation</code> و <code>disable_validation_cache</code> در FormRequest و اتصال در Blade:</p>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">BLADE</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>@push('scripts')
+    @canAccess('admin.basic.banks.store')
+        {!! \MyLaravelCore\Facades\FormValidator::formRequest(StoreBankRequest::class, '#create-bank') !!}
+    @endcanAccess
+@endpush</code></pre>
+            </div>
+        `
+    },
+    {
+        id: "abolframe-modularity-routing-menu",
+        title: "۶. ماژولار، Routing و منو",
+        icon: "fa-sitemap",
+        category: "مستندات جامع ابول فریم (AbolFrame)",
+        content: `
+            <h1>۶. معماری ماژولار، Route Property Collector و سیستم منو</h1>
+            <p class="lead text-muted">مدیریت متادیتای مسیرها (عنوان، آیکن، سایدبار، بج، دسترسی و درخت والد–فرزند) و ساخت منوهای سلسله‌مراتبی با <code>AbolFrame::menu()</code>.</p>
+
+            <h2>بخش A — ماکروهای Route Property Collector</h2>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>Route::get('/users', [UserController::class, 'index'])
+    ->name('admin.users.index')
+    ->title('مدیریت کاربران')
+    ->showInSidebar()
+    ->icon('fa-users')
+    ->badge(fn () => User::count(), 'primary')
+    ->permission('user.view')
+    ->sort(10)
+    ->appendRoutes(['admin.users.create', 'admin.users.edit'])
+    ->appendDynamicRoutes(fn () => getUserStatusSidebarItems());</code></pre>
+            </div>
+
+            <h2>بخش B — استفاده از <code>routePropertyCollector()</code></h2>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>$collector = routePropertyCollector();
+$title = $collector->getPageTitle('admin.users.index'); // یا getPageTitle()
+$sidebarRoutes = $collector->onlySidebar()->getRoutes();
+$breadcrumb = $collector->breadcrumb('admin.users.edit');
+$isChild = $collector->isChildOf('admin.users.edit', 'admin.users');</code></pre>
+            </div>
+
+            <h2>بخش C — تعریف منو با <code>AbolFrame::menu</code>، <code>MenuGroup</code> و <code>MenuSubgroup</code></h2>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>use MyLaravelCore\\Facades\\AbolFrame;
+use MyLaravelCore\\Support\\Menu\\MenuGroup;
+use MyLaravelCore\\Support\\Menu\\MenuSubgroup;
+
+AbolFrame::menu(function () {
+    return [
+        MenuGroup::make()
+            ->name('admin.basic')
+            ->title('اطلاعات پایه')
+            ->icon('fa-solid fa-layer-group')
+            ->subMenu([
+                MenuSubgroup::make()->name('admin.basic.banks')->title('لیست بانک‌ها'),
+            ]),
+    ];
+});</code></pre>
+            </div>
+        `
+    },
+    {
+        id: "abolframe-bladelayout-generators",
+        title: "۷. BladeLayout و Generatorها",
+        icon: "fa-wand-magic-sparkles",
+        category: "مستندات جامع ابول فریم (AbolFrame)",
+        content: `
+            <h1>۷. BladeLayout و Generatorهای پنل (Tab, Section, Filter, Audit, Banner)</h1>
+            <p class="lead text-muted">مدیریت یکپارچه اجزای پویا و داده‌های مشترک صفحه از طریق فساد <code>BladeLayout</code> و تابع <code>bladeLayout()</code>.</p>
+
+            <h2>بخش A — ثبت Generatorها و داده‌های صفحه در Controller</h2>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>use MyLaravelCore\\Facades\\BladeLayout;
+
+BladeLayout::data(compact('bank'));
+BladeLayout::table(BankTable::class);
+BladeLayout::tab(BankTab::class);
+BladeLayout::section(BankSection::class);
+BladeLayout::banner(BankBanner::class);
+BladeLayout::filter(BankFilter::class);
+BladeLayout::audit(BankAudit::class)->setEntity($bank);</code></pre>
+            </div>
+
+            <h2>بخش B — Tab، Section، Filter، Banner و Audit</h2>
+            <ul>
+                <li><strong>Tab Generator (<code>BaseTab</code> / <code>Tab::make</code>):</strong> پشتیبانی از <code>layoutMode('minimal'|'default')</code>، <code>routeParameters()</code>، <code>disabled()</code> و <code>permission()</code>.</li>
+                <li><strong>Section Generator (<code>BaseSection</code> / <code>Section::make</code>):</strong> نوار کناری داخلی رکورد با <code>childRoutes()</code>، <code>badge()</code>، <code>visibility()</code> و <code>disabledTooltip()</code>.</li>
+                <li><strong>Filter Generator (<code>BaseFilter</code> / <code>Filter::make</code>):</strong> فیلترهای وابسته با <code>dependOnParentID()</code> و <code>dependOnRoute()</code> و خواندن مقادیر با <code>GeoFilter::values()</code>.</li>
+                <li><strong>Banner Generator (<code>BaseBanner</code> / <code>Banner::make</code>):</strong> نمایش خلاصه اطلاعات رکورد در بالای صفحات Show و Edit.</li>
+                <li><strong>Audit Generator (<code>BaseAudit</code> / <code>AuditField::make</code> / <code>Audit::config</code>):</strong> مدیریت و نمایش لاگ تغییرات مدل‌ها به همراه تریت <code>HasAuditSupport</code> برای API.</li>
+            </ul>
+        `
+    },
+    {
+        id: "abolframe-table-generator",
+        title: "۸. Table Generator کامل",
+        icon: "fa-table",
+        category: "مستندات جامع ابول فریم (AbolFrame)",
+        content: `
+            <h1>۸. Table Generator — مرجع کامل</h1>
+            <p class="lead text-muted">پشتیبانی از درایورهای <code>Driver::MODEL</code>، <code>Driver::RAW</code> و <code>Driver::API</code>، ستون‌های ادغامی، فیلترهای پیشرفته، سوییچ‌های نوار ابزار و ردیف‌های ثابت (Pinned Rows).</p>
+
+            <h2>نمونه کامل تعریف جدول در ابول فریم</h2>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>use MyLaravelCore\\Tables\\BaseTable;
+use MyLaravelCore\\Tables\\Enums\\Driver;
+use MyLaravelCore\\Tables\\Enums\\PinnedRowPosition;
+
+class BankTable extends BaseTable
+{
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setTitle('لیست بانک‌ها')
+             ->setDriver(Driver::MODEL)
+             ->setResource(Bank::class);
+    }
+
+    public function columns(): void
+    {
+        $this->addColumn(name: 'name', label: 'نام بانک', type: 'text', sortable: true);
+        $this->addColumn(name: 'code', label: 'کد', type: fn ($val) => e($val), direction: 'ltr');
+    }
+
+    public function filters(): void
+    {
+        $this->addFilter(name: 'name', elementName: 'filter_name', elementType: 'text', label: 'نام', operator: '%');
+    }
+
+    public function toolbar(): void
+    {
+        $this->addToolbarButton(title: 'افزودن بانک', route: route('admin.basic.banks.create'), icon: 'fa-solid fa-plus', variant: 'success');
+        $this->addToggle(name: 'own_records', label: 'رکوردهای من', default: false);
+    }
+}</code></pre>
+            </div>
+        `
+    },
+    {
+        id: "abolframe-crud-guide",
+        title: "۹. راهنمای ساخت CRUD گام‌به‌گام",
+        icon: "fa-list-check",
+        category: "مستندات جامع ابول فریم (AbolFrame)",
+        content: `
+            <h1>۹. راهنمای گام‌به‌گام ساخت مدیریت پایه (CRUD) در ابول فریم</h1>
+            <p class="lead text-muted">الگوی استاندارد ۱۲ مرحله‌ای ساخت ماژول CRUD شامل مسیرها، منو، جدول، فرم درج/ویرایش، صفحه جزئیات با <code>&lt;x-data-display&gt;</code> و حذف محافظت‌شده.</p>
+
+            <h2>نمایش جزئیات رکورد (<code>show.blade.php</code>) با <code>&lt;x-data-display&gt;</code> و <code>&lt;x-data-item&gt;</code></h2>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">BLADE</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>&lt;x-default-layout&gt;
+    &lt;x-data-display cols="3" :alignValues="true" title="اطلاعات بانک"&gt;
+        &lt;x-data-item label="نام بانک" :value="$bank->name" /&gt;
+        &lt;x-data-item label="کد" :value="$bank->code" dir="ltr" /&gt;
+        &lt;x-data-item label="وضعیت" :value="getEnumName(\MyLaravelCore\Enums\IsActive::class, $bank->is_active)" :badgeVariant="enumBadgeVariant($bank->is_active)" /&gt;
+        &lt;x-data-item label="تاریخ ایجاد" :value="jalali($bank->created_at)->format('Y/m/d H:i:s')" dir="ltr" /&gt;
+    &lt;/x-data-display&gt;
+&lt;/x-default-layout&gt;</code></pre>
+            </div>
+
+            <h2>ذخیره و بازگشت با <code>withFlash</code></h2>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">PHP</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code>return redirect()
+    ->route('admin.basic.banks.index')
+    ->withFlash(message: 'با موفقیت ثبت شد.', type: 'success');</code></pre>
             </div>
         `
     }

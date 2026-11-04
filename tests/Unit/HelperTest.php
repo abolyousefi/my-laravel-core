@@ -107,11 +107,11 @@ class HelperTest extends TestCase
     public function test_sheba_validation_and_format(): void
     {
         // Valid Iranian Sheba
-        $validSheba = 'IR060170000000100324200001';
+        $validSheba = 'IR062960000000100324200001';
         $this->assertTrue(is_valid_sheba($validSheba));
-        $this->assertFalse(is_valid_sheba('IR060170000000100324200002')); // Wrong check digit
+        $this->assertFalse(is_valid_sheba('IR062960000000100324200002')); // Wrong check digit
 
-        $this->assertEquals('IR06-0170-0000-0010-0324-2000-01', sheba_format($validSheba));
+        $this->assertEquals('IR06-2960-0000-0010-0324-2000-01', sheba_format($validSheba));
     }
 
     public function test_postal_code_and_mobile_helpers(): void

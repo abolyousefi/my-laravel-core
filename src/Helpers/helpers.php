@@ -153,21 +153,16 @@ if (!function_exists('is_valid_card_number')) {
 
 if (!function_exists('mask_card_number')) {
     /**
-     * Mask credit card number (e.g. 6037-99**-****-1234).
+     * Mask credit card number (e.g. 6037-****-****-1234).
      */
-    function mask_card_number(mixed $cardNumber, string $separator = '-'): string
+    function mask_card_number(mixed $cardNumber, string $mask = '****-****'): string
     {
-        $cardNumber = english_digits(preg_replace('/\D+/', '', (string) $cardNumber));
-        if (strlen($cardNumber) !== 16) {
+        $card = english_digits(preg_replace('/\D+/', '', (string) $cardNumber));
+        if (strlen($card) !== 16) {
             return (string) $cardNumber;
         }
 
-        $part1 = substr($cardNumber, 0, 4);
-        $part2 = substr($cardNumber, 4, 2) . '**';
-        $part3 = '****';
-        $part4 = substr($cardNumber, 12, 4);
-
-        return implode($separator, [$part1, $part2, $part3, $part4]);
+        return substr($card, 0, 4) . '-' . $mask . '-' . substr($card, 12, 4);
     }
 }
 
@@ -785,7 +780,7 @@ if (!function_exists('is_valid_sheba')) {
         // Perform modulo 97 on large numeric string
         $remainder = 0;
         foreach (str_split($rearranged, 7) as $chunk) {
-            $remainder = (int) (($remainder . $chunk) % 97);
+            $remainder = ((int) ($remainder . $chunk)) % 97;
         }
 
         return $remainder === 1;
@@ -987,8 +982,7 @@ if (!function_exists('is_leap_jyear')) {
      */
     function is_leap_jyear(int $year): bool
     {
-        $mod = ($year + 38) * 31 % 128;
-        return $mod < 31;
+        return in_array($year % 33, [1, 5, 9, 13, 17, 22, 26, 30], true);
     }
 }
 
@@ -1087,5 +1081,1096 @@ if (!function_exists('clean_persian_text')) {
         $text = preg_replace('/([.,;:!?،؛؟])(?=[^\s\d])/u', '$1 ', $text);
 
         return trim($text);
+    }
+}
+
+/* =========================================================================
+ * ABOLFRAME INFRASTRUCTURE INFRASTRUCTURE PHP HELPERS
+ * (Authentication, Localization, Hijri/Jalali, Formatting, Forms, Files, Routing, Access)
+ * ========================================================================= */
+
+// --- Section A: Authentication Helpers ---
+
+if (!function_exists('authenticator')) {
+    /**
+     * Get the current Authenticator service instance.
+     */
+    function authenticator(): \MyLaravelCore\Support\Auth\Authenticator
+    {
+        return app(\MyLaravelCore\Support\Auth\Authenticator::class);
+    }
+}
+
+if (!function_exists('authUser')) {
+    /**
+     * Get the currently authenticated user from the active guard.
+     */
+    function authUser(): mixed
+    {
+        return authenticator()->user();
+    }
+}
+
+if (!function_exists('authId')) {
+    /**
+     * Get the ID of the currently authenticated user.
+     */
+    function authId(): int|string|null
+    {
+        return authenticator()->id();
+    }
+}
+
+if (!function_exists('authCheck')) {
+    /**
+     * Check whether the current user is authenticated.
+     */
+    function authCheck(): bool
+    {
+        return authenticator()->check();
+    }
+}
+
+if (!function_exists('authLogout')) {
+    /**
+     * Log out the current user from session or token flow.
+     */
+    function authLogout(?\Illuminate\Http\Request $request = null): bool
+    {
+        return authenticator()->logout($request);
+    }
+}
+
+if (!function_exists('authFieldDefinitions')) {
+    /**
+     * Return full definitions of all configured authentication fields.
+     */
+    function authFieldDefinitions(): array
+    {
+        return (array) config('core.auth.fields', [
+            'code' => [
+                'name' => 'code',
+                'label' => 'کد ملی / نام کاربری',
+                'rules' => ['required', 'string'],
+                'registration' => true,
+                'password_recovery' => true,
+            ],
+            'mobile' => [
+                'name' => 'mobile',
+                'label' => 'شماره موبایل',
+                'rules' => ['required', 'string'],
+                'registration' => true,
+                'password_recovery' => true,
+            ],
+        ]);
+    }
+}
+
+if (!function_exists('authFieldNames')) {
+    /**
+     * Return names of all defined authentication fields (e.g. ['code', 'mobile']).
+     */
+    function authFieldNames(): array
+    {
+        return array_keys(authFieldDefinitions());
+    }
+}
+
+if (!function_exists('authFieldDefinition')) {
+    /**
+     * Return definition of a single authentication field.
+     */
+    function authFieldDefinition(string $authField, array $default = []): array
+    {
+        $defs = authFieldDefinitions();
+        return $defs[$authField] ?? $default;
+    }
+}
+
+if (!function_exists('registrationAuthFieldDefinitions')) {
+    /**
+     * Return only auth fields enabled for registration.
+     */
+    function registrationAuthFieldDefinitions(): array
+    {
+        return array_filter(
+            authFieldDefinitions(),
+            fn (array $def) => !empty($def['registration'])
+        );
+    }
+}
+
+if (!function_exists('passwordRecoveryAuthFieldDefinitions')) {
+    /**
+     * Return only auth fields enabled for forgot-password / recovery.
+     */
+    function passwordRecoveryAuthFieldDefinitions(): array
+    {
+        return array_filter(
+            authFieldDefinitions(),
+            fn (array $def) => !empty($def['password_recovery'])
+        );
+    }
+}
+
+if (!function_exists('userMetaFieldGroups')) {
+    /**
+     * Return all user meta field groups.
+     */
+    function userMetaFieldGroups(): array
+    {
+        return (array) config('core.auth.meta_field_groups', [
+            'real' => [
+                'first_name' => ['label' => 'نام', 'rules' => ['required', 'string']],
+                'last_name' => ['label' => 'نام خانوادگی', 'rules' => ['required', 'string']],
+                'national_code' => ['label' => 'کد ملی', 'rules' => ['required', 'digits:10']],
+            ],
+            'legal' => [
+                'company_name' => ['label' => 'نام شرکت', 'rules' => ['required', 'string']],
+                'national_id' => ['label' => 'شناسه ملی', 'rules' => ['required', 'digits:11']],
+            ],
+        ]);
+    }
+}
+
+if (!function_exists('userMetaFields')) {
+    /**
+     * Return user meta fields filtered by PersonType (or all groups if null).
+     */
+    function userMetaFields(?\MyLaravelCore\Enums\PersonType $personType = null): array
+    {
+        $groups = userMetaFieldGroups();
+        if ($personType === null) {
+            return $groups;
+        }
+
+        $key = strtolower($personType->name);
+        return $groups[$key] ?? [];
+    }
+}
+
+if (!function_exists('authPasswordLength')) {
+    /**
+     * Return [min, max] allowed password length from configuration.
+     *
+     * @return array{0: int, 1: int}
+     */
+    function authPasswordLength(): array
+    {
+        $min = (int) config('core.auth.password_min', 8);
+        $max = (int) config('core.auth.password_max', 32);
+        return [$min, $max];
+    }
+}
+
+if (!function_exists('userActivationModel')) {
+    /**
+     * Return the configured UserActivation model class name.
+     */
+    function userActivationModel(): string
+    {
+        return (string) config('core.auth.activation_model', 'App\\Models\\UserActivation');
+    }
+}
+
+if (!function_exists('generatePasswordRule')) {
+    /**
+     * Generate validation rules array for the password field.
+     *
+     * @return array{password: array<int, string>}
+     */
+    function generatePasswordRule(int $min = 8, int $max = 32): array
+    {
+        return [
+            'password' => ["min:{$min}", "max:{$max}", 'required'],
+        ];
+    }
+}
+
+// --- Section B: Localization & Date Helpers ---
+
+if (!function_exists('localizor')) {
+    /**
+     * Get the active Localization service instance.
+     */
+    function localizor(): \MyLaravelCore\Support\Localization\Localization
+    {
+        return app(\MyLaravelCore\Support\Localization\Localization::class);
+    }
+}
+
+if (!function_exists('getLanguage')) {
+    /**
+     * Get current project language (e.g. "fa").
+     */
+    function getLanguage(): mixed
+    {
+        return localizor()->getCurrentLanguage();
+    }
+}
+
+if (!function_exists('getPortal')) {
+    /**
+     * Get current portal/context from localization (e.g. "admin").
+     */
+    function getPortal(): mixed
+    {
+        return localizor()->getPortal();
+    }
+}
+
+if (!function_exists('isProjectLocalized')) {
+    /**
+     * Determine whether multi-language localization is enabled in the project.
+     */
+    function isProjectLocalized(): bool
+    {
+        return localizor()->isLocalized();
+    }
+}
+
+if (!function_exists('hijri')) {
+    /**
+     * Create an immutable Hijri (Islamic lunar) date instance.
+     */
+    function hijri(mixed $datetime = null, \DateTimeZone|string|null $timezone = null): \MyLaravelCore\Support\Hijri\Hijri
+    {
+        return new \MyLaravelCore\Support\Hijri\Hijri($datetime, $timezone);
+    }
+}
+
+if (!function_exists('jalali')) {
+    /**
+     * Create a Jalali (Persian solar) date instance.
+     * Note: Strings are always parsed as Jalali dates; Carbon/DateTime/Hijri/timestamp are converted automatically.
+     */
+    function jalali(mixed $datetime = null, \DateTimeZone|string|null $timezone = null): \MyLaravelCore\Support\Jalali\Jalali
+    {
+        if ($datetime === null) {
+            return \MyLaravelCore\Support\Jalali\Jalali::now($timezone);
+        }
+
+        if ($datetime instanceof \MyLaravelCore\Support\Jalali\Jalali) {
+            return $timezone ? $datetime->copy()->setTimezone($timezone) : $datetime->copy();
+        }
+
+        if ($datetime instanceof \MyLaravelCore\Support\Hijri\Hijri) {
+            return \MyLaravelCore\Support\Jalali\Jalali::fromHijri($datetime);
+        }
+
+        if ($datetime instanceof \Carbon\CarbonInterface) {
+            $j = \MyLaravelCore\Support\Jalali\Jalali::fromCarbon($datetime);
+            return $timezone ? $j->setTimezone($timezone) : $j;
+        }
+
+        if ($datetime instanceof \DateTimeInterface) {
+            $j = \MyLaravelCore\Support\Jalali\Jalali::fromDateTime($datetime);
+            return $timezone ? $j->setTimezone($timezone) : $j;
+        }
+
+        if (is_int($datetime)) {
+            return \MyLaravelCore\Support\Jalali\Jalali::fromTimestamp($datetime, $timezone);
+        }
+
+        return \MyLaravelCore\Support\Jalali\Jalali::parse((string) $datetime, $timezone);
+    }
+}
+
+// --- Section C: Formatting, Display & Text Helpers ---
+
+if (!function_exists('stringMaskFormatter')) {
+    /**
+     * Place digits/characters of $input onto 'X' placeholders in $mask.
+     * Example: stringMaskFormatter('XXX-XXX', '123456') => '123-456'
+     */
+    function stringMaskFormatter(string $mask, ?string $input): string
+    {
+        if ($input === null || $input === '') {
+            return '';
+        }
+
+        $chars = str_split($input);
+        $charIndex = 0;
+        $charCount = count($chars);
+        $out = '';
+
+        for ($i = 0, $len = strlen($mask); $i < $len; $i++) {
+            if ($mask[$i] === 'X') {
+                if ($charIndex < $charCount) {
+                    $out .= $chars[$charIndex++];
+                }
+            } else {
+                if ($charIndex < $charCount) {
+                    $out .= $mask[$i];
+                }
+            }
+        }
+
+        return $out;
+    }
+}
+
+if (!function_exists('numberSeparator')) {
+    /**
+     * Format number with thousand separators (e.g. 1250000 => "1,250,000").
+     */
+    function numberSeparator(mixed $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        $clean = str_replace(',', '', english_digits((string) $value));
+        if (!is_numeric($clean)) {
+            return (string) $value;
+        }
+
+        $parts = explode('.', $clean);
+        $formattedInt = number_format((float) $parts[0], 0, '.', ',');
+
+        return isset($parts[1]) ? "{$formattedInt}.{$parts[1]}" : $formattedInt;
+    }
+}
+
+if (!function_exists('spellNumber')) {
+    /**
+     * Convert a number to Persian words with optional unit suffix (e.g. 'تومان').
+     */
+    function spellNumber(mixed $number, string $suffix = ''): string
+    {
+        return \MyLaravelCore\Support\NumberSpeller::spell($number, $suffix);
+    }
+}
+
+if (!function_exists('formatBytes')) {
+    /**
+     * Format bytes into human-readable string (KB, MB, GB) with optional Persian unit translation.
+     */
+    function formatBytes(float|int $bytes, int $precision = 2, bool $persianTranslate = false): string
+    {
+        $units = $persianTranslate
+            ? ['بایت', 'کیلوبایت', 'مگابایت', 'گیگابایت', 'ترابایت']
+            : ['B', 'KB', 'MB', 'GB', 'TB'];
+
+        $bytes = max($bytes, 0);
+        $pow = (int) floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+
+        $value = $bytes / (1024 ** $pow);
+        return round($value, $precision) . ' ' . $units[$pow];
+    }
+}
+
+if (!function_exists('formatFileSize')) {
+    /**
+     * Format file size in bytes for upload components (e.g. 5242880 => "5 MB").
+     */
+    function formatFileSize(int $bytes): string
+    {
+        return formatBytes($bytes, 2, false);
+    }
+}
+
+if (!function_exists('parseSize')) {
+    /**
+     * Convert size string like '10M' or '2G' into kilobytes (e.g. '10M' => 10240).
+     */
+    function parseSize(string $size): float|int
+    {
+        $size = trim($size);
+        if ($size === '') {
+            return 0;
+        }
+
+        $unit = strtoupper(substr($size, -1));
+        $number = (float) $size;
+
+        return match ($unit) {
+            'T' => (int) ($number * 1024 * 1024 * 1024),
+            'G' => (int) ($number * 1024 * 1024),
+            'M' => (int) ($number * 1024),
+            'K' => (int) $number,
+            'B' => $number / 1024,
+            default => (int) $number,
+        };
+    }
+}
+
+if (!function_exists('convertExtensionsToDotFormat')) {
+    /**
+     * Convert 'jpg,png,pdf' to '.jpg,.png,.pdf'.
+     */
+    function convertExtensionsToDotFormat(string $extensions): string
+    {
+        $parts = array_filter(array_map('trim', explode(',', $extensions)));
+        $dotted = array_map(fn (string $ext) => '.' . ltrim($ext, '.'), $parts);
+        return implode(',', $dotted);
+    }
+}
+
+if (!function_exists('groupBodyTooltip')) {
+    /**
+     * Build HTML snippet with Bootstrap tooltip attributes.
+     */
+    function groupBodyTooltip(string $value, ?string $title = null, ?string $valueClass = null): string
+    {
+        $escapedVal = e($value);
+        $escapedTitle = e($title ?? $value);
+        $classAttr = $valueClass ? ' class="' . e($valueClass) . '"' : '';
+
+        return sprintf(
+            '<span%s data-bs-toggle="tooltip" title="%s">%s</span>',
+            $classAttr,
+            $escapedTitle,
+            $escapedVal
+        );
+    }
+}
+
+if (!function_exists('presetColors')) {
+    /**
+     * Return array of preset hex colors suitable for color-input components.
+     */
+    function presetColors(): array
+    {
+        return [
+            '#FF5733', '#FF8D1A', '#FFC300', '#28B463', '#1ABC9C',
+            '#3498DB', '#2E86C1', '#8E44AD', '#E74C3C', '#34495E',
+        ];
+    }
+}
+
+if (!function_exists('renderColor')) {
+    /**
+     * Return a Closure that renders a color value as a small circular badge.
+     */
+    function renderColor(): \Closure
+    {
+        return function (?string $color, mixed $entity = null): string {
+            if (empty($color)) {
+                return '-';
+            }
+            $safeColor = e($color);
+            return sprintf(
+                '<span class="d-inline-block rounded-circle border align-middle" style="width:18px;height:18px;background-color:%s;" title="%s"></span>',
+                $safeColor,
+                $safeColor
+            );
+        };
+    }
+}
+
+if (!function_exists('enumBadgeVariant')) {
+    /**
+     * Map an enum case or status integer/string to a Bootstrap badge variant.
+     */
+    function enumBadgeVariant(mixed $value, ?array $customColors = null): string
+    {
+        $raw = $value instanceof \BackedEnum ? $value->value : ($value instanceof \UnitEnum ? $value->name : $value);
+
+        if ($customColors && isset($customColors[$raw])) {
+            return (string) $customColors[$raw];
+        }
+
+        return match ($raw) {
+            1, true, '1', 'active', 'confirmed', 'success', 'paid' => 'success',
+            0, false, '0', 'inactive', 'not_confirmed', 'danger', 'failed', 'deleted' => 'danger',
+            2, '2', 'pending', 'warning' => 'warning',
+            3, '3', 'info' => 'info',
+            default => 'secondary',
+        };
+    }
+}
+
+if (!function_exists('getEnumName')) {
+    /**
+     * Get the translated name for a given enum case or value.
+     */
+    function getEnumName(string $enum, mixed $selectedItem, ?string $module = null, bool $isEnum = true): array|string|null
+    {
+        if (!enum_exists($enum)) {
+            return null;
+        }
+
+        $case = null;
+        if ($selectedItem instanceof $enum) {
+            $case = $selectedItem;
+        } elseif (is_subclass_of($enum, \BackedEnum::class) && ($selectedItem !== null && $selectedItem !== '')) {
+            $case = $enum::tryFrom($selectedItem);
+        } else {
+            foreach ($enum::cases() as $c) {
+                if ($c->name === (string) $selectedItem) {
+                    $case = $c;
+                    break;
+                }
+            }
+        }
+
+        if (!$case) {
+            return null;
+        }
+
+        if (method_exists($case, 'label')) {
+            return $case->label($module);
+        }
+
+        return $case->name;
+    }
+}
+
+if (!function_exists('parsedUserAgentInfo')) {
+    /**
+     * Extract basic OS, browser, and platform details from a User-Agent string.
+     *
+     * @return array{os: string, browser: string, platform: string}
+     */
+    function parsedUserAgentInfo(string $userAgent): array
+    {
+        $os = 'Unknown OS';
+        if (preg_match('/Windows NT 10\.0/i', $userAgent)) {
+            $os = 'Windows 10';
+        } elseif (preg_match('/Windows NT 6\.3/i', $userAgent)) {
+            $os = 'Windows 8.1';
+        } elseif (preg_match('/Mac OS X/i', $userAgent)) {
+            $os = 'macOS';
+        } elseif (preg_match('/Android/i', $userAgent)) {
+            $os = 'Android';
+        } elseif (preg_match('/iPhone|iPad|iPod/i', $userAgent)) {
+            $os = 'iOS';
+        } elseif (preg_match('/Linux/i', $userAgent)) {
+            $os = 'Linux';
+        }
+
+        $browser = 'Unknown Browser';
+        if (preg_match('/Edg\/([0-9]+\.[0-9]+)/i', $userAgent, $m)) {
+            $browser = 'Edge ' . $m[1];
+        } elseif (preg_match('/Chrome\/([0-9]+\.[0-9]+)/i', $userAgent, $m)) {
+            $browser = 'Chrome ' . $m[1];
+        } elseif (preg_match('/Firefox\/([0-9]+\.[0-9]+)/i', $userAgent, $m)) {
+            $browser = 'Firefox ' . $m[1];
+        } elseif (preg_match('/Version\/([0-9]+\.[0-9]+).*Safari/i', $userAgent, $m)) {
+            $browser = 'Safari ' . $m[1];
+        }
+
+        $platform = preg_match('/Mobile|Android|iPhone|iPad|iPod/i', $userAgent) ? 'Mobile' : 'Desktop';
+
+        return [
+            'os' => $os,
+            'browser' => $browser,
+            'platform' => $platform,
+        ];
+    }
+}
+
+if (!function_exists('renderComponent')) {
+    /**
+     * Render a Blade component class from PHP with given props.
+     */
+    function renderComponent(string $componentClass, array $props = []): string
+    {
+        if (!class_exists($componentClass)) {
+            return '';
+        }
+
+        $component = app()->make($componentClass, $props);
+        $view = $component->resolveView();
+
+        if ($view instanceof \Illuminate\Contracts\View\View) {
+            return $view->with($component->data())->render();
+        }
+
+        if (is_string($view) && view()->exists($view)) {
+            return view($view, array_merge($component->data(), $props))->render();
+        }
+
+        return '';
+    }
+}
+
+// --- Section D: Form, Component & Encryption Helpers ---
+
+if (!function_exists('encryptStaticValue')) {
+    /**
+     * Encrypt a scalar value according to project EncryptMethod setting.
+     */
+    function encryptStaticValue(mixed $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        $method = config('core.encrypt_method', config('abolframe.encrypt_method', \MyLaravelCore\Enums\EncryptMethod::APP_KEY->value));
+        $methodVal = $method instanceof \MyLaravelCore\Enums\EncryptMethod ? $method->value : (string) $method;
+
+        if ($methodVal === \MyLaravelCore\Enums\EncryptMethod::NONE->value) {
+            return (string) $value;
+        }
+
+        return encrypt((string) $value);
+    }
+}
+
+if (!function_exists('decryptStaticValue')) {
+    /**
+     * Decrypt a value encrypted by encryptStaticValue.
+     */
+    function decryptStaticValue(mixed $value): mixed
+    {
+        if ($value === null || $value === '') {
+            return $value;
+        }
+
+        $method = config('core.encrypt_method', config('abolframe.encrypt_method', \MyLaravelCore\Enums\EncryptMethod::APP_KEY->value));
+        $methodVal = $method instanceof \MyLaravelCore\Enums\EncryptMethod ? $method->value : (string) $method;
+
+        if ($methodVal === \MyLaravelCore\Enums\EncryptMethod::NONE->value) {
+            return $value;
+        }
+
+        try {
+            return decrypt((string) $value);
+        } catch (\Throwable) {
+            return $value;
+        }
+    }
+}
+
+if (!function_exists('prepareSelectComponentData')) {
+    /**
+     * Build select-compatible options array from Model class, Builder, Collection, Array, or Enum.
+     */
+    function prepareSelectComponentData(
+        mixed $source,
+        string $labelColumn = 'name',
+        string $valueColumn = 'id',
+        bool $shouldEncryptValue = false,
+        ?string $moduleName = null,
+        ?string $prefix = null,
+        array $extraAttributes = []
+    ): array {
+        if (is_string($source) && enum_exists($source)) {
+            if (method_exists($source, 'selectComponentItems')) {
+                return $source::selectComponentItems($moduleName, $shouldEncryptValue, $prefix);
+            }
+        }
+
+        $items = \MyLaravelCore\Facades\DataProvider::source($source)
+            ->label($labelColumn)
+            ->value($valueColumn)
+            ->moduleName($moduleName)
+            ->shouldEncryptValue($shouldEncryptValue)
+            ->get();
+
+        return $items->map(function ($item) use ($labelColumn, $valueColumn, $shouldEncryptValue, $moduleName, $prefix, $extraAttributes) {
+            if ($item instanceof \UnitEnum) {
+                $rawVal = $item instanceof \BackedEnum ? $item->value : $item->name;
+                $label = method_exists($item, 'label') ? $item->label($moduleName, $prefix) : $item->name;
+                $val = $shouldEncryptValue ? encryptStaticValue($rawVal) : $rawVal;
+                return [
+                    'name' => $label,
+                    'id' => $val,
+                    'selected' => false,
+                    'is_active' => true,
+                ];
+            }
+
+            $rawVal = data_get($item, $valueColumn);
+            $label = data_get($item, $labelColumn) ?? data_get($item, 'title') ?? (string) $rawVal;
+            $val = $shouldEncryptValue ? encryptStaticValue($rawVal) : $rawVal;
+
+            $row = [
+                'name' => $label,
+                'id' => $val,
+                'selected' => (bool) data_get($item, 'selected', false),
+                'is_active' => (bool) data_get($item, 'is_active', true),
+            ];
+
+            foreach ($extraAttributes as $attr) {
+                $row[$attr] = data_get($item, $attr);
+            }
+
+            return $row;
+        })->values()->all();
+    }
+}
+
+if (!function_exists('makeDatetimeRangePickerID')) {
+    /**
+     * Generate standard DOM ID for datetime range picker component.
+     */
+    function makeDatetimeRangePickerID(?string $id = null, ?string $dedicatedName = null, ?string $name = null): string
+    {
+        if (!empty($id)) {
+            return $id;
+        }
+        $target = $dedicatedName ?: ($name ?: 'datetime_range');
+        return 'x-component-' . $target;
+    }
+}
+
+if (!function_exists('filterValidation')) {
+    /**
+     * Build a validation Closure for Table Generator filters.
+     */
+    function filterValidation(array $rules): \Closure
+    {
+        return function (mixed $value) use ($rules): bool {
+            $validator = \Illuminate\Support\Facades\Validator::make(
+                ['filter_value' => $value],
+                ['filter_value' => $rules]
+            );
+            return !$validator->fails();
+        };
+    }
+}
+
+// --- Section E: File & Upload Helpers ---
+
+if (!function_exists('getFile')) {
+    /**
+     * Retrieve file object from FileManager by ID.
+     */
+    function getFile(?int $fileID): ?object
+    {
+        return \MyLaravelCore\Facades\FileManager::find($fileID);
+    }
+}
+
+if (!function_exists('uploadFile')) {
+    /**
+     * Handle file upload and bind uploaded file ID to entity field.
+     */
+    function uploadFile(
+        string $field,
+        string $dbField = '',
+        string $fileTypeCode = 'GENERAL',
+        mixed $fileType = null,
+        ?object $entity = null,
+        ?string $module = null,
+        bool $isPublic = true
+    ): ?object {
+        return \MyLaravelCore\Facades\FileManager::upload(
+            $field,
+            $dbField,
+            $fileTypeCode,
+            $fileType,
+            $entity,
+            $module,
+            $isPublic
+        );
+    }
+}
+
+// --- Section F: Route, Filter & Search Helpers ---
+
+if (!function_exists('makePanelRouteName')) {
+    /**
+     * Prefix route name with the default panel guard (e.g. 'dashboard.index' => 'admin.dashboard.index').
+     */
+    function makePanelRouteName(string $name): string
+    {
+        $prefix = (string) config('core.panel.route_prefix', 'admin');
+        $name = ltrim($name, '.');
+        if (str_starts_with($name, $prefix . '.')) {
+            return $name;
+        }
+
+        return "{$prefix}.{$name}";
+    }
+}
+
+if (!function_exists('appendFilterQueryParamsToLinks')) {
+    /**
+     * Generate route URL carrying current filter query string parameters (e.g. xfg).
+     */
+    function appendFilterQueryParamsToLinks(string $name, array $parameters = [], bool $absolute = true): string
+    {
+        $filterKeys = ['xfg', 'filter', 'filters', 'search', 'sort', 'direction'];
+        $carry = [];
+
+        if (function_exists('request') && request()) {
+            foreach ($filterKeys as $k) {
+                if (request()->has($k)) {
+                    $carry[$k] = request()->query($k);
+                }
+            }
+        }
+
+        $mergedParams = array_merge($carry, $parameters);
+
+        if (\Illuminate\Support\Facades\Route::has($name)) {
+            return route($name, $mergedParams, $absolute);
+        }
+
+        $query = http_build_query($mergedParams);
+        return url($name) . ($query ? '?' . $query : '');
+    }
+}
+
+if (!function_exists('handleSearchAndResetPage')) {
+    /**
+     * When search query changes, redirect without the 'page' parameter so pagination resets.
+     */
+    function handleSearchAndResetPage(
+        ?string $search,
+        string $sectionName,
+        string $routeName,
+        array $routeParams = []
+    ): ?\Illuminate\Http\RedirectResponse {
+        $sessionKey = "core_search_{$sectionName}";
+        $previousSearch = session($sessionKey);
+
+        if ($search !== $previousSearch) {
+            session([$sessionKey => $search]);
+
+            if (request()->has('page') && (int) request('page', 1) > 1) {
+                $query = request()->except('page');
+                return redirect()->route($routeName, array_merge($routeParams, $query));
+            }
+        }
+
+        return null;
+    }
+}
+
+if (!function_exists('routePropertyCollector')) {
+    /**
+     * Get the RoutePropertyCollector singleton instance.
+     */
+    function routePropertyCollector(): \MyLaravelCore\Support\RoutePropertyCollector\RoutePropertyCollector
+    {
+        return app(\MyLaravelCore\Support\RoutePropertyCollector\RoutePropertyCollector::class);
+    }
+}
+
+if (!function_exists('bladeLayout')) {
+    /**
+     * Get the BladeLayoutManager singleton instance.
+     */
+    function bladeLayout(): \MyLaravelCore\Support\BladeLayout\BladeLayoutManager
+    {
+        return app(\MyLaravelCore\Support\BladeLayout\BladeLayoutManager::class);
+    }
+}
+
+if (!function_exists('authorizer')) {
+    /**
+     * Get the Authorizer singleton instance.
+     */
+    function authorizer(): \MyLaravelCore\Support\Auth\Authorizer
+    {
+        return app(\MyLaravelCore\Support\Auth\Authorizer::class);
+    }
+}
+
+if (!function_exists('encryptValue')) {
+    /**
+     * Alias for encryptStaticValue.
+     */
+    function encryptValue(mixed $value): string
+    {
+        return encryptStaticValue($value);
+    }
+}
+
+if (!function_exists('decryptValue')) {
+    /**
+     * Alias for decryptStaticValue.
+     */
+    function decryptValue(mixed $value): mixed
+    {
+        return decryptStaticValue($value);
+    }
+}
+
+if (!function_exists('getPageTitle')) {
+    /**
+     * Resolve page title for the given or current route via RoutePropertyCollector.
+     */
+    function getPageTitle(?string $routeName = null): string
+    {
+        return routePropertyCollector()->getPageTitle($routeName);
+    }
+}
+
+if (!function_exists('getNextSortValue')) {
+    /**
+     * Return next sort value (max('sort') + 1) for the given Eloquent Model class.
+     */
+    function getNextSortValue(string $modelClass): int
+    {
+        if (!class_exists($modelClass)) {
+            return 1;
+        }
+
+        return ((int) $modelClass::query()->max('sort')) + 1;
+    }
+}
+
+if (!function_exists('generateUserManagementRouteName')) {
+    /**
+     * Build user management route name based on {guard}.{userTypePlural}.{suffix}.
+     */
+    function generateUserManagementRouteName(string $suffix): string
+    {
+        $guard = (string) config('core.panel.route_prefix', 'admin');
+        $plural = (string) config('core.auth.user_type_plural', 'users');
+        $suffix = ltrim($suffix, '.');
+
+        return "{$guard}.{$plural}.{$suffix}";
+    }
+}
+
+// --- Section G: Authorization & User Helpers ---
+
+if (!function_exists('policyCheck')) {
+    /**
+     * Inspect policy ability and return Gate Response (with allowed() / denied()).
+     */
+    function policyCheck(string $ability, mixed $entity): \Illuminate\Auth\Access\Response
+    {
+        return \Illuminate\Support\Facades\Gate::inspect($ability, $entity);
+    }
+}
+
+if (!function_exists('policyAuthorize')) {
+    /**
+     * Enforce policy ability and throw AuthorizationException if denied.
+     */
+    function policyAuthorize(string $ability, mixed $entity): void
+    {
+        \Illuminate\Support\Facades\Gate::authorize($ability, $entity);
+    }
+}
+
+if (!function_exists('renderConditionalLink')) {
+    /**
+     * Render value as an HTML link if user has show or edit permission/route access; otherwise return escaped plain text.
+     */
+    function renderConditionalLink(
+        mixed $value,
+        ?string $showPermission = null,
+        ?string $editPermission = null,
+        array $showParameters = [],
+        array $editParameters = []
+    ): string {
+        $escapedValue = e((string) $value);
+        $user = authUser();
+
+        if ($showPermission && \Illuminate\Support\Facades\Route::has($showPermission)) {
+            if (!$user || $user->can($showPermission) || !\Illuminate\Support\Facades\Gate::has($showPermission)) {
+                $url = route($showPermission, $showParameters);
+                return sprintf('<a href="%s" class="text-decoration-none">%s</a>', e($url), $escapedValue);
+            }
+        }
+
+        if ($editPermission && \Illuminate\Support\Facades\Route::has($editPermission)) {
+            if (!$user || $user->can($editPermission) || !\Illuminate\Support\Facades\Gate::has($editPermission)) {
+                $url = route($editPermission, $editParameters);
+                return sprintf('<a href="%s" class="text-decoration-none">%s</a>', e($url), $escapedValue);
+            }
+        }
+
+        return $escapedValue;
+    }
+}
+
+if (!function_exists('resolveUserHref')) {
+    /**
+     * Resolve show or edit URL for a related user if the current user has access.
+     */
+    function resolveUserHref(?object $relatedUser): ?string
+    {
+        if (!$relatedUser || !isset($relatedUser->id)) {
+            return null;
+        }
+
+        $param = ['user' => encryptStaticValue($relatedUser->id)];
+        foreach (['admin.admins.management.show', 'admin.users.show', 'users.show', 'admin.users.edit'] as $route) {
+            if (\Illuminate\Support\Facades\Route::has($route)) {
+                return route($route, $param);
+            }
+        }
+
+        return null;
+    }
+}
+
+if (!function_exists('getUserStatuses')) {
+    /**
+     * Return list of user statuses from configured model or default array.
+     */
+    function getUserStatuses(): array
+    {
+        $statusModel = config('core.auth.status_model');
+        if ($statusModel && class_exists($statusModel)) {
+            return $statusModel::query()->get()->all();
+        }
+
+        return [
+            ['id' => 1, 'name' => 'فعال', 'variant' => 'success'],
+            ['id' => 0, 'name' => 'غیرفعال', 'variant' => 'danger'],
+            ['id' => 2, 'name' => 'مسدود', 'variant' => 'warning'],
+        ];
+    }
+}
+
+if (!function_exists('linkUserInfo')) {
+    /**
+     * Render standardized user/participant info with optional code and access-controlled link.
+     */
+    function linkUserInfo(
+        ?string $name,
+        ?string $code = null,
+        array $parameters = [],
+        string $route = '#',
+        string $classes = '',
+        bool $linked = true
+    ): string {
+        $safeName = e($name ?? '-');
+        $safeCode = $code !== null && $code !== '' ? ' <span class="text-muted small">(' . e($code) . ')</span>' : '';
+        $label = $safeName . $safeCode;
+        $classAttr = $classes !== '' ? ' class="' . e($classes) . '"' : ' class="text-decoration-none fw-medium"';
+
+        if (!$linked || $route === '#' || $route === '' || !\Illuminate\Support\Facades\Route::has($route)) {
+            return sprintf('<span%s>%s</span>', $classAttr, $label);
+        }
+
+        $url = route($route, $parameters);
+        return sprintf('<a href="%s"%s>%s</a>', e($url), $classAttr, $label);
+    }
+}
+
+if (!function_exists('itemCollectorRules')) {
+    /**
+     * Build dual validation rules for x-item-collector fields (standalone input + collected array items).
+     */
+    function itemCollectorRules(
+        string $name,
+        array $fields,
+        array $collector = ['array', 'required'],
+        bool $forceRemote = true
+    ): array {
+        $rules = [
+            $name => $collector,
+        ];
+
+        foreach ($fields as $field => $config) {
+            $baseRules = isset($config['rules']) ? (array) $config['rules'] : (array) $config;
+            $singleRules = isset($config['single']) ? (array) $config['single'] : [];
+            $eachRules = isset($config['each']) ? (array) $config['each'] : [];
+
+            $standalone = array_merge(['nullable'], $baseRules, $singleRules);
+            if ($forceRemote && !in_array('force_remote', $standalone, true)) {
+                $standalone[] = 'force_remote';
+            }
+
+            $collected = array_merge(['required'], $baseRules, $eachRules);
+
+            $rules[$field] = $standalone;
+            $rules["{$name}.*.{$field}"] = $collected;
+        }
+
+        return $rules;
     }
 }
