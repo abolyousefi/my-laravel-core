@@ -1,7 +1,56 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'rVXNbtNAEL7nKQapwrZk5wECzYFQQVArkCIOCDhs1+Nky3rX2p+kURWJCy+AekJIvBtPwCMw63VCnaZUFeS02Z2/75uZz4rVaBvGEc7Wp8ywJcqJNvhhouuaqdI+GQy8RZhK6WuhmAsvymq5syADLpm1MFXWMSm7a8BLh+QP3f/B1QDo1xjtkDss4ciKOcXzBuEYEk45RyJGgNbyrt9VUVTaUL0jeL1EszLCISUT1gk1h8afS2EXFL8SEu3mvlBLgStLoU4uGym4cHK9DQFCOTSKSeC6brRC5SBap0o7MEjXNSHEMu/ujVdgkcmQ3OgalvSqTbZJiKI97CVabkTjhFYBfUcdBN4sOt9A4IMqqAyzznje0sS1qsTcGxbcciDO0dm8dZo+P4EaHSuZY7t0AQeHyive5lmQocQ0GwVkrcXVjp0jtxC2GFNCnSa/fnz7vO1m4PRsXXSTAWE06OlmWcPhMMm6lG2o2J3jbUzdokyT9rpneTj7m0h/SNwD3OXZ8+FUY5pEpkdd55Ic3vf6nhSFY/MEjsdx0IoYOMn3rWKNwS6i+GPw8UGFx9ZAOpnN4DG8mmX/s/gY/N+LFxWkez1q5zjJshuTcaPcFTOqB/OZZCXeWg+aLh1m/YJmndbEak/FEBmattUIcqh1ifuMPJSVg8zE8vNDhneTsyVoe94AShK8gwzQOmDYj+uvcRMiYBZ2UyJTJB6oOGuslyysOelZwBuhBNkgM+9IVegF1sTLlqasx8Xmvkl7gQrDUlALwuLHNkx2bXiJskHzt5GLalv217GzULg6DTBv+8bkP79/OSQDYD2nNtvKS6KhU3IsHx2oIbL4TnvgTIHSKwhfmL1hsiDFJ4SnlwVnphzn4eTYucTuSJ+XQqjGu3ErgK1eLlrgnecFaSGhyMFp+v6EAzrelypDUmuCZstqNJq9nUxOZrNY7Waw+Q0=';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Commands;
+
+use Illuminate\Console\Command;
+
+class InstallCommand extends Command
+{
+    protected $signature = 'core:install 
+                            {--force : Overwrite existing published files}
+                            {--views : Explicitly publish internal component views (not recommended, views run sealed from vendor)}';
+
+    protected $description = 'Install and setup core infrastructure configuration, assets, and IDE metadata';
+
+    public function handle(): int
+    {
+        $this->info('🚀 Installing My-Laravel Core Infrastructure...');
+
+        $force = $this->option('force');
+
+        // 1. Publish Configuration
+        $this->info('Publishing configuration...');
+        $this->call('vendor:publish', [
+            '--tag' => 'core-config',
+            '--force' => $force,
+        ]);
+
+        // 2. Publish Public Assets (CSS & JS)
+        $this->info('Publishing assets (CSS & JS)...');
+        $this->call('vendor:publish', [
+            '--tag' => 'core-assets',
+            '--force' => $force,
+        ]);
+
+        // 3. Views stay sealed in vendor by default (clean architecture)
+        if ($this->option('views')) {
+            $this->warn('Publishing Blade component views into project resources (override mode)...');
+            $this->call('vendor:publish', [
+                '--tag' => 'core-views',
+                '--force' => $force,
+            ]);
+        } else {
+            $this->line('🔒 Core views are cleanly encapsulated inside vendor (no clutter in your project).');
+        }
+
+        // 4. Generate IDE Helper
+        $this->info('Generating IDE Blade Component Helper...');
+        $this->call('core:ide');
+
+        $this->newLine();
+        $this->info('✅ Core Infrastructure successfully installed!');
+        $this->line('You can now use Blade components like <x-card>, <x-table>, <x-text-input> and core helpers like jdate(), toman(), etc.');
+
+        return self::SUCCESS;
+    }
+}

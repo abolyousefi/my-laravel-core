@@ -1,7 +1,51 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'fZTdTsMwDIXv+xS5mNRNKjzAJkACgYQEvMBAU9oYiJQmJUmnIcS74/QPpw3kqvN37DgnzjSvwTW8Avb4+cAtP4K6MRaeb0zdGA3au+c7Y+tdlrXuH801dzD9RDEvnbe88qxS3DkWcCgzSRicPGjRkymafWUMV9OWSlYMK0j9xlYaW9xRcDUSxUtQEarlCQRbHblq45zSGMVWFj5aaUEkkJCOlyqJLHBhtPpMN/Euw4kTfQtpk3FQUONh70W6ngVn1BHErbUGC1DNa6srL41mh0NlNCa0lV93grCoX8UUjc1iF0y3Sv1iatgCxqYhfuXKwZyPzv3FR/uWPPJwsTvxEVnOW2/yRK4Ui8yJ9dP3J4Zg8YA7umFfk6rhFm9pu6Ve42bFULUY0jfDFYW18u/SnV2GC8CqZHAJHK+BDi/BxOzZtBIRcXw2t1GlyfbZBBPRYDwZ4mgb2+9g6RmF8U/9AdGUg4VG4b/Hep/v84LlL/lLwfb5efgOn50Hm10q2+Il1OsxgPrzfLNoYZxLowSR9uOacH56WqHv0YbuOd1j/ryXSNC/t0VeF41Sv7PvHw==';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Components\Form;
+
+use MyLaravelCore\Components\BaseComponent;
+
+abstract class BaseFormComponent extends BaseComponent
+{
+    public string $name;
+    public ?string $label;
+    public mixed $value;
+    public bool $required;
+    public bool $disabled;
+    public bool $readonly;
+    public ?string $hint;
+    public string $dir;
+    public string $elementId;
+    public ?string $resolvedError;
+
+    public function __construct(
+        string $name,
+        ?string $label = null,
+        mixed $value = null,
+        bool $required = false,
+        bool $disabled = false,
+        bool $readonly = false,
+        ?string $hint = null,
+        string $dir = 'auto',
+        ?string $id = null,
+        ?string $class = null,
+        ?string $error = null,
+        ?string $permission = null
+    ) {
+        parent::__construct($id, $class, $error, $permission);
+
+        $this->name = $name;
+        $this->label = $label;
+        $this->required = $required;
+        $this->disabled = $disabled;
+        $this->readonly = $readonly;
+        $this->hint = $hint;
+        $this->dir = $dir;
+
+        $dotName = str_replace(['[', ']'], ['.', ''], $name);
+        $dotName = rtrim($dotName, '.');
+        $this->value = old($dotName, $value);
+
+        $this->elementId = $this->resolveId($name);
+        $this->resolvedError = $this->resolveError($name);
+    }
+}

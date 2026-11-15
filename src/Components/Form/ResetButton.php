@@ -2,6 +2,7 @@
 
 namespace MyLaravelCore\Components\Form;
 
+use Illuminate\Contracts\View\View;
 use MyLaravelCore\Components\BaseComponent;
 
 class ResetButton extends BaseComponent
@@ -11,12 +12,16 @@ class ResetButton extends BaseComponent
         public string $variant = 'light',
         public string $appearance = 'outline',
         public string $size = 'md',
-        public ?string $icon = 'fa-rotate-left'
+        public ?string $icon = 'fa-rotate-left',
+        ?string $id = null,
+        ?string $class = null,
+        ?string $permission = null
     ) {
+        parent::__construct($id, $class, null, $permission);
     }
 
-    protected function viewName(): string
+    public function render(): View
     {
-        return 'core::components.form.reset-button';
+        return view('core::components.form.reset-button');
     }
 }

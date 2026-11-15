@@ -5,9 +5,16 @@ namespace MyLaravelCore\Tables\Columns;
 class ImageColumn extends Column
 {
     protected int $height = 40;
-    protected ?int $width = null;
-    protected string $rounded = 'rounded-3'; // rounded-circle, rounded-3, rounded-pill
+    protected ?int $imageWidth = null;
+    protected string $rounded = 'rounded-3';
     protected ?string $defaultImage = null;
+
+    public function size(int $size): static
+    {
+        $this->height = $size;
+        $this->imageWidth = $size;
+        return $this;
+    }
 
     public function height(int $height): static
     {
@@ -15,9 +22,9 @@ class ImageColumn extends Column
         return $this;
     }
 
-    public function width(int $width): static
+    public function imageWidth(int $width): static
     {
-        $this->width = $width;
+        $this->imageWidth = $width;
         return $this;
     }
 
@@ -45,17 +52,14 @@ class ImageColumn extends Column
             $src = $this->defaultImage;
         }
 
+        $w = $this->imageWidth ?: $this->height;
+
         if (!$src) {
-            return '<div class="bg-light border text-muted d-flex align-items-center justify-content-center ' . $this->rounded . '" style="width:' . $this->height . 'px;height:' . $this->height . 'px;"><i class="fa fa-image"></i></div>';
+            return '<div class="bg-light border text-muted d-inline-flex align-items-center justify-content-center ' . $this->rounded . '" style="width:' . $w . 'px;height:' . $this->height . 'px;"><i class="fa fa-image"></i></div>';
         }
 
-        $style = 'height:' . $this->height . 'px;object-fit:cover;';
-        if ($this->width) {
-            $style .= 'width:' . $this->width . 'px;';
-        } else {
-            $style .= 'width:' . $this->height . 'px;';
-        }
+        $style = 'height:' . $this->height . 'px;width:' . $w . 'px;object-fit:cover;';
 
-        return '<img src="' . htmlspecialchars($src) . '" class="' . $this->rounded . ' border shadow-sm" style="' . $style . '" alt="تصویر" loading="lazy">';
+        return '<img src="' . htmlspecialchars((string) $src) . '" class="' . $this->rounded . ' border shadow-sm" style="' . $style . '" alt="تصویر" loading="lazy">';
     }
 }

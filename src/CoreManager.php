@@ -11,6 +11,8 @@ use MyLaravelCore\Services\Payment\PaymentManager;
 use MyLaravelCore\Services\Sms\SmsManager;
 use MyLaravelCore\Services\UploaderService;
 use MyLaravelCore\Support\RoutePropertyCollector\RoutePropertyCollector;
+use MyLaravelCore\Support\Workflow\BaseWorkflow;
+use MyLaravelCore\Support\Workflow\WorkflowManager;
 
 class CoreManager
 {
@@ -48,6 +50,13 @@ class CoreManager
     public function api(): ApiResponse
     {
         return app(ApiResponse::class);
+    }
+
+    public function workflow(?string $nameOrClass = null): WorkflowManager|BaseWorkflow
+    {
+        $manager = app(WorkflowManager::class);
+
+        return $nameOrClass === null ? $manager : $manager->for($nameOrClass);
     }
 
     public function jdate(string $format = 'Y/m/d H:i', mixed $timestamp = null, bool $persianDigits = true): string

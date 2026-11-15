@@ -1,7 +1,27 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'fZLBasMwDIbveQodCkmhlLJjwhisuwy229ipUFRHTc0cO9hytlL67lOdre1YWx9s7P/TLyTZYkuhQ0Xwun1Bjz2ZufO0mLu2c5Ysh8UTBd3YKstiIHg2JrbaIh8Qyx6VEO+aPtNWJeaq0yMGOl7FUBkMAd6cM6w7oC8mWwf4Q2W7DGR1cWW0gnW0irWzsFwqZwP7qLhIwBkkz9o2MGIxnFwTOyM1t5IA7iFn1+UTuIb26DUOYI3+4wYpR9OQP5Ab15O/gGoxGtVkcCvU3Wz2n1hJO2C04dYIsUYT6FTEw28mXYtoozEXtKGrg5zUMexOSdBL0WV53kBxm/yEjatE7rOLXZfQmnwxLuEw7IScnD1x9BZ6UYpcyeTLUh1HP63TJ5ryMOv8mGf/DQ==';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Components\Design;
+
+use Illuminate\Contracts\View\View;
+use MyLaravelCore\Components\BaseComponent;
+
+class Tooltip extends BaseComponent
+{
+    public function __construct(
+        public string $text,
+        public string $placement = 'top', // top, bottom, left, right
+        public string $variant = 'dark', // dark, light, primary
+        public string $trigger = 'hover', // hover, click, focus
+        public int $delay = 200, // ms
+        public bool $html = false,
+        ?string $id = null,
+        ?string $class = null
+    ) {
+        parent::__construct($id, $class);
+    }
+
+    public function render(): View
+    {
+        return view('core::components.design.tooltip');
+    }
+}

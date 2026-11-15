@@ -42,7 +42,8 @@
                 "MyLaravelCore\\Providers\\CoreServiceProvider"
             ],
             "aliases": {
-                "Core": "MyLaravelCore\\Facades\\Core"
+                "Core": "MyLaravelCore\\Facades\\Core",
+                "Workflow": "MyLaravelCore\\Facades\\Workflow"
             }
         }
     },

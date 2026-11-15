@@ -1,7 +1,32 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'hZPLbsIwEEX3+YpZIAUkxAcEVZVKN0jttiskNHEGYskZR37wKPDvnQQItDTCC0v2PXPHtq4ZK/I1KoLP/Qc63JCZWUeLma1qy8TBL97J6zVPkyR6grkxsdKMoUE4OFRCfGnattO0ZXqd3tBTtxRDZdB7mFe4pqYaaBeICw+/uOSQgIw65kYrWEVWQVuG5VJZ9sFFFYYtcAfJtuY1DLxT4z4NTYAXSNMHQHM4nqEjR2NgsNVFKIVtVs/pkvS6DH3467W9Q7nFlYK/WG6tWDkbuaBCqBUaT+P/KaWdMvQECmWsckZtnnAGv/eCyLNS/9lrI3kprSnI9d3z4tY8RW53j007L108WHTaOR5nuVVHcLg1QifhyLL7HIjb+FI2mrbkKfk3PFIqhx+OMmhy1yI3Z0chOoaNKMNUSYSzTHUZnhTtb5joJrRp1+X0Aw==';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Components\Design;
+
+use Illuminate\Contracts\View\View;
+use MyLaravelCore\Components\BaseComponent;
+
+class ImageView extends BaseComponent
+{
+    public function __construct(
+        public string $src,
+        public string $alt = '',
+        public int|string|null $width = null,
+        public int|string|null $height = null,
+        public ?string $ratio = null, // 1x1, 4x3, 16x9, 21x9
+        public bool $rounded = false,
+        public bool $circle = false,
+        public bool $thumbnail = false,
+        public bool $lazy = true,
+        public ?string $placeholder = null,
+        public bool $lightbox = false,
+        ?string $id = null,
+        ?string $class = null
+    ) {
+        parent::__construct($id, $class);
+    }
+
+    public function render(): View
+    {
+        return view('core::components.design.image');
+    }
+}

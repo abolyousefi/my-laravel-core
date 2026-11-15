@@ -1,7 +1,48 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'lVE9T8NADN3zKzxkCFIHJgYqxFAJUYmwdcviXhywcO5OPl9FhPjvXNNWAiGgePDg9+Fn2eNIKaIjaKcHVNyRrIJStwreFJ2lZVXlRLAWySN7NOruzWK3iRKwp/6OhQqFvZEOe5sjoOvTpHqroNTcYt4KOxiyd8bBQ57JzWczqIfSF3CbTNk/Qd2zkrOgE9yAzyJfoPTyfepysjA+lsOO2MU1oCpOJecfSdosxlGomfmHKOnfWc7Z15OQUXNSR7TnH822Iciv2VXOMFpAeRLU9BpZca9r2WejVOCry7LlIFlW7x8=';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Contracts;
+
+use Illuminate\Http\UploadedFile;
+
+interface UploaderInterface
+{
+    /**
+     * Upload a single file to the specified disk and directory.
+     *
+     * @param UploadedFile $file
+     * @param string|null $directory
+     * @param string|null $disk
+     * @param string|null $customName
+     * @return array{name: string, original_name: string, path: string, url: string, size: int, mime: string, extension: string}
+     */
+    public function upload(UploadedFile $file, ?string $directory = null, ?string $disk = null, ?string $customName = null): array;
+
+    /**
+     * Upload multiple files.
+     *
+     * @param array<UploadedFile> $files
+     * @param string|null $directory
+     * @param string|null $disk
+     * @return array<array{name: string, original_name: string, path: string, url: string, size: int, mime: string, extension: string}>
+     */
+    public function uploadMultiple(array $files, ?string $directory = null, ?string $disk = null): array;
+
+    /**
+     * Delete a file by its path and disk.
+     *
+     * @param string $path
+     * @param string|null $disk
+     * @return bool
+     */
+    public function delete(string $path, ?string $disk = null): bool;
+
+    /**
+     * Get temporary or permanent download/view URL.
+     *
+     * @param string $path
+     * @param string|null $disk
+     * @param int $expirationMinutes
+     * @return string
+     */
+    public function url(string $path, ?string $disk = null, int $expirationMinutes = 60): string;
+}

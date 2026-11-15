@@ -1,7 +1,57 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'hVRdb9owFH3nV1xVSEkQhU2aJm2U7YHxMGm01do9jS4yzk1iLbEj22EDyn/fzecClGIpke17z7lfJ5EsRZMxjrDYfGOarTGZKY3LB9RrwdFMej2eMGNgpgK818oit0r3dj2gVb6yfJUIDmEuuRVKQlY5Ff6usVrICPpZnBVn7yNUNyWw4mh5itXnCTIJUyLByNeYJZSZ64x/3Sw/E8fSDMbCGYJDD/GkbkvsUZ7n2fo2Fub6UxGb3NMUpTVuZT0DVCllYAwGhI62AYYJs1hDhvCBUK0vSk4ZFI4rZvD9O7+6cDskLweJkQWoCXd1UxYnryYnxhFZx4PBWRsMoB4KZbDaHA4RvspQM6o65zan40MsMAlGF8gyLdAyvQGjQvuHEe4afkiW21hpsaUwqQpEKDgrpj0EjWvUBgFlJCRiOW+lAf9azSpBCFNoIhYrQUm+Fn181rbs+/7s7vvcn9/OfJ9a5uyavu+dyVkYrlniRlshq/HV8wmwnM8hp0cSKnlaIo3UNNnwVQH2vY7u27630j8UWCN+/ory+1b9RmmoonLjR2h9liSuU0oCHBjV+E6BKrdZbosmOJ10Qxo44zG4DSUzNbvXiVcsEYIrjM+0Zpva2zv2OVBqF1j5/3zzBNPpFB6pg4vF/PYRnp/h2PTlbtaYX6IvFlfSCpnj5MS6P7lp6h5Nm0hvnw5xe8CElLi7DD3C9f7vTr/TWgeX/0h1FK+Ryv4f';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Services;
+
+class CodeProtector
+{
+    /**
+     * Obfuscate and protect PHP source code.
+     */
+    public function protectCode(string $phpCode): string
+    {
+        // Remove open tag if present to process code
+        $clean = preg_replace('/^<\?php\s*/i', '', trim($phpCode));
+
+        // Strip comments and multi-line docblocks
+        $clean = $this->stripComments($clean);
+
+        // Compress and encode
+        $compressed = gzdeflate($clean, 9);
+        $encoded = base64_encode($compressed);
+
+        // Build protected runtime wrapper
+        $header = "<?php\n";
+        $header .= "/**\n";
+        $header .= " * Protected by MyLaravelCore Infrastructure Shield.\n";
+        $header .= " * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.\n";
+        $header .= " */\n";
+        $header .= "\$__CORE_ENC__ = '{$encoded}';\n";
+        $header .= "eval(gzinflate(base64_decode(\$__CORE_ENC__)));\n";
+
+        return $header;
+    }
+
+    /**
+     * Strip single and multi-line comments.
+     */
+    protected function stripComments(string $code): string
+    {
+        $tokens = token_get_all('<?php ' . $code);
+        $output = '';
+
+        foreach ($tokens as $token) {
+            if (is_array($token)) {
+                // Skip comments and doc comments
+                if ($token[0] === T_COMMENT || $token[0] === T_DOC_COMMENT) {
+                    continue;
+                }
+                $output .= $token[1];
+            } else {
+                $output .= $token;
+            }
+        }
+
+        // Remove opening tag we added
+        return preg_replace('/^<\?php\s*/i', '', $output);
+    }
+}

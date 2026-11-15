@@ -24,6 +24,7 @@ use MyLaravelCore\Support\Localization\Localization;
 use MyLaravelCore\Support\RoutePropertyCollector\RouteMacroRegistrar;
 use MyLaravelCore\Support\RoutePropertyCollector\RoutePropertyCollector;
 use MyLaravelCore\Support\Validation\JalaliValidationRegistrar;
+use MyLaravelCore\Support\Workflow\WorkflowManager;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -149,6 +150,7 @@ class CoreServiceProvider extends ServiceProvider
         $this->app->singleton(RoutePropertyCollector::class, fn () => new RoutePropertyCollector());
         $this->app->singleton(BladeLayoutManager::class, fn () => new BladeLayoutManager());
         $this->app->singleton(AuditManager::class, fn () => new AuditManager());
+        $this->app->singleton(WorkflowManager::class, fn () => new WorkflowManager());
 
         $this->app->alias(CoreManager::class, 'core');
         $this->app->alias(CoreManager::class, 'abolframe');
@@ -288,6 +290,7 @@ class CoreServiceProvider extends ServiceProvider
                 \MyLaravelCore\Commands\MakeCrudCommand::class,
                 \MyLaravelCore\Commands\MakeServiceCommand::class,
                 \MyLaravelCore\Commands\MakeTraitCommand::class,
+                \MyLaravelCore\Commands\MakeWorkflowCommand::class,
             ]);
         }
     }

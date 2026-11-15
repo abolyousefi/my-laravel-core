@@ -1,7 +1,77 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'tVTNbpwwEL7zFI60CiAleQBWjbTpNlKk5tAmvSGtDJ5lrRpM7XFU1PDutc3Csn8Jh8QHQDDz/YzNV9ESdE1zII/Nd6roC4ivUkH6rChHPQ8Co4E8CGFKXlGEdEmRZlRD+k3IPwYqTB8lAzF/v+4nCIpcVjq9AyGrQj/Lo64nU9dSYXpPc8pApwuDG6sBnRiyMIxbUAHBv4DY5S+1kgg5AiMaLXxO1qbKHQ3JpMShJYoT8iI58z1du1tdT5LkCuxDVURDd+RtkVnpbvGoxa2Zla0eGPlCnMAk4SyK53sVfE2ivurykkBZYxN1YNe3ng3YKmviQ2SPflRmibZg+yztdE5Tsymcu7L3OVvr+WiSHuCTJvkpwh1+CbiRbAV/uUYdDYdCUK2vSOgO0pNc4xIEIOjwaIB9A3MF07337Bf79F2x5eX6XqocllvUMCavr+SiN3zwNTq5rdNGfOYAUaVos/oNTa8s9Ab9kMOrYfIF4AJR8czY4VgZ53SMd2sHdG63TnVpm04/DAcUzTkLbfD2m3bU131pg1GYmEyMI8RZcwnyywr0O+liRFuvVXEQJArQqIrkslrzIgpzG6E31LXeOHMrb8DOLFzUddolpk5TBxtuBb0lwweBVI58iM7T/DPccH19m/VV0fbFCSNWzC5gpqjo/rCPV7H7c6eo6E7Ox6sYHe1BRfsf';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Traits;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
+
+trait Auditable
+{
+    /**
+     * Boot the trait.
+     */
+    protected static function bootAuditable(): void
+    {
+        static::creating(function (Model $model) {
+            $userId = Auth::id();
+            if ($userId && empty($model->created_by)) {
+                $model->created_by = $userId;
+            }
+            if ($userId && empty($model->updated_by)) {
+                $model->updated_by = $userId;
+            }
+        });
+
+        static::updating(function (Model $model) {
+            $userId = Auth::id();
+            if ($userId) {
+                $model->updated_by = $userId;
+            }
+        });
+
+        if (method_exists(static::class, 'bootSoftDeletes')) {
+            static::deleting(function (Model $model) {
+                if (!method_exists($model, 'isForceDeleting') || !$model->isForceDeleting()) {
+                    $userId = Auth::id();
+                    if ($userId && array_key_exists('deleted_by', $model->getAttributes())) {
+                        $model->deleted_by = $userId;
+                        $model->saveQuietly();
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * User model class name configured in core config.
+     */
+    public function getAuditUserModel(): string
+    {
+        return config('core.audit.user_model', 'App\\Models\\User');
+    }
+
+    /**
+     * Creator relationship.
+     */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo($this->getAuditUserModel(), 'created_by');
+    }
+
+    /**
+     * Updater relationship.
+     */
+    public function updater(): BelongsTo
+    {
+        return $this->belongsTo($this->getAuditUserModel(), 'updated_by');
+    }
+
+    /**
+     * Deleter relationship.
+     */
+    public function deleter(): BelongsTo
+    {
+        return $this->belongsTo($this->getAuditUserModel(), 'deleted_by');
+    }
+}

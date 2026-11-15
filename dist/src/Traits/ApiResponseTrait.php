@@ -1,7 +1,73 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'rZRNaxsxEIbv+yvmYLANmxBKTjYJhKSlLQ2FpsklzmEqzboCWVpGkqkb8t+rlTfrtbM1Nhsd9iDNx/POK63BBbkSBcHt6hsyLklfW6bZT0bl3TTLgiP4onVYKIOeZp+9L2dfnTU/Ypo1jqYpYjv5jnipBLnZVak2cZmvakJrLzXJnjOIK31Ktp6EJwlFMMIra8AFESu50UL9idsDiR7hAkzQOgfnWZk5DKIEh3OK+8PvJTG2E4ugT4c5KONh4Dz64K6trEI/nJ3lgMy4qgqkqo9P4wm0xSWoNV+1mHxgA1iWo5aKyURodG58cvnKmijzhitvd87X3cbTVPUl2yteMMWhy0PFRyIbOHpZ57VmoFenw37iXll2xB0mhJgtjzqQr+ozsEIEZpLdZp1XZtVTSPGunkM/TWus//m0bnSYwBLn6YE0XtUbljuduqmcjHSsaPnOPm1I2gzH2WWs/2SDkaN9lywGQVFF9SVuuh0HGQwG/9uy+kudoPetc8CU05d0q+VxtIXlX0pKMp2vINm/ienLuWl2HOQStZLp9/kxvYytF9d5kR+aDChQaep9GXYRmuZvlLz8Aw==';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Traits;
+
+use Illuminate\Http\JsonResponse;
+use MyLaravelCore\Services\ApiResponse;
+
+trait ApiResponseTrait
+{
+    /**
+     * Return successful JSON response.
+     */
+    protected function success(mixed $data = null, string $message = 'Operation successful.', int $statusCode = 200, array $meta = []): JsonResponse
+    {
+        return app(ApiResponse::class)->success($data, $message, $statusCode, $meta);
+    }
+
+    /**
+     * Return created (201) JSON response.
+     */
+    protected function created(mixed $data = null, string $message = 'Resource created successfully.'): JsonResponse
+    {
+        return app(ApiResponse::class)->created($data, $message);
+    }
+
+    /**
+     * Return error JSON response.
+     */
+    protected function error(string $message = 'An error occurred.', int $statusCode = 400, mixed $errors = null): JsonResponse
+    {
+        return app(ApiResponse::class)->error($message, $statusCode, $errors);
+    }
+
+    /**
+     * Return paginated data JSON response.
+     */
+    protected function paginated(mixed $paginator, string $message = 'Data retrieved successfully.'): JsonResponse
+    {
+        return app(ApiResponse::class)->paginated($paginator, $message);
+    }
+
+    /**
+     * Return not found (404) response.
+     */
+    protected function notFound(string $message = 'Resource not found.'): JsonResponse
+    {
+        return app(ApiResponse::class)->notFound($message);
+    }
+
+    /**
+     * Return unauthorized (401) response.
+     */
+    protected function unauthorized(string $message = 'Unauthorized action.'): JsonResponse
+    {
+        return app(ApiResponse::class)->unauthorized($message);
+    }
+
+    /**
+     * Return forbidden (403) response.
+     */
+    protected function forbidden(string $message = 'Access forbidden.'): JsonResponse
+    {
+        return app(ApiResponse::class)->forbidden($message);
+    }
+
+    /**
+     * Return validation error (422) response.
+     */
+    protected function validationError(mixed $errors, string $message = 'Validation failed.'): JsonResponse
+    {
+        return app(ApiResponse::class)->validationError($errors, $message);
+    }
+}

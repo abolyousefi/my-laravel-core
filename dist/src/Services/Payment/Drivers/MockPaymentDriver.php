@@ -1,7 +1,44 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'nVNfTxNBEH/vp5gHwramNiAGQ0lpCGpCkGBsfKLkst3bgw3Xvbp/gEZ40IjpA5/ClwoxEpTExAc/xx58GefuetA/KMZ5uNzO/Gb2NzO/lbTNdYcyDuvdF1TRPR6uRIo3G1ztCcZ18yXttrk0zadK7HGlFwsFqzmshqFtC0kNIm2nEynTbBiFQRZSrWE9YruDxCwP+IHh0tew3NJGUWZGooW3BUDr2FYoGARWMiMiCYq/sVybYqkKVCnaTUEZNLEpas1OpITpQg3I+sbKmkegAsijWkVOXBXTX0WlH7WLs/Ol0uJtruK+UJyZ1yrE7CmzI/TDJUbDsEXZbuKsQBGZeiyShgqpi5OQMpA6KUEdyDSBanaoAFnOWdUSNkMkMTbdMNRYXdtYIzirnIzixioJmzeOxMhNIoHa0lCd8igsb8SzKsyQQ62NY+m+p3DdkdQ8xY5emWJ0yjCNEm0ZSkCT8iSsjRtOQUZZfkectiMrTUYom1zmGYVu3R63suUcFe6UAopEBN1kI0JuDw8DhDSHQRhRcyhtGMIUP+hg79xfTq/D3SbuPylo0OCQAiIZiO3NvHOv1fV8HlAbGrIF9Xra7YiKglU/yc4LoRhePXue6jDRXXF2JrMyLAyshFJJKN27/3z46QgHh4ndB57w860jlbE4Pm1Nt/lIiYRi/MtduHPXd1/dGbhP7lt87PrXJ+7y+gTcZ9eH+Djuxe/i9+hDQD/+6L7g9xjcpTuvpGJ3Z1iif3WKoUtwZ3HPfXc/4OoUi15giQuIP7ifcQ+uzpOrsA7mjbFjVPleh8oJevMzc08WFh6kNvto7jEZjOw/1Pxvj2hCsWMiwsX/RcT3vYe7RH70Gw==';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Services\Payment\Drivers;
+
+use Illuminate\Support\Str;
+
+class MockPaymentDriver extends AbstractPaymentDriver
+{
+    public function request(): array
+    {
+        $authority = 'MOCK_' . Str::upper(Str::random(16));
+        $redirectUrl = $this->callbackUrl . (str_contains($this->callbackUrl, '?') ? '&' : '?') . 'Authority=' . $authority . '&Status=OK';
+
+        return [
+            'authority' => $authority,
+            'transaction_id' => $authority,
+            'redirect_url' => $redirectUrl,
+            'raw_response' => [
+                'status' => 'success',
+                'mock' => true,
+                'amount' => $this->amount,
+            ],
+        ];
+    }
+
+    public function verify(?string $authority = null, int|float|null $expectedAmount = null): array
+    {
+        $authority = $authority ?? $this->transactionId ?? 'MOCK_TX';
+        $success = $this->config['success_by_default'] ?? true;
+        $refId = $success ? 'REF_' . rand(10000000, 99999999) : null;
+
+        return [
+            'success' => $success,
+            'ref_id' => $refId,
+            'message' => $success ? 'پرداخت آزمایشی با موفقیت انجام شد.' : 'تراکنش توسط کاربر لغو گردید.',
+            'card_pan' => $success ? '603799******1234' : null,
+            'raw_response' => [
+                'authority' => $authority,
+                'amount' => $expectedAmount ?? $this->amount,
+                'mock' => true,
+            ],
+        ];
+    }
+}

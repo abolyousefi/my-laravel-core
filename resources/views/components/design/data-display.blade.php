@@ -1,4 +1,4 @@
-<div {{ $attributes->merge(['class' => 'card border shadow-sm rounded-4 mb-4 x-data-display']) }}>
+<div {{ $attributes->merge(['class' => 'card ' . ($bordered ? 'border' : 'border-0') . ' shadow-sm rounded-4 mb-4 x-data-display']) }} data-component="data-display">
     @if($title)
         <div class="card-header bg-white border-bottom py-3">
             <h6 class="m-0 fw-bold">{{ $title }}</h6>

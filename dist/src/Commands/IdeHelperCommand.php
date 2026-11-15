@@ -1,7 +1,195 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = '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';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Commands;
+
+use Illuminate\Console\Command;
+use ReflectionClass;
+use ReflectionParameter;
+
+class IdeHelperCommand extends Command
+{
+    protected $signature = 'core:ide {--path= : Target path for the IDE helper file}';
+    protected $description = 'Generate rich IDE helper and autocomplete file for MyLaravelCore Blade components';
+
+    public function handle(): int
+    {
+        $this->info('🚀 Generating IDE Blade Component Metadata...');
+
+        $components = [
+            'card' => \MyLaravelCore\Components\Design\Card::class,
+            'data-card' => \MyLaravelCore\Components\Design\DataCard::class,
+            'table' => \MyLaravelCore\Components\Design\Table::class,
+            'data-table' => \MyLaravelCore\Components\Design\Table::class,
+            'table-view' => \MyLaravelCore\Components\Design\TableView::class,
+            'button' => \MyLaravelCore\Components\Design\Button::class,
+            'badge' => \MyLaravelCore\Components\Design\Badge::class,
+            'alert' => \MyLaravelCore\Components\Design\Alert::class,
+            'modal' => \MyLaravelCore\Components\Design\Modal::class,
+            'banner' => \MyLaravelCore\Components\Design\Banner::class,
+            'dropdown-button' => \MyLaravelCore\Components\Design\DropdownButton::class,
+            'icon' => \MyLaravelCore\Components\Design\Icon::class,
+            'image' => \MyLaravelCore\Components\Design\ImageView::class,
+            'link' => \MyLaravelCore\Components\Design\Link::class,
+            'tooltip' => \MyLaravelCore\Components\Design\Tooltip::class,
+            'timeline' => \MyLaravelCore\Components\Design\Timeline::class,
+            'timeline-item' => \MyLaravelCore\Components\Design\TimelineItem::class,
+            'accordion' => \MyLaravelCore\Components\Design\Accordion::class,
+            'accordion-item' => \MyLaravelCore\Components\Design\AccordionItem::class,
+
+            // Form
+            'text-input' => \MyLaravelCore\Components\Form\TextInput::class,
+            'textarea' => \MyLaravelCore\Components\Form\Textarea::class,
+            'number-input' => \MyLaravelCore\Components\Form\NumberInput::class,
+            'select-input' => \MyLaravelCore\Components\Form\SelectInput::class,
+            'checkbox' => \MyLaravelCore\Components\Form\Checkbox::class,
+            'checkbox-group' => \MyLaravelCore\Components\Form\CheckboxGroup::class,
+            'radio-group' => \MyLaravelCore\Components\Form\RadioGroup::class,
+            'datetime-picker' => \MyLaravelCore\Components\Form\DatetimePicker::class,
+            'datetime-range-picker' => \MyLaravelCore\Components\Form\DatetimeRangePicker::class,
+            'editor' => \MyLaravelCore\Components\Form\Editor::class,
+            'file-picker' => \MyLaravelCore\Components\Form\FilePicker::class,
+            'icon-picker' => \MyLaravelCore\Components\Form\IconPicker::class,
+            'item-collector' => \MyLaravelCore\Components\Form\ItemCollector::class,
+            'tag-collector' => \MyLaravelCore\Components\Form\TagCollector::class,
+            'tag-input' => \MyLaravelCore\Components\Form\TagInput::class,
+            'nested-selects' => \MyLaravelCore\Components\Form\NestedSelects::class,
+
+            // Layout
+            'default-layout' => \MyLaravelCore\Components\Layout\DefaultLayout::class,
+            'layout' => \MyLaravelCore\Components\Layout\DefaultLayout::class,
+        ];
+
+        $targetFile = $this->option('path');
+        if (!$targetFile) {
+            $base = base_path();
+            if (str_contains($base, 'testbench-core')) {
+                $targetFile = getcwd() . '/_ide_helper_blade.php';
+            } else {
+                $targetFile = base_path('_ide_helper_blade.php');
+            }
+        }
+
+        $content = "<?php\n\n";
+        $content .= "/**\n";
+        $content .= " * IDE Helper for MyLaravelCore Blade Components.\n";
+        $content .= " * This file is automatically generated to assist IDEs (PhpStorm, VS Code, Cursor) with\n";
+        $content .= " * component recognition, autocompletion, prop inspection, and eliminating warnings.\n";
+        $content .= " * \n";
+        $content .= " * Do not include this file in production execution.\n";
+        $content .= " */\n\n";
+
+        // Global Blade Component Stubs with Constructor-Only definitions
+        $content .= "namespace App\\View\\Components {\n";
+        foreach ($components as $alias => $class) {
+            $className = str_replace(' ', '', ucwords(str_replace(['-', '.'], ' ', $alias)));
+            $constructorParams = $this->extractConstructorParams($class);
+            $content .= "    /**\n";
+            $content .= "     * Component: <x-{$alias}>\n";
+            $content .= "     * Class: \\{$class}\n";
+            $content .= "     */\n";
+            $content .= "    class {$className} extends \\{$class} {\n";
+            $content .= "        public function __construct({$constructorParams}) {}\n";
+            $content .= "    }\n";
+        }
+        $content .= "}\n\n";
+
+        // Factory / Blade tag helper comments
+        $content .= "namespace Illuminate\\View {\n";
+        $content .= "    /**\n";
+        foreach ($components as $alias => $class) {
+            $methodName = lcfirst(str_replace(' ', '', ucwords(str_replace(['-', '.'], ' ', $alias))));
+            $params = $this->extractParametersDoc($class);
+            $content .= "     * @method \\Illuminate\\View\\Component {$methodName}({$params})\n";
+            $content .= "     * @method \\Illuminate\\View\\Component core" . ucfirst($methodName) . "({$params})\n";
+        }
+        $content .= "     */\n";
+        $content .= "    class ComponentBladeHelper {}\n";
+        $content .= "}\n";
+
+        file_put_contents($targetFile, $content);
+
+        $this->info("✅ IDE Helper generated successfully at: {$targetFile}");
+        $this->line("   IDEs will now provide full autocompletion for all <x-*> components without warnings!");
+
+        return self::SUCCESS;
+    }
+
+    protected function extractParametersDoc(string $class): string
+    {
+        if (!class_exists($class)) {
+            return '...$attributes';
+        }
+
+        try {
+            $ref = new ReflectionClass($class);
+            $constructor = $ref->getConstructor();
+            if (!$constructor) {
+                return '...$attributes';
+            }
+
+            $docs = [];
+            foreach ($constructor->getParameters() as $param) {
+                $name = '$' . $param->getName();
+                $type = $param->getType() ? $param->getType()->getName() . ' ' : '';
+                $default = '';
+                if ($param->isDefaultValueAvailable()) {
+                    $val = $param->getDefaultValue();
+                    $default = ' = ' . var_export($val, true);
+                }
+                $docs[] = "{$type}{$name}{$default}";
+            }
+
+            return implode(', ', $docs);
+        } catch (\Throwable) {
+            return '...$attributes';
+        }
+    }
+
+    protected function extractConstructorParams(string $class): string
+    {
+        if (!class_exists($class)) {
+            return '';
+        }
+
+        try {
+            $ref = new ReflectionClass($class);
+            $constructor = $ref->getConstructor();
+            if (!$constructor) {
+                return '';
+            }
+
+            $params = [];
+            foreach ($constructor->getParameters() as $param) {
+                $p = '';
+                if ($param->isPromoted()) {
+                    $p .= 'public ';
+                }
+                if ($param->hasType()) {
+                    $p .= (string) $param->getType() . ' ';
+                }
+                $p .= '$' . $param->getName();
+                if ($param->isDefaultValueAvailable()) {
+                    $val = $param->getDefaultValue();
+                    if (is_array($val) && empty($val)) {
+                        $p .= ' = []';
+                    } elseif (is_null($val)) {
+                        $p .= ' = null';
+                    } elseif (is_bool($val)) {
+                        $p .= ' = ' . ($val ? 'true' : 'false');
+                    } else {
+                        $p .= ' = ' . var_export($val, true);
+                    }
+                }
+                $params[] = $p;
+            }
+
+            if (empty($params)) {
+                return '';
+            }
+
+            return "\n            " . implode(",\n            ", $params) . "\n        ";
+        } catch (\Throwable) {
+            return '';
+        }
+    }
+}

@@ -1,7 +1,100 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = '1VVNT8JAEL33V8yBpCWBBK4YIIommqgXjV5IzFIG3GTZhf1AifLf3W63peAKaEyMPTTN7Hy8efN2yskM1ZykCDerayLJEtlASBzeS0K1OokioxCuGDMzyonG4TnRZEQUDi+YWBjkenhmKBujtK46i4FLou400UZFbxHYx73mZsRoChPDU00FB6pO7ccSk3oHRkIw55T7Z09NuQzQhZp+pqrZm6LOkz4QZmzUSekqURvJNxHdLrTh/X3LoKXBXVtMHID4k70d58nX0T74OZpkRl9xXMSHeykAhhuxNYvww2V3gzvg6u+Slwo7Lh4gb+AObu3IQwzmzm8+fA39PnDD2DdgVfN3QGlJ+TTMxlyKOUq9esJXqrRKXPEGxKqSJ65Dv0BVtUOn8DtiUm7KVrhfCe2bXH0iqWu18MTNDCVNkxCF7ayLdobZC+4r4hVZlqX2dTTGP++plfXUynqyS+F3utJiOmXob9UxF2mzQTYqqVJj0XnrxnYYhkqtLn1iv9igZvecXFlM3vBL181lbfZenlFiUgJIaos6ZDs38XnrlVKu3KKI8Q4NK7FmT8jHbWMht9BZtg8riNbHEnPlp/1/qGkFqSlVGzqdEKZ+xI4X7zY3Ddj9RYSpCra+j7VGmbKAt/4A';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Traits;
+
+use Illuminate\Database\Eloquent\Builder;
+
+trait HasStatus
+{
+    /**
+     * Check if model status is active (1, true, or 'active').
+     */
+    public function isActive(): bool
+    {
+        $status = $this->getStatusValue();
+        return $status === 1 || $status === true || $status === 'active' || $status === '1';
+    }
+
+    /**
+     * Check if model status matches given value.
+     */
+    public function isStatus(mixed $status): bool
+    {
+        return $this->getStatusValue() == $status;
+    }
+
+    /**
+     * Get the current status column value.
+     */
+    public function getStatusValue(): mixed
+    {
+        $column = $this->getStatusColumnName();
+        return $this->{$column} ?? null;
+    }
+
+    /**
+     * Name of status column.
+     */
+    public function getStatusColumnName(): string
+    {
+        return property_exists($this, 'statusColumn') ? $this->statusColumn : 'status';
+    }
+
+    /**
+     * Activate the model.
+     */
+    public function activate(): bool
+    {
+        $column = $this->getStatusColumnName();
+        $this->{$column} = is_numeric($this->{$column} ?? 1) ? 1 : 'active';
+        return $this->save();
+    }
+
+    /**
+     * Deactivate the model.
+     */
+    public function deactivate(): bool
+    {
+        $column = $this->getStatusColumnName();
+        $this->{$column} = is_numeric($this->{$column} ?? 0) ? 0 : 'inactive';
+        return $this->save();
+    }
+
+    /**
+     * Toggle active/inactive status.
+     */
+    public function toggleStatus(): bool
+    {
+        return $this->isActive() ? $this->deactivate() : $this->activate();
+    }
+
+    /**
+     * Scope query to active models.
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        $column = $this->getStatusColumnName();
+        return $query->where(function ($q) use ($column) {
+            $q->where($column, 1)->orWhere($column, 'active')->orWhere($column, true);
+        });
+    }
+
+    /**
+     * Scope query to inactive models.
+     */
+    public function scopeInactive(Builder $query): Builder
+    {
+        $column = $this->getStatusColumnName();
+        return $query->where(function ($q) use ($column) {
+            $q->where($column, 0)->orWhere($column, 'inactive')->orWhere($column, false);
+        });
+    }
+
+    /**
+     * Scope query by specific status.
+     */
+    public function scopeStatus(Builder $query, mixed $status): Builder
+    {
+        return $query->where($this->getStatusColumnName(), $status);
+    }
+}

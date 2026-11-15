@@ -994,6 +994,23 @@ php artisan make:core-crud Product --api</code></pre>
                 </div>
                 <pre><code>php artisan make:core-trait HasDiscount</code></pre>
             </div>
+
+            <h2>۵. تولید خودکار گردش کار، وضعیت و دسترسی زمانی نقش‌ها (<code>core:workflow</code>)</h2>
+            <p>با زدن یک دستور می‌توانید برای هر بخش (با نام فارسی مثل <code>خرید</code> یا <code>کاربران</code> یا انگلیسی مثل <code>Purchase</code>) کلاس‌های Enum وضعیت، گردش کار (نقش + تایم مشخص + انتقال‌ها) و سرویس را تولید کنید:</p>
+            <div class="code-box">
+                <div class="code-header">
+                    <span class="code-lang">BASH</span>
+                    <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+                </div>
+                <pre><code># تولید وضعیت، گردش کار و سرویس بخش خرید
+php artisan core:workflow خرید
+
+# یا با دستور معادل make:workflow همراه با جدول لاگ و CRUD کامل
+php artisan make:workflow کاربران --with-crud --hours=08:00-16:00
+
+# ساخت برای یک بخش جدید با وضعیت‌های سفارشی
+php artisan core:workflow تیکت --statuses=&quot;open:باز,in_progress:در حال بررسی,closed:بسته شده&quot; --with-migration</code></pre>
+            </div>
         `
     },
     {
@@ -5683,6 +5700,139 @@ $url = !empty($fileId) ? FileManager::url($fileId) : null;</code></pre>
 <hr class="my-4 border-secondary-subtle">
 <h2 id="sec-abolframe-css-color-palette-20" class="scroll-mt-header">بخش F — موارد باز (نیازمند تصمیم)</h2>
 <div class="table-responsive"><table class="docs-table"><thead><tr><th>#</th><th>سؤال</th></tr></thead><tbody><tr><td>1</td><td><code>EncryptMethod</code> فعلی پروژه؟ <code>encryptStaticValue</code> دقیقاً چه می‌کند و چرا با «رمزنگاری غیرفعال» هم‌زمان است؟ (لایه رمزنگاری خودکار <code>id/*_id/*_ids</code> با <code>none</code> غیرفعال می‌شود؛ تکلیف <code>encryptValue/encryptStaticValue</code> روشن نیست)</td></tr><tr><td>2</td><td><code>is_start</code> به <code>additional_boolean_scope_fields</code> اضافه شود یا <code>where</code> صریح؟</td></tr><tr><td>3</td><td>نام command تولید permission؟</td></tr><tr><td>4</td><td>فرمت تاریخ ذخیره/نمایش: <code>Y/m/d</code> شمسی؟ ذخیره UTC و نمایش <code>Asia/Tehran</code>؟</td></tr><tr><td>5</td><td>Rule اختصاصی عنوان/نام: نیم‌فاصله، اعداد فارسی/انگلیسی، <code>ي/ك</code> عربی؟</td></tr><tr><td>6</td><td>جهت دقیق <code>DeleteDependency::condition</code> (با تست)</td></tr><tr><td>7</td><td>اولویت پیام وقتی «تایید شده» و «دارای نظر» هم‌زمان؟</td></tr><tr><td>8</td><td>روش «دستی» تأیید CRUD: tinker / Feature Test / مرورگر؟</td></tr><tr><td>9</td><td>امضا و escape در <code>linkUserInfo</code> و رفتار <code>linked:false</code></td></tr><tr><td>10</td><td>مهلت قانون «متن استاتیک = <code>&lt;p&gt;</code>»</td></tr><tr><td>11</td><td>رنگ بج‌ها در صفحات غیر از گردش وضعیت</td></tr><tr><td>12</td><td>Glossary دامنه (Event، Participant، Member، Submission، Comment، Scientific Field و روابط)</td></tr><tr><td>13</td><td>تعارض Soft delete (راهنما) با دستور پروژه برای جدول جدید</td></tr><tr><td>14</td><td>نام دقیق کامپوننت‌های فرزند (نقطه/خط‌تیره) و <code>x-text-area</code></td></tr><tr><td>15</td><td>escape در <code>modifierClosure</code>/<code>slot</code> جدول <code>x-table</code></td></tr></tbody></table></div>
+        `
+    },
+    {
+        id: "abolframe-workflow-engine",
+        title: "۱۵. موتور گردش کار، وضعیت و دسترسی زمانی نقش‌ها",
+        icon: "fa-diagram-project",
+        category: "مستندات جامع ابول فریم (AbolFrame)",
+        content: `
+<h1>۱۵. موتور گردش کار، وضعیت و دسترسی زمانی نقش‌ها (Workflow Engine) — توضیح کامل</h1>
+<div class="toc-quick-jump-card my-4 p-3 rounded-3 border bg-body-tertiary"><div class="d-flex align-items-center justify-content-between mb-2"><strong class="text-primary small"><i class="fa fa-compass ms-1"></i> فهرست سریع بخش‌ها و متدها (۷ بخش):</strong></div><div class="d-flex flex-wrap gap-2"><a href="#sec-wf-concept" class="toc-jump-pill btn btn-sm btn-primary-subtle border border-primary-subtle text-primary fw-semibold" style="font-size: 0.78rem; padding: 3px 9px; border-radius: 6px; text-decoration: none;">۱. مفهوم وضعیت، نقش و زمان</a><a href="#sec-wf-cli" class="toc-jump-pill btn btn-sm btn-light border text-secondary" style="font-size: 0.78rem; padding: 3px 9px; border-radius: 6px; text-decoration: none;">۲. دستور Artisan (core:workflow)</a><a href="#sec-wf-timewindow" class="toc-jump-pill btn btn-sm btn-light border text-secondary" style="font-size: 0.78rem; padding: 3px 9px; border-radius: 6px; text-decoration: none;">۳. TimeWindow (بازه زمانی)</a><a href="#sec-wf-rule" class="toc-jump-pill btn btn-sm btn-light border text-secondary" style="font-size: 0.78rem; padding: 3px 9px; border-radius: 6px; text-decoration: none;">۴. WorkflowRule و WorkFlowType</a><a href="#sec-wf-transition" class="toc-jump-pill btn btn-sm btn-light border text-secondary" style="font-size: 0.78rem; padding: 3px 9px; border-radius: 6px; text-decoration: none;">۵. WorkflowTransition و گراف</a><a href="#sec-wf-model" class="toc-jump-pill btn btn-sm btn-light border text-secondary" style="font-size: 0.78rem; padding: 3px 9px; border-radius: 6px; text-decoration: none;">۶. BaseWorkflow و HasWorkflow</a><a href="#sec-wf-warnings" class="toc-jump-pill btn btn-sm btn-light border text-secondary" style="font-size: 0.78rem; padding: 3px 9px; border-radius: 6px; text-decoration: none;">۷. نکات و هشدارهای حیاتی</a></div></div>
+<hr class="my-4 border-secondary-subtle">
+<h2 id="sec-wf-concept" class="scroll-mt-header">۱. مفهوم چهارگانه: وضعیت + گردش کار + نقش + زمان مشخص</h2>
+<p>در ابول فریم (AbolFrame)، موتور گردش کار مشخص می‌کند <strong>چه نقشی</strong>، روی <strong>کدام وضعیت‌ها</strong>، چه نوع عملیاتی (مشاهده <code>VIEW</code>، تغییر <code>CHANGE</code> یا تنظیم <code>SET</code>) را و <strong>در چه تایم مشخصی</strong> (ساعت کاری، روزهای هفته یا بازه تاریخ شمسی) مجاز به انجام است. برای مثال در گردش کار کاربران یا خرید، مدیر فقط در ساعات ۰۸:۰۰ تا ۱۶:۰۰ می‌تواند رکوردهای وضعیت‌های منتخب را مشاهده یا تایید کند.</p>
+
+<h2 id="sec-wf-cli" class="scroll-mt-header">۲. تولید خودکار با خط فرمان (<code>core:workflow</code> / <code>make:workflow</code>)</h2>
+<p>توسعه‌دهنده برای ساخت کامل ساختار وضعیت و گردش کار هر بخش کافی است دستور زیر را با نام فارسی یا انگلیسی بخش اجرا کند:</p>
+<div class="code-box">
+    <div class="code-header">
+        <span class="code-lang">BASH</span>
+        <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+    </div>
+    <pre><code># ساخت Enum وضعیت، کلاس Workflow و Service برای بخش خرید
+php artisan core:workflow خرید
+
+# ساخت با جدول لاگ و ساعت کاری سفارشی
+php artisan core:workflow کاربران --hours=09:00-17:00 --with-migration
+
+# تولید کامل Model + Migration + FormRequest + BaseTable + Controller
+php artisan make:workflow خرید --with-crud --roles=manager,finance,admin
+
+# یا برای ماژول مشخص با وضعیت‌های سفارشی
+php artisan core:workflow قرارداد --module=Contract --statuses=&quot;draft:پیش‌نویس,review:بررسی,active:جاری&quot;</code></pre>
+</div>
+<div class="table-responsive"><table class="docs-table"><thead><tr><th>فایل تولیدشده</th><th>نقش در پروژه</th></tr></thead><tbody><tr><td><code>Enums/{Domain}Status.php</code></td><td>Enum وضعیت‌ها با <code>EnumTools</code>، متدهای <code>label()</code>، <code>badgeVariant()</code> و <code>icon()</code></td></tr><tr><td><code>Workflows/{Domain}Workflow.php</code></td><td>تعریف قوانین نقش/بازه زمانی (<code>rules()</code>) و مسیرهای انتقال (<code>transitions()</code>)</td></tr><tr><td><code>Services/{Domain}WorkflowService.php</code></td><td>سرویس آماده برای فیلتر لیست‌ها (<code>scopeVisible</code>) و تغییر وضعیت (<code>transitionTo</code>)</td></tr><tr><td><code>*_workflow_logs_table.php</code></td><td>جدول ثبت تاریخچه تغییرات وضعیت با نقش کاربر و یادداشت (با فلگ <code>--with-migration</code> یا <code>--with-crud</code>)</td></tr></tbody></table></div>
+
+<h2 id="sec-wf-timewindow" class="scroll-mt-header">۳. کلاس <code>TimeWindow</code> — تعریف تایم مشخص</h2>
+<p>کلاس <code>MyLaravelCore\\Support\\Workflow\\DTO\\TimeWindow</code> به صورت کامل با تقویم جلالی (<code>Jalali</code>) و منطقه زمانی پیش‌فرض <code>Asia/Tehran</code> یکپارچه است و حتی بازه‌های شبانه (مثل <code>22:00</code> تا <code>06:00</code>) را پشتیبانی می‌کند.</p>
+<div class="code-box">
+    <div class="code-header">
+        <span class="code-lang">PHP</span>
+        <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+    </div>
+    <pre><code>use MyLaravelCore\\Support\\Workflow\\DTO\\TimeWindow;
+
+$window = TimeWindow::make()
+    -&gt;hours(&#039;08:00&#039;, &#039;16:00&#039;)
+    -&gt;days([&#039;شنبه&#039;, &#039;یکشنبه&#039;, &#039;دوشنبه&#039;, &#039;سه‌شنبه&#039;, &#039;چهارشنبه&#039;])
+    -&gt;between(&#039;1405/01/01 00:00&#039;, &#039;1405/12/29 23:59&#039;)
+    -&gt;label(&#039;ساعات اداری تایید&#039;);
+
+// بررسی فعال‌بودن در لحظه فعلی یا یک زمان دلخواه
+$allowedNow = $window-&gt;isSatisfiedAt();
+$allowedAtCustomTime = $window-&gt;isSatisfiedAt(&#039;1405/08/15 11:30&#039;);</code></pre>
+</div>
+
+<h2 id="sec-wf-rule" class="scroll-mt-header">۴. <code>WorkflowRule</code> و نوع عملیات (<code>WorkFlowType</code>)</h2>
+<p>هر <code>WorkflowRule</code> مشخص می‌کند یک یا چند <strong>نقش</strong> روی کدام <strong>وضعیت‌ها</strong> چه نوع دسترسی از <code>MyLaravelCore\\Enums\\WorkFlowType</code> (<code>VIEW = 1</code> مشاهده، <code>CHANGE = 2</code> تغییر از وضعیت فعلی، <code>SET = 3</code> تنظیم وضعیت مقصد) در چه <code>TimeWindow</code> داشته باشند:</p>
+<div class="code-box">
+    <div class="code-header">
+        <span class="code-lang">PHP</span>
+        <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+    </div>
+    <pre><code>use MyLaravelCore\\Enums\\WorkFlowType;
+use MyLaravelCore\\Support\\Workflow\\DTO\\WorkflowRule;
+
+// مدیر فقط بین ۰۸:۰۰ تا ۱۶:۰۰ وضعیت‌های در انتظار و معلق را می‌بیند
+WorkflowRule::make()
+    -&gt;roles([&#039;manager&#039;, &#039;مدیر&#039;])
+    -&gt;statuses([UserStatus::PENDING, UserStatus::SUSPENDED])
+    -&gt;canView()
+    -&gt;hours(&#039;08:00&#039;, &#039;16:00&#039;)
+    -&gt;days([&#039;شنبه&#039;, &#039;یکشنبه&#039;, &#039;دوشنبه&#039;, &#039;سه‌شنبه&#039;, &#039;چهارشنبه&#039;])
+    -&gt;when(fn ($user, $status, $at, $model) =&gt; true) // شرط اختیاری
+    -&gt;description(&#039;مشاهده کاربران در صف بررسی در ساعات اداری&#039;);</code></pre>
+</div>
+
+<h2 id="sec-wf-transition" class="scroll-mt-header">۵. کلاس <code>WorkflowTransition</code> — مسیرهای مجاز تغییر وضعیت</h2>
+<p>برای جلوگیری از پرش غیرمجاز بین وضعیت‌ها، مسیرهای <code>from -&gt; to</code> را همراه با نقش مجاز، بازه زمانی، الزام ثبت یادداشت (<code>requiresNote()</code>) و شرط نگهبان (<code>guard()</code>) تعریف کنید:</p>
+<div class="code-box">
+    <div class="code-header">
+        <span class="code-lang">PHP</span>
+        <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+    </div>
+    <pre><code>use MyLaravelCore\\Support\\Workflow\\DTO\\WorkflowTransition;
+
+WorkflowTransition::make(PurchaseStatus::PENDING_MANAGER, PurchaseStatus::FINANCE_APPROVED)
+    -&gt;roles([&#039;manager&#039;, &#039;admin&#039;])
+    -&gt;hours(&#039;08:00&#039;, &#039;16:00&#039;)
+    -&gt;label(&#039;تایید و ارجاع به مالی&#039;)
+    -&gt;variant(&#039;success&#039;)
+    -&gt;guard(fn ($purchase, $user, ?string $note) =&gt; $purchase-&gt;amount &gt; 0),
+
+WorkflowTransition::make([PurchaseStatus::SUBMITTED, PurchaseStatus::PENDING_MANAGER], PurchaseStatus::REJECTED)
+    -&gt;roles([&#039;manager&#039;, &#039;admin&#039;])
+    -&gt;label(&#039;رد درخواست خرید&#039;)
+    -&gt;variant(&#039;danger&#039;)
+    -&gt;requiresNote();</code></pre>
+</div>
+
+<h2 id="sec-wf-model" class="scroll-mt-header">۶. اتصال به مدل (<code>HasWorkflow</code>) و فیلتر کوئری</h2>
+<div class="code-box">
+    <div class="code-header">
+        <span class="code-lang">PHP</span>
+        <button class="btn-copy" onclick="copyCode(this)"><i class="fa fa-copy"></i> کپی کد</button>
+    </div>
+    <pre><code>use MyLaravelCore\\Traits\\HasWorkflow;
+use MyLaravelCore\\Facades\\Workflow;
+
+class Purchase extends Model
+{
+    use HasWorkflow;
+
+    protected string $workflowClass = PurchaseWorkflow::class;
+}
+
+// در کنترلر: فقط رکوردهایی نمایش داده می‌شوند که نقش کاربر در این لحظه اجازه VIEW آن‌ها را دارد
+$items = Purchase::visibleForWorkflow(authUser())-&gt;paginate(15);
+
+// دکمه‌های تغییر وضعیت مجاز در این تایم و نقش برای رکورد فعلی
+$actions = $purchase-&gt;availableWorkflowTransitionOptions(authUser());
+
+// اجرای انتقال وضعیت (در صورت عدم مجوز، WorkflowTransitionException پرتاب می‌شود)
+$purchase-&gt;transitionTo(PurchaseStatus::FINANCE_APPROVED, authUser(), &#039;تایید شد&#039;);
+
+// دسترسی مستقیم به رجیستری و دیاگرام گردش کار
+Workflow::register(&#039;purchase&#039;, PurchaseWorkflow::class);
+$diagram = workflow(&#039;purchase&#039;)-&gt;toDiagramArray();</code></pre>
+</div>
+
+<h2 id="sec-wf-warnings" class="scroll-mt-header">۷. نکات مهم و هشدارهای کاربردی</h2>
+<div class="callout warning"><i class="fa fa-triangle-exclamation callout-icon"></i><div><strong>فیلتر بدون رکورد:</strong> اگر کاربر در تایم فعلی یا با نقش فعلی حق دیدن هیچ وضعیتی را نداشته باشد، <code>applyVisibleScope</code> / <code>visibleForWorkflow()</code> کوئری را با شرط <code>1 = 0</code> خالی برمی‌گرداند تا هیچ داده‌ای نشت نکند.</div></div>
+<div class="callout warning"><i class="fa fa-triangle-exclamation callout-icon"></i><div><strong>تطبیق نقش کاربر:</strong> <code>BaseWorkflow::resolveUserRoles()</code> به صورت خودکار نقش را از <code>getRoleNames()</code> (Spatie)، پراپرتی <code>roles</code>، <code>role</code>، <code>role_name</code> یا <code>role_id</code> می‌خواند؛ در صورت ساختار اختصاصی می‌توانید <code>core.workflow.role_resolver</code> را در <code>config/core.php</code> تنظیم کنید.</div></div>
+<div class="callout warning"><i class="fa fa-triangle-exclamation callout-icon"></i><div><strong>کنترل سمت سرور:</strong> پنهان‌کردن دکمه‌ها با <code>availableWorkflowTransitions()</code> کافی نیست؛ تغییر وضعیت همیشه باید از طریق <code>transitionTo()</code> یا <code>authorizeTransition()</code> عبور کند تا ساعت کاری، نقش، یادداشت اجباری و <code>guard()</code> سمت سرور بررسی شوند.</div></div>
         `
     }
 ];

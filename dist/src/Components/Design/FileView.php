@@ -1,7 +1,40 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'dZTbauMwEIbv/RRzYXACSR/AJS3bbssGdtOFLcteFIIijxMVWTI6xGlL3n3Hcg527OjCQp7v/0easaxYgbZkHOHXx09m2Bblozb49qiLUitUzr59RyvW6jaKvEWYS+kLoZirEeUM40T8FViFx21grjo9MIunJRlyyayFZyGxFgPuHKrMQgeLviKgUfqVFBxyr7gTWsFyybWyznjuRgFoQfRaqDXEis42uRb0RvZi90I5iK34RJiB8lJOoIcc9e6jPFFXIUGbJChh3umkh620lhBnulJSs4ytZG1IR8JrJEp0Byxn0ra4c8ast6lTrCl3Ew7RMXydMzFD1U7TdmHJbXKQjaldR1TkMIrdRtjpXXPA2fGIbcN6xNRSSkh2TktdoTnqQvXuU8pKa5XrUdMs+P3t9cd88fyyfPr3+rT4M39ZjClzx7KdGArm+IZ2Q3kuc9cjKbM8gdkdJDmb5vSdTesXkz6XaZ5MwrTr8pU22ZBgJ20toOlCgDuOckjxKcpaYZjpCpjhG7HFIcl7ua4l7yWGuVRhqnBVdi1EwdZDBhnmzEvXZi+o/bm4+6h5Dl43+jYy6t44hfqmBuRcbYPOGwVbiowSTnc+Tfnp0t9k4fdxE5IfermP9v8B';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Components\Design;
+
+use Illuminate\Contracts\View\View;
+use MyLaravelCore\Components\BaseComponent;
+
+class FileView extends BaseComponent
+{
+    public function __construct(
+        public string $name,
+        public string $url,
+        public ?int $size = null, // KB
+        public ?string $type = null,
+        public ?string $icon = 'auto',
+        public bool $downloadable = true,
+        public bool $deletable = false,
+        ?string $id = null,
+        ?string $class = null
+    ) {
+        parent::__construct($id, $class);
+
+        if ($this->icon === 'auto') {
+            $ext = strtolower($this->type ?: pathinfo($name, PATHINFO_EXTENSION));
+            $this->icon = match ($ext) {
+                'pdf' => 'fa-file-pdf',
+                'doc', 'docx' => 'fa-file-word',
+                'xls', 'xlsx' => 'fa-file-excel',
+                'zip', 'rar' => 'fa-file-archive',
+                'jpg', 'jpeg', 'png', 'webp' => 'fa-file-image',
+                default => 'fa-file',
+            };
+        }
+    }
+
+    public function render(): View
+    {
+        return view('core::components.design.file');
+    }
+}

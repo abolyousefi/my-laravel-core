@@ -1,7 +1,26 @@
 <?php
+
+namespace MyLaravelCore\Facades;
+
+use Illuminate\Support\Facades\Facade;
+
 /**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
+ * @method static \MyLaravelCore\Contracts\UploaderInterface uploader()
+ * @method static \MyLaravelCore\Contracts\PaymentGatewayInterface payment(?string $gateway = null)
+ * @method static \MyLaravelCore\Contracts\SmsDriverInterface sms(?string $driver = null)
+ * @method static \MyLaravelCore\Services\ApiResponse api()
+ * @method static string jdate(string $format = 'Y/m/d H:i', mixed $timestamp = null, bool $persianDigits = true)
+ * @method static string toman(mixed $amount, bool $persianDigits = true)
+ * @method static string rial(mixed $amount, bool $persianDigits = true)
+ * @method static string persianDigits(mixed $value)
+ * @method static string englishDigits(mixed $value)
+ *
+ * @see \MyLaravelCore\CoreManager
  */
-$__CORE_ENC__ = 'VY67CgJBDEX7+YqU+gtrJYIguJXtNiEbl4HZzJBkRJH9d/ehhbdIinsOXMGRrSAxtK8rKj44nbJyd0bCnu0QQjWGS0p1jILO3a2WktV/wPfPXKCEZrDYwE9n6Q22MrwDzCmancm5B3P0SHCvQh6zwMC+kUciNsu62zczpFGG1dz8JcpeVaD7H7ucFgUH1qZZZxxWYwrTBw==';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+class Core extends Facade
+{
+    protected static function getFacadeAccessor(): string
+    {
+        return \MyLaravelCore\CoreManager::class;
+    }
+}

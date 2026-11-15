@@ -20,6 +20,30 @@ class BadgeColumn extends Column
         return $this;
     }
 
+    public function colors(array $colors): static
+    {
+        foreach ($colors as $key => $variant) {
+            if (!isset($this->map[$key]) || !is_array($this->map[$key])) {
+                $this->map[$key] = ['variant' => $variant];
+            } else {
+                $this->map[$key]['variant'] = $variant;
+            }
+        }
+        return $this;
+    }
+
+    public function labels(array $labels): static
+    {
+        foreach ($labels as $key => $label) {
+            if (!isset($this->map[$key]) || !is_array($this->map[$key])) {
+                $this->map[$key] = ['label' => $label];
+            } else {
+                $this->map[$key]['label'] = $label;
+            }
+        }
+        return $this;
+    }
+
     public function defaultVariant(string $variant): static
     {
         $this->defaultVariant = $variant;

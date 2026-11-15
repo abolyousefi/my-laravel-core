@@ -1,7 +1,46 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'dZRBa9wwEIXv/hVzMOwuhBDoTaEEGloopJceegoE2ZpdC2TJHUnbXdL8945kr1171zoY299jZvT8LCtb9J2sEX6cXyTJI5pnR/j67NrOWbTBv35z1D4WRfQI342JrbYyJIENJGvmvzT+yRcW1UZ6D1+VDo4ATwGt8vBFekxFxprFewG8ulgZXcM+2jpoZ+HtrXbWB4p12GZBWvys7QFKy4PejW+fLq+NrNDAZ7DRmAm3+oQKyqM0Ea/g0FbbAGWD+tAElnx6eLhS9D3+SiJ5hjI4ZypJrN3sud7mDm7roVSasN8RaymwdKkcx+8MW984o5DW5hy1sTNOqp8uhtU9PeVNtfL0gvYQmitZxXuAkvB35BEV4700HpdcaS8rs84JpXLWnK/5OGuTBll2H6lW66xP0CpGInexKtMdvE8uSOJ0CXEzSGmlEIllltLKMRJDnOYoh0gMYZqji5Fi8nQuuDgpJlOXFXorxeTqXJCMFL2fy9Ik/ovaHOrUUS96ZWfF4PAcZVfF4O5Ido/59qO4+bey1Zza7U5A+vezZPoShCGShSOT7abmA0WIejxR7vd8GNxjPiQ2Y5OPfw==';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Components\Form;
+
+use Illuminate\Contracts\View\View;
+
+class Editor extends BaseFormComponent
+{
+    public function __construct(
+        string $name,
+        ?string $label = null,
+        mixed $value = null,
+        public int $height = 300,
+        public string|array $toolbar = 'full', // minimal, standard, full
+        public string $direction = 'rtl',
+        public ?string $placeholder = null,
+        public ?string $uploadRoute = null,
+        public ?int $maxLength = null,
+        bool $required = false,
+        bool $disabled = false,
+        bool $readonly = false,
+        ?string $hint = null,
+        ?string $id = null,
+        ?string $class = null,
+        ?string $error = null
+    ) {
+        parent::__construct(
+            name: $name,
+            label: $label,
+            value: $value,
+            required: $required,
+            disabled: $disabled,
+            readonly: $readonly,
+            hint: $hint,
+            dir: $direction,
+            id: $id,
+            class: $class,
+            error: $error
+        );
+    }
+
+    public function render(): View
+    {
+        return view('core::components.form.editor');
+    }
+}

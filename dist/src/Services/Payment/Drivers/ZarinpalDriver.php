@@ -1,7 +1,80 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'rVbNbttGEL77KeYghCQgSwnQkwRbCJoWddEAhdNeKgvCilxJm1JLdndpWWkMNEGb5uC3yEGpDzVUBMgtz0HFtz5Jh7tLaUXJNopEF4oz3/zszHyz5GRCZUpCCo9n3xFBTmn8ZSLoyRMqTllI5cn3ZDahXJ08EuyUCtne28skhaM4ziaME4XILE0ToU6+JiGJ0OAbpdK2Bh1nXLEJ/eospKliCUfbMCZSwk9EMJ6S2PgEeqYojyQ8HEglSKhsSKPd+3UP8JeKRNFQ0QgQw/gIagMi6Y8ibt+gHmFuWm302SBmIQwzHhaZQL8fJhyhWah8IgSZQQ0FQzaCA+j2Am1jAmtrIjCfVsu1svigvULVJOHRIDlDF1bZ9azI60GnA0MSS+rg1ZjJ/UN7jsKqdNABb4xVlK1m04oaz2zJGmEyaaaj5ukXzdSUqelBa40nKbsVuxXe1ul/hn+iiCj6tBl8Op3egjShz3c3RNBfMiqVH7RA96PSgdqEinBMuDqKikxN6mWRS12fRabQnnvMMBPYvXCGdsbA90Kc8IYtSaPUe3Xwjo5/8JyOrp0gOE5IEbu7Eha/jdhwcOgmWt9EkkmCfNAgn3EVlKcw8gp4lZT2Wb5VQMi2UDBNLYMzDh0xdLA7lk5wbErsVUOROB6Q8Od+JmLXTSnH4ahXz6xIRBTRaN2t/pDFigp/szgGnAxYTF3HRlLfhtIJYRspaMEmsBes33uW3LpDAtcYkpNii4oN1GoR+a1MuB/sH6YJDlaFbQ3w7Mg1niIMm1/22GU0Os1iVUxc6X7/8Kn26oRmQ2yolBRjGHzX09XpdXHQIur1Arh3D27QwcEBPLh/P3BmXUcmmRongqmZDb5hulJ6vfaGmaAqExx2tGFtouu7et3RBkEjJnCZVgei3BSNO8zJtF9Wy5ib9Ct9XCd+7nSRCpGIx3LknlrLZHFuvKokGVFL8vzv/H0+h/wqX0A+zxf5Zf4Wn++heGjxx6t8vvwT8n/yxfXF8tW/v10sP6Dk94azH9RYJFPgdLp1XfmrbIJbVxdeUmw488uLZ10bQJo/H+JMqec8i2M83VmqL6mHmvJ4xkL8+TceKd2bPeNX4yJ+Y/e4w/yZN11t53a7exg/kdqmJZ/M7FrB0V0EtNzFQhYddD8BshA/miTaMN7XbfW1kzp0keV1pPqDnhthJ2E968VUx75USijosGzEDbvHInD7dMAOZwA3ovAaL46ytekN4dxEis8DpNoin3/8a/kqf2fotvxj+Xr5Yvny+iK/BFS/ub7Av1eQv8uvGsVHgn8nn5GbC2TtHHl9Ceh5XvrECMvXhZtg6+oSUT8l3F0zTpNK7apR1Rreual6JfHP/wM=';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Services\Payment\Drivers;
+
+use Illuminate\Support\Facades\Http;
+use RuntimeException;
+
+class ZarinpalDriver extends AbstractPaymentDriver
+{
+    protected string $baseUrl;
+    protected string $gateUrl;
+
+    public function __construct(array $config = [])
+    {
+        parent::__construct($config);
+        $sandbox = $config['sandbox'] ?? false;
+        $this->baseUrl = $sandbox ? 'https://sandbox.zarinpal.com/pg/v4/payment/' : 'https://api.zarinpal.com/pg/v4/payment/';
+        $this->gateUrl = $sandbox ? 'https://sandbox.zarinpal.com/pg/StartPay/' : 'https://www.zarinpal.com/pg/StartPay/';
+    }
+
+    public function request(): array
+    {
+        $merchantId = $this->config['merchant_id'] ?? '';
+        $currency = config('core.payment.currency', 'IRT');
+        // Zarinpal v4 expects amount in Rial (IRR) or Toman (IRT)
+        $payload = [
+            'merchant_id' => $merchantId,
+            'amount' => (int) $this->amount,
+            'currency' => $currency,
+            'description' => $this->description ?: 'Payment Request',
+            'callback_url' => $this->callbackUrl,
+            'metadata' => array_filter([
+                'mobile' => $this->mobile,
+                'email' => $this->email,
+            ]),
+        ];
+
+        $response = Http::asJson()->post($this->baseUrl . 'request.json', $payload);
+        $result = $response->json();
+
+        if (isset($result['data']['code']) && $result['data']['code'] == 100) {
+            $authority = $result['data']['authority'];
+            return [
+                'authority' => $authority,
+                'redirect_url' => $this->gateUrl . $authority,
+                'raw_response' => $result,
+            ];
+        }
+
+        $errorMsg = $result['errors']['message'] ?? 'خطا در ارتباط با درگاه زرین‌پال.';
+        throw new RuntimeException($errorMsg);
+    }
+
+    public function verify(?string $authority = null, int|float|null $expectedAmount = null): array
+    {
+        $authority = $authority ?? $this->transactionId ?? '';
+        $merchantId = $this->config['merchant_id'] ?? '';
+        $amount = (int) ($expectedAmount ?? $this->amount);
+
+        $payload = [
+            'merchant_id' => $merchantId,
+            'amount' => $amount,
+            'authority' => $authority,
+        ];
+
+        $response = Http::asJson()->post($this->baseUrl . 'verify.json', $payload);
+        $result = $response->json();
+
+        $code = $result['data']['code'] ?? null;
+        $success = in_array($code, [100, 101]);
+
+        return [
+            'success' => $success,
+            'ref_id' => isset($result['data']['ref_id']) ? (string) $result['data']['ref_id'] : null,
+            'message' => $success ? 'تراکنش با موفقیت تأیید شد.' : ($result['errors']['message'] ?? 'پرداخت ناموفق بود.'),
+            'card_pan' => $result['data']['card_pan'] ?? null,
+            'raw_response' => $result,
+        ];
+    }
+}

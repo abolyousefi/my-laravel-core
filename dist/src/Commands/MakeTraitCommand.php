@@ -1,7 +1,50 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'dVPLbtswELzrK7ZGAEtBY99lp0XqOEiAJAjq5lQXBUOtbCIUyfKRxjD8Fz326/olXYpqIjsoL4LE2dnZ2ZFiDTrDOMLN5ppZ9oRypi0uZ7ppmKrcJMuCQ7iSMjRCMR9vlNPyBTE5vF8EY7T1ywvGWYVueSEk/he08JY6cMmcgxv2iF8sE75jBnz2SBKge8+2GdAxVnvkHis4cmJFbMEinMKwofKSk/YTH0lgq2g0KOE2PnQNfo3Q0kOOo9UILpk7F47roHyxG04OuUk6t8J4oVVkn1kk3cBA4U+wGBx7kAhzqX8EVB60hRUqtIKnHsSXCMODpG91ULxlWtMcEvOiBKF8i0hDxXPUCj4Fb0WTH/m1cCcfmF2Fhhrkw3g5LIrJK9z5UMnNbSoiI8syfclboqJT0EIrYQnDjPlumF/nw1ajG/bY4pbKEpUjN8+FJRO03cyfhfMuj+X9xjVhiW6wjRe78banZDcyazPotRY15B13Rxari6I3d8uZxkVrtc0HaU17vMAkbaDaQKJ5N+gJisci5UCBQ1mX5cXZ1fX95/krYtfzwmNjZNzlKUyn07vLu2z6kURnmXr5Fc6MWSaLaBL/VkyXxPHxcaI9hk9a+zZh+6Lb2lEHGh9EzHnm+9l4II698hiTJy2qg5yMx3CjK5QgRY18w2kZa60fXZYm3WU0U28DyX0TfLL+/asD/Z0m/4WqdT748/tX96fwNvUkNXCOztVByk0JXylI4+TP2+V/G/STt7eWxf1sNl8sJv+E/gU=';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Commands;
+
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+
+class MakeTraitCommand extends Command
+{
+    protected $signature = 'make:core-trait {name : Name of the Trait (e.g. HasDiscount)}';
+    protected $description = 'Create a new reusable Eloquent or generic Trait';
+
+    public function handle(): int
+    {
+        $name = trim($this->argument('name'));
+        $studlyName = Str::studly($name);
+
+        $dir = app_path('Traits');
+        File::ensureDirectoryExists($dir);
+        $file = "{$dir}/{$studlyName}.php";
+
+        if (File::exists($file)) {
+            $this->error("Trait {$studlyName} already exists!");
+            return self::FAILURE;
+        }
+
+        $template = <<<PHP
+<?php
+
+namespace App\Traits;
+
+trait {$studlyName}
+{
+    /**
+     * Boot the {$studlyName} trait.
+     */
+    protected static function boot{$studlyName}(): void
+    {
+        // Model lifecycle hooks
+    }
+}
+PHP;
+
+        File::put($file, $template);
+        $this->info("✔ Trait created successfully: [app/Traits/{$studlyName}.php]");
+
+        return self::SUCCESS;
+    }
+}

@@ -1,7 +1,41 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'dVPBauMwEL37K+ZgSALdwl4VykIDXQrtZQ97aZcykSftgCy5IymbUPrvlRTHxk0yB2PrPT2N3vNYbMl3qAke9w8ouCWzckLPK9d2zpIN/vnOSbusqugJ7o2JLVsMmWCDoE74X6b/5ZFI2qD38Acbdr/FxQ5oF8g2Hm7RUxYadKuPClJ1cW1YwyZaHdhZeHnRzvogUYd5IeRK32xfobap2ath9ddx2eCaDNyAjcaMcK+MIriH2nVZ3ifW07+R0/KOGqi3aCJdEmAboNYuXbxs/3lCWDtnoGZr2GaRDRpPJ6Rjr1sUxqR4A7NOuEXZz0buQUnoPbKkvk60DnjDHtfmHD448sbliOl9BpSby9ghwIswiTjp4YIu4GO8KkoKVqmzGebK+anvMeYqCao+ySlUslF9RlPoaJQaPZsSjk6p0bQpIfukDnZNAc57+Bu7eKN6j6ZQ8UX1/gzIYlleP6uzv3oyqyGZLxTk4SmU0UuhEMXCNiHzmU4TqZQeRvJ6kybpWvKU/XjNYzYbTvr8Ag==';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Components\Form;
+
+use Illuminate\Contracts\View\View;
+
+class RadioGroup extends BaseFormComponent
+{
+    public function __construct(
+        string $name,
+        ?string $label = null,
+        public array $options = [],
+        mixed $value = null,
+        public int $columns = 1,
+        public bool $inline = false,
+        public string $variant = 'primary',
+        bool $required = false,
+        bool $disabled = false,
+        ?string $hint = null,
+        ?string $id = null,
+        ?string $class = null,
+        ?string $error = null
+    ) {
+        parent::__construct(
+            name: $name,
+            label: $label,
+            value: $value,
+            required: $required,
+            disabled: $disabled,
+            hint: $hint,
+            id: $id,
+            class: $class,
+            error: $error
+        );
+    }
+
+    public function render(): View
+    {
+        return view('core::components.form.radio-group');
+    }
+}

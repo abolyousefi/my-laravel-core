@@ -7,6 +7,16 @@ class CurrencyColumn extends Column
     protected string $unit = 'تومان'; // toman, rial
     protected bool $showWords = false;
 
+    public function unit(string $unit): static
+    {
+        $this->unit = match (strtolower($unit)) {
+            'toman', 'تومان' => 'تومان',
+            'rial', 'ریال' => 'ریال',
+            default => $unit,
+        };
+        return $this;
+    }
+
     public function toman(): static
     {
         $this->unit = 'تومان';

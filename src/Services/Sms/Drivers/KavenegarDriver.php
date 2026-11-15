@@ -18,8 +18,20 @@ class KavenegarDriver implements SmsDriverInterface
         $this->baseUrl = "https://api.kavenegar.com/v1/{$this->apiKey}/";
     }
 
-    public function send(string|array $receptor, string $message, ?string $sender = null): array
+    protected string|array|null $recipient = null;
+
+    public function to(string|array $receptor): static
     {
+        $this->recipient = $receptor;
+        return $this;
+    }
+
+    public function send(string|array $receptor, ?string $message = null, ?string $sender = null): array
+    {
+        if ($message === null && $this->recipient !== null) {
+            $message = is_string($receptor) ? $receptor : implode(' ', $receptor);
+            $receptor = $this->recipient;
+        }
         $receptors = is_array($receptor) ? implode(',', array_map('clean_mobile', $receptor)) : clean_mobile($receptor);
         $sender = $sender ?: $this->sender;
 

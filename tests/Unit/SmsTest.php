@@ -12,7 +12,7 @@ class SmsTest extends TestCase
         // Mock Log facade call by creating driver
         $driver = new class(['channel' => 'single']) extends LogSmsDriver {
             // Mock send without invoking illuminate Log facade if not booted
-            public function send(string|array $receptor, string $message, ?string $sender = null): array
+            public function send(string|array $receptor, ?string $message = null, ?string $sender = null): array
             {
                 return [
                     'success' => true,

@@ -1,7 +1,42 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'jVDLSgRBDLzPV+SwhxH2CxQR2YMICl68ecn0ZjSYfphOrzau/27P6o5elMkhhKIqVVRATzmhI7itN6i4I9lEpYdNDKboLJ91HQcjHSfOHVZPwa7Q6BXr9RHv3jtoc1ipDMIOxhKccQyAPpZgffuxHyWiweoLOTmFbGjsmsGfYociA7rne5U+m3J4hFVRWaTdUnbKabpn7S9s0Y+ElXRW+ziw0BoujgB5ZIFzCEWWZVJ6KZStb2RUxfofd0fKY53NsdhTVLa6hrnL/WTcYrwlckbby0OxP3m+LT4+AQ==';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Contracts;
+
+interface PaymentGatewayInterface
+{
+    /**
+     * Set payment amount (in Iranian Rial or Toman according to config).
+     */
+    public function amount(int|float $amount): static;
+
+    /**
+     * Set callback URL after gateway redirect.
+     */
+    public function callbackUrl(string $url): static;
+
+    /**
+     * Set payment description.
+     */
+    public function description(string $description): static;
+
+    /**
+     * Set payer mobile or email.
+     */
+    public function payer(string $mobile, ?string $email = null): static;
+
+    /**
+     * Request a payment token / authority and get the redirect URL.
+     *
+     * @return array{authority: string, redirect_url: string, raw_response: mixed}
+     */
+    public function request(): array;
+
+    /**
+     * Verify payment upon return from the gateway.
+     *
+     * @param string $authority
+     * @param int|float|null $expectedAmount
+     * @return array{success: bool, ref_id: string|null, message: string, card_pan: string|null, raw_response: mixed}
+     */
+    public function verify(?string $authority = null, int|float|null $expectedAmount = null): array;
+}

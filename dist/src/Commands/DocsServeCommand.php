@@ -1,7 +1,55 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = '3VZfb+JGEH/nU0ysKLbVAsm9tIKDipJEh8TdodDodLqcrMUeYFWza+2uQxBnqd+hfaqq9rv1E/QjdHZNHENKr+pba/yw65n5zZ/f7CyCrVBnLEZ4vRkzxe4xHUqFd0O5WjGR6G6jkWuEUZrmKy6YsRKhZVppkEKcMq3hUsZ6iuoedwLAB4OEALt9Y9sAejIlDcYGEzjVfEGIuULogR+T105CGODUjj3bZjOTyvS+Pj8/hw5MaA1GgraOgczzFQrDDJcCpCg+i7WU2vTOW+5HcK9oCyxJFFJCgU38UTaXCsaDN8DimGTh55GzfJbymDC/5VQLCvERiZYsTeUaDLIVrHA1Q6UpWDBLBE10gECzlup7p+ncFX73sHYJ6ljxzCVK1XOFdwhcGFQsNvxZPdY409wgpDKmADZAGbFYScrU2j06tYluZK5ceOS3dFwmM89F7KCWxGeKQdix7pzGtqrHqeWHYgpIFMKpWXLd7EsXaeBbmR92n5QtAaR8qOb8+SF8A/6ubj6V8kDL2u6B2faZMLMkQIUszWgZRNHl6CaKoAV+u9Wyr9WyZpUdn0Nw8mT86ROccB0lXAXVxzCsZeh8laGgUlIF3uVeocmSWJJqA0IaKmhODcAMfNhWcMVHrxa3fRTSQRDUx+m807kejMa3N1dPGsVTsKdK5sTw1LFvK1fF3QLK9Gr43dub99H0ajK4GdDS5u0Oh2ply8yvFcu1wa1KCcNbGpN12u2LF1+5Yl90to7FwqvrMzHKSHmBxhZ+thHUq8Fu59ZhuK9eggc7y7MzONFGRdowZXS05kROKfoSfOvZDy3fj7FsS1lRhUL8izxNa7ztOBC4HnNB7ruHEi7mMvAA/vjtx59pvsFuwIGdcLDPmTtAynuOkVpowvj9px/+c+/fpfPrLwAv54veQiGKbnmkdG8m06Q/tp3RednuWzurE2+Y6G+rjilIVIe252fH95Fj8k+8vikHUOnX6mzQjsn+dgddVIKFYpt+MF0yYtG20bNJagd1G97x5jUPD2It/uf8xnTZUlPbjCbuFvswNCr9YvjR3ZJGZuU1U06Ev7CvHaZKtEf05NUkejuNrgevR+P30OvR5fOObji5ppl6QD4+YBx47rxDrXv26ABMNR7BvWRqzcURWJmh+FeolF7+cAT0IVk0D4GhD+0E79t2+MCL/tkFnO03VLXM6G+QWao88GjUQnNKKHY2ViMMmgbuvNotcOe5fX2i0zevXvu9e2F6OxxeTael86JR/Ak=';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Commands;
+
+use Illuminate\Console\Command;
+
+class DocsServeCommand extends Command
+{
+    protected $signature = 'core:docs 
+                            {--port=8000 : Port to serve documentation on} 
+                            {--host=0.0.0.0 : Host address (use 0.0.0.0 for LAN access)} 
+                            {--public : Bind to 0.0.0.0 to allow team members on the same network to access}';
+    protected $description = 'Serve the interactive documentation website locally or across the network for your team';
+
+    public function handle(): int
+    {
+        $port = (int) $this->option('port');
+        $host = $this->option('public') ? '0.0.0.0' : $this->option('host');
+        $docsPath = realpath(__DIR__ . '/../../docs');
+
+        if (!$docsPath || !is_dir($docsPath)) {
+            $this->error("Documentation directory not found at [{$docsPath}]");
+            return self::FAILURE;
+        }
+
+        $routerScript = $docsPath . DIRECTORY_SEPARATOR . 'server.php';
+        $localUrl = "http://127.0.0.1:{$port}";
+        $lanIp = gethostbyname(gethostname());
+        $lanUrl = ($lanIp && !str_starts_with($lanIp, '127.')) ? "http://{$lanIp}:{$port}" : null;
+
+        $this->newLine();
+        $this->info("  📚 My Laravel Core Documentation Server");
+        $this->line("  ────────────────────────────────────────────────────────────");
+        $this->line("  ➜  <fg=green;options=bold>Local:</>    <fg=cyan>{$localUrl}</>");
+        if ($lanUrl) {
+            $this->line("  ➜  <fg=green;options=bold>Network:</>  <fg=yellow>{$lanUrl}</>  <fg=gray>(Share with team members on LAN / Wi-Fi)</>");
+        }
+        $this->line("  ────────────────────────────────────────────────────────────");
+        $this->comment("  Press [Ctrl+C] to stop the server.");
+        $this->newLine();
+
+        // Automatically open browser on Windows/Mac/Linux if possible
+        if (PHP_OS_FAMILY === 'Windows') {
+            exec("start {$localUrl}");
+        } elseif (PHP_OS_FAMILY === 'Darwin') {
+            exec("open {$localUrl}");
+        } elseif (PHP_OS_FAMILY === 'Linux') {
+            exec("xdg-open {$localUrl} > /dev/null 2>&1 &");
+        }
+
+        passthru("php -S {$host}:{$port} -t \"{$docsPath}\" \"{$routerScript}\"");
+
+        return self::SUCCESS;
+    }
+}

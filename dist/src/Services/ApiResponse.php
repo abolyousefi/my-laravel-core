@@ -1,7 +1,107 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'vVZda9swFH3Pr1AhYBvckmV9WkggZBvbaNnY2F6aUFT7OhHIktFHumz0v1eSP5PYqUvG/BDMvfdcHd17chKGU5AZjgDd7m6wwFugCy5g+QPElkQgJ4OBloA+U6pTwrCC5YIzJXCk5PIbXtsQ4Wx5A2ytNvNHLKCIcjE5RH5SKlt+kZx9N0dyJsE0jyiWEs0zUsYGfwfIPO4j0w+URCjRLLKnIKkjQ0n6KfkNMRrGWGE0RUxTGiKpBGFrNDTXkXgNJu59zUDgJjDR9MoLEWEKDaXCSssFj23peDQKERYC72wD1/VuFbxDTbKOUU7OPsMM7yjHsS2tgvbxisM8NJ0hJTSE++mCoEuXbA9K7MXyvH2rkyszsPKdJMi/gDRTO99RDoIGuSbBO8+mvZUh6gonVdVT3U2A0oIhBo97d/bLJmFzYEHeooC3bioSYDYe992UOY9rYURY4BoLo7sr7/QmCu5DtSHyclZqJB9dPWGz4zc9iIMQXPgtFOdFDvEo0kJA3K6ka6uk4tauXhb3/hdqSjCV58jJzb9TTSXfi2nBuFNQeWEuqfz9v4gqy52lllVWWk2rqN5b0RkOgsD2lZJy46i6mzUbniwCnqA2ozsaVCH3usPljChIpR9M9gtLr9mLup05jTF1n1W7bTQrkoYA+EF4DDae2oG0mU6Ysct2lEl0ghRXmB4hXLS1foPlfWp+YdxJ8gho0rfczRbkIX7VUBkC81V4ce4d416dkuvLPjIK81Y9JMu4+sg1i/1TpmeKUGKrXud0uVXVxK5H1z0YaYa12nBB/kArq5+NPMIOcy6tPr6bcPFA4hhYq/e6VdQ15xJ624PQFlMSu38PHxx+z9Nb/eZXhTBGTSicu87xOCzPq/g+PQM=';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Services;
+
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\JsonResponse;
+
+class ApiResponse
+{
+    /**
+     * Send success JSON response.
+     */
+    public function success(mixed $data = null, string $message = 'Operation successful.', int $statusCode = 200, array $meta = []): JsonResponse
+    {
+        $payload = [
+            'success' => true,
+            'message' => $message,
+            'data' => $data,
+        ];
+
+        if (!empty($meta)) {
+            $payload['meta'] = $meta;
+        }
+
+        return new JsonResponse($payload, $statusCode);
+    }
+
+    /**
+     * Send created (201) response.
+     */
+    public function created(mixed $data = null, string $message = 'Resource created successfully.'): JsonResponse
+    {
+        return $this->success($data, $message, 201);
+    }
+
+    /**
+     * Send error JSON response.
+     */
+    public function error(string $message = 'An error occurred.', int $statusCode = 400, mixed $errors = null): JsonResponse
+    {
+        $payload = [
+            'success' => false,
+            'message' => $message,
+            'data' => null,
+        ];
+
+        if ($errors !== null) {
+            $payload['errors'] = $errors;
+        }
+
+        return new JsonResponse($payload, $statusCode);
+    }
+
+    /**
+     * Send paginated JSON response.
+     */
+    public function paginated(mixed $paginator, string $message = 'Data retrieved successfully.'): JsonResponse
+    {
+        if ($paginator instanceof LengthAwarePaginator) {
+            $data = $paginator->items();
+            $meta = [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+                'has_more_pages' => $paginator->hasMorePages(),
+            ];
+        } else {
+            $data = $paginator;
+            $meta = [];
+        }
+
+        return $this->success($data, $message, 200, $meta);
+    }
+
+    /**
+     * 404 Not Found response.
+     */
+    public function notFound(string $message = 'Resource not found.'): JsonResponse
+    {
+        return $this->error($message, 404);
+    }
+
+    /**
+     * 401 Unauthorized response.
+     */
+    public function unauthorized(string $message = 'Unauthorized action.'): JsonResponse
+    {
+        return $this->error($message, 401);
+    }
+
+    /**
+     * 403 Forbidden response.
+     */
+    public function forbidden(string $message = 'Access forbidden.'): JsonResponse
+    {
+        return $this->error($message, 403);
+    }
+
+    /**
+     * 422 Unprocessable Entity (Validation failed).
+     */
+    public function validationError(mixed $errors, string $message = 'Validation failed.'): JsonResponse
+    {
+        return $this->error($message, 422, $errors);
+    }
+}

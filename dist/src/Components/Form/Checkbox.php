@@ -1,7 +1,44 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'dVNNi9swEL37V0whIBuygb2qpIUGFgrdPfaSXYIsTxpRWTKSnM12yX/vSP6KdxMdhKz3ZsbvjcaIGn0jJMLj2y/hxBH1xjp83ti6sQZN8M8P1tVfs6z1CD+1bmtlRIgEE5yQhP9W+Jo2IkktvIfNAeXf0p4ATwFN5eGH8BjTjFmz9wxoNW2plYR9a2RQ1sBuJ63xwbUy5IkQF30r8wcWhn51Od5+H661KFHDGkyr9QTX6oQVLI5Ct0jg/YT0NUtrNSxk/FMirmEvtMdPrKGIV/9iGlZX7CbnKJwSJkRa41Qt3NsFtytXKS9Kfa3eKOegUoq5mhFV1W2s8/4mjM5Z18MJLeB9kiIcdYXzqw2IK5rPP/YgrmQ/79swh5L5vG/CHBqM4JMnc0K0gXduzAEVY9QHdpLOewvmUJLNe/kjUtBbHc6LyoYn0kXekPKdw0bTPORbtmVLYC/sZQlbtorneEwWUPiVaEdO1/lwQfwVuyCqPeRWVyNewJd1143LRqSU4aD83bfpbebx9RQwi54Sn7NuvzpR1NYKXV5wiBOaKFMxh6F1Bo6E5EzS2HMux7lf7WlgV7If5UHJOTv/Bw==';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Components\Form;
+
+use Illuminate\Contracts\View\View;
+
+class Checkbox extends BaseFormComponent
+{
+    public function __construct(
+        string $name,
+        ?string $label = null,
+        mixed $value = 1,
+        public bool $checked = false,
+        public string $size = 'md',
+        public string $variant = 'primary',
+        bool $disabled = false,
+        ?string $hint = null,
+        ?string $id = null,
+        ?string $class = null,
+        ?string $error = null
+    ) {
+        parent::__construct(
+            name: $name,
+            label: $label,
+            value: $value,
+            disabled: $disabled,
+            hint: $hint,
+            id: $id,
+            class: $class,
+            error: $error
+        );
+
+        $dotName = str_replace(['[', ']'], ['.', ''], $name);
+        $dotName = rtrim($dotName, '.');
+        if (old($dotName) !== null) {
+            $this->checked = (bool) old($dotName);
+        }
+    }
+
+    public function render(): View
+    {
+        return view('core::components.form.checkbox');
+    }
+}

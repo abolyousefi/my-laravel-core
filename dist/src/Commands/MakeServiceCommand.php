@@ -1,7 +1,59 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'dVPbbtpAEH33V0wQEgYl8G6gVUqJGilJo6I8hQht1mPYdr1e7SUBIf6ij/26fklnsQ0OSfcF4Zk5c87MGcVytJpxhNvNDTPsBeWkMDifFHnOVGqHUeQtwrWUPheKuRBRtpCHjOFpfOa1LoybXzHOUrTzKyHxv0kzZ6gDl8xauGW/cIbmRXCssAHXDokEVP+jbQT0tCkccocptK1YEp43CGPo5ASQcGJ/YUsY2CqSBwnchZ8iA7dCqFpA2TTG/rIP302Kpgp0d53haRvSwY3QThQqNJoYJBHAQOErPHsrFBKUbQITRgnin6XgkHnF99UrkiEx7iYglNtnlJrCa+/ZjsEZkcdttxL24hMzS5+jcnEnBDvd7vCYbp1P5eauLKJJJkn5Jd4DNTJFBvGZdWYRhrl4FW4VN4rPoVNJJ/gGndMe/fEx8Yi9i46EUmGICdN6oRn1qLNtp8El2CFJUFla2ldhaMCF2UzXwjobB4CmwIxyCbC1DYHdYNtgs+vrlW4NozcaK+wKLFS/F1SOFY0pTNyqvfAGGZik/aYbKIHOWg1K4Rkkwylat8yS5Ory+ubhx/TjeTjMtQxOGcNoNLr/dh+NPhPtKFKHq7vUel6P6XAJb+jUpj8x0mLB6RCd8dzF3RMjDQZwrX7SaCFFTTtHxQVaWKHBqMFx0OuVJT2YrpF7Ilp7uNBoWOjTrzIGH5LAsixmxrANzNspc4zEPj6Rv3OxxvQ9sS/1uchiSVAHTo3JkigcVkR3EY2tseZyxdq7cr/nxyE3jVMuWaisiFt///w+uXm+P98UrOc0dZt5KTcJPJJvB/Uq3nvtKdgg+tADs4fJZDqbHSj/Aw==';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Commands;
+
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+
+class MakeServiceCommand extends Command
+{
+    protected $signature = 'make:core-service {name : Name of the Service class (e.g. OrderService)}';
+    protected $description = 'Create a new business service class';
+
+    public function handle(): int
+    {
+        $name = trim($this->argument('name'));
+        $studlyName = Str::studly($name);
+        if (!str_ends_with($studlyName, 'Service')) {
+            $studlyName .= 'Service';
+        }
+
+        $dir = app_path('Services');
+        File::ensureDirectoryExists($dir);
+        $file = "{$dir}/{$studlyName}.php";
+
+        if (File::exists($file)) {
+            $this->error("Service {$studlyName} already exists!");
+            return self::FAILURE;
+        }
+
+        $template = <<<PHP
+<?php
+
+namespace App\Services;
+
+class {$studlyName}
+{
+    public function __construct()
+    {
+        // Inject dependencies here
+    }
+
+    /**
+     * Execute service operation.
+     */
+    public function execute(array \$data = []): mixed
+    {
+        // Business logic here
+        return true;
+    }
+}
+PHP;
+
+        File::put($file, $template);
+        $this->info("✔ Service class created successfully: [app/Services/{$studlyName}.php]");
+
+        return self::SUCCESS;
+    }
+}

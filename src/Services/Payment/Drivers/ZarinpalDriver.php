@@ -51,8 +51,9 @@ class ZarinpalDriver extends AbstractPaymentDriver
         throw new RuntimeException($errorMsg);
     }
 
-    public function verify(string $authority, int|float|null $expectedAmount = null): array
+    public function verify(?string $authority = null, int|float|null $expectedAmount = null): array
     {
+        $authority = $authority ?? $this->transactionId ?? '';
         $merchantId = $this->config['merchant_id'] ?? '';
         $amount = (int) ($expectedAmount ?? $this->amount);
 

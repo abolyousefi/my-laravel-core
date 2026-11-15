@@ -166,7 +166,7 @@
                         &copy; {{ date('Y') }} <strong>{{ $brand }}</strong>. تمامی حقوق محفوظ است.
                     </span>
                     <span class="text-secondary">
-                        طراحی و توسعه با <span class="text-primary font-monospace">My Laravel Core</span>
+                        طراحی و توسعه با زیرساخت <span class="text-primary fw-bold">ابول فریم (AbolFrame)</span>
                     </span>
                 </div>
             </footer>

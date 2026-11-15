@@ -1,7 +1,35 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'hZNBT+MwEIXv+RVzQCSRSrgHQSXYy0pw3D0hVdNkUiy5dmSPC4jlv+/EbtJCG9FDW8ef34vfzBjcku+xIXh6f0SHO9IP1tHzg9321pBh//yI7zbwTZYFT/Bb67BVBnlADDtshPir6DV+3URmVukePU1LEWw0eg+/qMOgOdkAvTGZ1sMXNvvIQD59WGvVQBdMw8oaWK0aazy70HARgSNoKc+V2cAFK9YEt2CC1ovv1Ai1ygmSO9b5CbO2VsOFwd0aB0jsaIbxqqUEdag9zbj9S7C8OqMyFI2nxZx9Zy3TD/aoybGfY6Y8Xmg75JFrtXnhU78puLVD084F95X64/QJOBGqnd9LHZC2424JHwcrdFL7uj4us6gt9sdK6aARlVspf3WXyhiruaxBTnVqU0i4jqqgKnlMsXHyRSq1KHwTGO+8v7yIFGO3rehNefaD3CCbl7CcHLDvKyOTNAjve1/266PFeaeU2yHDs34iLmKXlyB/ilJO2mDaIg9Ox3eQ3yK/TnbXo9FndnZgJM+WXFHWMExrRA5xO+LgDOxkJ2VW1800u5WO41m1aViv0vJg9/kf';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Components\Layout;
+
+use Illuminate\Contracts\View\View;
+use MyLaravelCore\Components\BaseComponent;
+
+class DefaultLayout extends BaseComponent
+{
+    public function __construct(
+        public ?string $title = null,
+        public string $dir = 'rtl',
+        public bool $navbar = true,
+        public bool $sidebar = false,
+        public string|bool $container = 'container',
+        public bool $footer = true,
+        public bool $alerts = true,
+        public string $theme = 'light',
+        public ?string $brand = null,
+        public ?string $brandUrl = null,
+        ?string $id = null,
+        ?string $class = null
+    ) {
+        parent::__construct($id, $class);
+
+        $this->dir = $dir ?: config('core.ui.direction', 'rtl');
+        $this->brand = $brand ?: (function_exists('config') ? config('app.name', 'Laravel') : 'Laravel');
+        $this->brandUrl = $brandUrl ?: (function_exists('app') && app()->bound('url') ? url('/') : '/');
+    }
+
+    public function render(): View
+    {
+        return view('core::components.layout.default-layout');
+    }
+}

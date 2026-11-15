@@ -13,6 +13,7 @@ class MockPaymentDriver extends AbstractPaymentDriver
 
         return [
             'authority' => $authority,
+            'transaction_id' => $authority,
             'redirect_url' => $redirectUrl,
             'raw_response' => [
                 'status' => 'success',
@@ -22,8 +23,9 @@ class MockPaymentDriver extends AbstractPaymentDriver
         ];
     }
 
-    public function verify(string $authority, int|float|null $expectedAmount = null): array
+    public function verify(?string $authority = null, int|float|null $expectedAmount = null): array
     {
+        $authority = $authority ?? $this->transactionId ?? 'MOCK_TX';
         $success = $this->config['success_by_default'] ?? true;
         $refId = $success ? 'REF_' . rand(10000000, 99999999) : null;
 

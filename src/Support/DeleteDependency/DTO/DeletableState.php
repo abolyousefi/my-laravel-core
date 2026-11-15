@@ -15,7 +15,17 @@ class DeletableState
         return $this->allowed;
     }
 
+    public function status(): bool
+    {
+        return $this->allowed;
+    }
+
     public function getMessage(): ?string
+    {
+        return $this->message;
+    }
+
+    public function message(): ?string
     {
         return $this->message;
     }

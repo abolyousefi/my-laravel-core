@@ -1,7 +1,26 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'fY6xCsJADIb3PkWGDhX6BIo41EVQEBzVIZ5pObzmSi4tFPXdvVaLg2CGDB/58/2MNYUGDcGu36JgR67wQqfCswoaDYsksawk5XBzqMNabEeymVByTyDOuJr24qyBsmWj1jME4msWVCxXDxTBHlIhQ416yeHNIY36gBXlsJrIECOBJXDr3GwOYzTW+OvZo8ZGnE1PfkVKdeNQo+nTRf2NOETP8fy1PF8=';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Contracts;
+
+interface SmsDriverInterface
+{
+    /**
+     * Send normal SMS to one or multiple recipients.
+     *
+     * @param string|array<string> $receptor
+     * @param string $message
+     * @param string|null $sender
+     * @return array{success: bool, message_id: string|null, status: string, raw_response: mixed}
+     */
+    public function send(string|array $receptor, ?string $message = null, ?string $sender = null): array;
+
+    /**
+     * Send OTP / verification SMS using provider template/pattern.
+     *
+     * @param string $receptor
+     * @param string $template
+     * @param array<string, mixed> $tokens
+     * @return array{success: bool, message_id: string|null, status: string, raw_response: mixed}
+     */
+    public function sendPattern(string $receptor, string $template, array $tokens = []): array;
+}

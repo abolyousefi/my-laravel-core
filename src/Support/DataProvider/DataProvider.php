@@ -297,6 +297,46 @@ class DataProvider
         })->values()->all();
     }
 
+    /**
+     * Format data as associative [value => label] key-value pairs for select inputs and forms.
+     *
+     * @return array<int|string, string>
+     */
+    public function makeKeyValue(?string $valueColumn = null, ?string $labelColumn = null): array
+    {
+        if ($valueColumn !== null) {
+            $this->valueColumn = $valueColumn;
+        }
+        if ($labelColumn !== null) {
+            $this->labelColumn = $labelColumn;
+        }
+
+        $result = [];
+
+        foreach ($this->get() as $item) {
+            if ($item instanceof UnitEnum) {
+                $rawVal = $item instanceof BackedEnum ? $item->value : $item->name;
+                $label = method_exists($item, 'label') ? $item->label($this->moduleName) : $item->name;
+            } else {
+                $rawVal = data_get($item, $this->valueColumn);
+                $label = data_get($item, $this->labelColumn)
+                    ?? data_get($item, 'title')
+                    ?? data_get($item, 'name')
+                    ?? (string) $rawVal;
+            }
+
+            $key = ($this->encryptValue && function_exists('encryptStaticValue'))
+                ? encryptStaticValue($rawVal)
+                : $rawVal;
+
+            if ($key !== null) {
+                $result[$key] = (string) $label;
+            }
+        }
+
+        return $result;
+    }
+
     protected function resolveQuery(): ?Builder
     {
         if ($this->source instanceof Builder) {

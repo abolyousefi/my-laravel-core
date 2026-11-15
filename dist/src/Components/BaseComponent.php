@@ -1,7 +1,72 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'nVJNT9wwEL3vrxikFbalZOHSqu0KUIt6QGp77KFhG5lkFiw5TuoPCkX732vHSTbLZhHChyjxm3nzXt4oXqFpeIHw/fEb1/we5WWt8fqyrppaobJmOZs5g3AlpauE4havfwr8uy3wOL8xVvPCQiG5MfCFGxxgwAeLqjQw3MyeZuBP426kKODCtwp1C3NRLifvW85pCLWutZ8/wtZOFVbUCvK8qJUvdIWlbUE4o2FwBspJmexj0cRBuB3awS3K4Gmomts7YdLzln5wNAJ67rGrEdxz984CtIn+Jk1qNLW8x6uSDvKUD7RTxz5BvG17tyLFGugRVo19pINeNnYRjkbrtNoa2mrtBD1nCoP3WLxP5MrraTTe5hob6VeNkpPsN0//fU5/naYf83R1QhIguX94tVVk8hfZijC2nBJF1gJlmRNY9AMWod8/jQurSKvyHXVK/BElpfEXMKhsrrkqKQtjnJeawGkC79mksX4QyrfRfmCvDu9riPpQfhcHA9zZmKOzruPFEEdLNZFjnHx8PAjM8UEYaygxaIz/Jiyg3Qdl6fkd92BLash+8hHwVvqOoXQ303lZ2x/RtDc77EhGsrAVK7JKICOL8B5e45odZNBxg7oL37N4Pq61GpVEB33xnoPxD+wb1kIbu23Zpd68sEkhnX4lNv8B';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Components;
+
+use Illuminate\View\Component;
+
+abstract class BaseComponent extends Component
+{
+    public ?string $id;
+    public ?string $class;
+    public ?string $error;
+    public ?string $permission;
+
+    public function __construct(
+        ?string $id = null,
+        ?string $class = null,
+        ?string $error = null,
+        ?string $permission = null
+    ) {
+        $this->id = $id;
+        $this->class = $class;
+        $this->error = $error;
+        $this->permission = $permission;
+    }
+
+    public function shouldRender(): bool
+    {
+        if (!empty($this->permission) && function_exists('authorizer')) {
+            return authorizer()->canAccess($this->permission);
+        }
+
+        return true;
+    }
+
+    /**
+     * Resolve unique element ID.
+     */
+    public function resolveId(?string $name = null): string
+    {
+        if (!empty($this->id)) {
+            return $this->id;
+        }
+
+        if (!empty($name)) {
+            $clean = preg_replace('/[^a-zA-Z0-9_-]/', '_', trim($name, '[]'));
+            return 'field_' . $clean . '_' . substr(md5(uniqid((string) mt_rand(), true)), 0, 6);
+        }
+
+        return 'el_' . substr(md5(uniqid((string) mt_rand(), true)), 0, 8);
+    }
+
+    /**
+     * Check if a field has validation error from session errors.
+     */
+    public function resolveError(?string $name = null): ?string
+    {
+        if ($this->error !== null) {
+            return $this->error;
+        }
+
+        if ($name && function_exists('session') && session()->has('errors')) {
+            $errors = session('errors');
+            $dotName = str_replace(['[', ']'], ['.', ''], $name);
+            $dotName = rtrim($dotName, '.');
+            if ($errors->has($dotName)) {
+                return $errors->first($dotName);
+            }
+        }
+
+        return null;
+    }
+}

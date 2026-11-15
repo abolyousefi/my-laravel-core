@@ -1,7 +1,70 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'nVbfb9owEH7PX+FWtE4kmKY9wqBSu1ar1mmaNmkPgJAJl2LNxNR21kYo//vO+YUDId3qBzD23Xefv/OdidkG9JaFQL6mD0yxPyBupILZT8W40SPPSzSQeyGSDY+ZgdknZtiSaZjdCvmUQGxm1wkXK1BoaqwPuePCgGJLAd7OIzjyj22yFDwkURKHhsuY6FBuoTD1SwTSQ0CV9glTiqWkF+W7mozJdB4MSWmVoxXAdvCI+LDZmtSv7ANyeVnHWcAL10b7VAGCa0ODwHG2wwlT2vjBYJIz8YNRbZp59bSe9H5D+izVCl0rlCnVwFS4pnNydeWsPhULcSLEqMH9rCRfQh3TK/CsnBhmq1A1ZdLqWD2z5rpP6N6IBgTj2uXBxHEdkik13OA+WseYczofNePkJx5MntegwK/T5OQmIPYq+A6hfq3AIWs7IrxGLFw3PAjTpMfjFbyQ8cTKA6LVt1JHG7UIZWwYj7VfmCP/d8dZdMe0p0AwSx8JVtM76ztHCeFlK+QKfETpkwryQzA6CdfbgFnLPMkl8/GYvEeVaa7VZ6Ypykul+lX97MB6Gkx2JWDmOzz3gtvF75XWDfbdcjfCWIwql4cg9OH+yy2e/fxiV+FlF+cdAmQn9jICAlnu3qqcK9u/axa94RSZ172SvVboUd3TOopwb+QWoeOKRehU3b4+HBNbH61VYauBaw2m7nPTwnCe97vDRXKGUlPadlGalV7peYTaVDLr1meFT8ONxEci7tDHGhUdvzB1VTrcs1cjRH0MrBbM0PaeWXfXSMnNwkLQeUt/x01kZeTiUcGjVJzFJ1w7OiI+e6jV/ph4nMk4byDo37g9nUSRxCmaRp4muXf7P4ofc4pGvna9tVTmOm0+Y7i0WKbFs3UyoxCxRJgfuXsjne6GzSVfOTnM431T9lkZE2zxRgr5jP8DDqJLa1EQwEg6xAC2gVCGU9tE8u9huTfyWpUvTnasdilcHuK6tus71No1U2ASFZf+hUXmZX8B';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Traits;
+
+use Illuminate\Database\Eloquent\Builder;
+
+trait Filterable
+{
+    /**
+     * Scope to dynamically filter query based on parameters or request.
+     *
+     * @param Builder $query
+     * @param array<string, mixed> $filters
+     */
+    public function scopeFilter(Builder $query, array $filters = []): Builder
+    {
+        if (empty($filters) && function_exists('request')) {
+            $filters = request()->query();
+        }
+
+        // 1. General keyword search: ?search=keyword or ?q=keyword
+        $keyword = $filters['search'] ?? $filters['q'] ?? null;
+        if (!empty($keyword)) {
+            $searchable = property_exists($this, 'searchable') ? $this->searchable : ['title', 'name'];
+            $query->where(function (Builder $q) use ($searchable, $keyword) {
+                foreach ($searchable as $index => $field) {
+                    if (str_contains($field, '.')) {
+                        [$relation, $relationField] = explode('.', $field, 2);
+                        $method = $index === 0 ? 'whereHas' : 'orWhereHas';
+                        $q->{$method}($relation, function ($relQ) use ($relationField, $keyword) {
+                            $relQ->where($relationField, 'LIKE', "%{$keyword}%");
+                        });
+                    } else {
+                        $method = $index === 0 ? 'where' : 'orWhere';
+                        $q->{$method}($field, 'LIKE', "%{$keyword}%");
+                    }
+                }
+            });
+        }
+
+        // 2. Exact match filters
+        $filterable = property_exists($this, 'filterable') ? $this->filterable : [];
+        foreach ($filterable as $field) {
+            if (isset($filters[$field]) && $filters[$field] !== '') {
+                $query->where($field, $filters[$field]);
+            }
+        }
+
+        // 3. Date range filters: ?from_date=... & ?to_date=...
+        $dateColumn = property_exists($this, 'dateFilterColumn') ? $this->dateFilterColumn : 'created_at';
+        if (!empty($filters['from_date'])) {
+            $from = to_gregorian($filters['from_date']);
+            $query->whereDate($dateColumn, '>=', $from);
+        }
+        if (!empty($filters['to_date'])) {
+            $to = to_gregorian($filters['to_date']);
+            $query->whereDate($dateColumn, '<=', $to);
+        }
+
+        // 4. Sorting: ?sort_by=id&sort_order=desc
+        $sortBy = $filters['sort_by'] ?? property_exists($this, 'defaultSortBy') ? $this->defaultSortBy : 'id';
+        $sortOrder = strtolower($filters['sort_order'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+
+        if (!empty($sortBy)) {
+            $query->orderBy($sortBy, $sortOrder);
+        }
+
+        return $query;
+    }
+}

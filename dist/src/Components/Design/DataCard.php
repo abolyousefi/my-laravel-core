@@ -1,7 +1,30 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'hZLPasJAEMbveYo5CFFIfYCIFKoXwV57EmTcjLJ0Mxv2j1XUd+9kbaOtDd1DYPP99tuZnY+xJt+gIng9LtHhnszMOlrNbN1YJg5+NSevdzzJsugJFsbEWjOGFuHgUAnxpukjfSaJ6XV6QU/dVgyVQe9hjgFn6CqgQyCuPPzAslMGspq4MVrBNrIK2jKs18qyDy6qMEzAHSS/Ne9gEHQwVPxWa32gCgZ7NPFRfP4+q8UepsDRmKLPX1ljnUB543SN7pg/kJrDeWsshnNrJBU5afA/2wTNtaNrp+Ifm7yA3lITv8QNmT7nDjWa3/ugjbVSoRRbtegUtmj83QPdXuaxgU67DvQqJ3UEp9s9KIWGsrwfnbgVX8dGk0Resj/n3fZIbjgqoc1ZQm7OjkJ0DHtRhrmS0JWl6lI3rlJ+x5XE7ElJzvLupssn';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Components\Design;
+
+use Illuminate\Contracts\View\View;
+use MyLaravelCore\Components\BaseComponent;
+
+class DataCard extends BaseComponent
+{
+    public function __construct(
+        public string $title,
+        public mixed $value,
+        public ?string $icon = null,
+        public string $color = 'primary',
+        public int|float|null $trend = null,
+        public string $trendDirection = 'up', // up, down
+        public ?string $trendLabel = null,
+        public ?string $link = null,
+        public bool $loading = false,
+        ?string $id = null,
+        ?string $class = null
+    ) {
+        parent::__construct($id, $class);
+    }
+
+    public function render(): View
+    {
+        return view('core::components.design.data-card');
+    }
+}

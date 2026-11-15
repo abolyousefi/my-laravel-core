@@ -43,7 +43,7 @@ class TextColumn extends Column
             $val = mb_substr($val, 0, $this->limit) . '...';
         }
 
-        $html = htmlspecialchars($val);
+        $html = $this->formatCallback ? $val : htmlspecialchars($val);
 
         if ($this->bold) {
             $html = '<strong>' . $html . '</strong>';

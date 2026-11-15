@@ -1,7 +1,66 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'hZVNaxsxEIbv/hU6mKwNcUIPvci4hcaYFGoItBQKgSBrx7VarbTVh+MQ/N8raVe70X44Ohis99WMZvVoJEgBuiQU0PblG1HkCPxOKni8k0UpBQijHzdSFcvJxGpAXzm3BRPEeIMwilCn/2TwHH6ciXKiNVo7g2EFPDD6FxSCkwGRa/SFaPDBmtiT1wlyo7Q7zijaW0ENkwI9PVEptFGWmlkw+OH+M/EbTYXb8HUz+zlOc7IDjlZIWM5buWAnyNH0SLiFnlinjREKmXtPlrvNZ9dozEYJd8UQ5a1/CCecXTDvXbXEeOsvN26329v1OhvdgbSmtGaTrFlst4uhNU3h7jj85x6rrvWR0yXfTkqOpjnTZMfhgWi/gT3hGi47N9ZYBe94meBMvGd6ZubwwzEzamPCoKmn6ruB0rk+fBwvtuSO6IPkOahewVU6Bf8sUw6OXrqkvlFdAcml4C99vdnEwe+4mz2KOQsEcaOygaUs7y1stOqKjcqglIxFB3WOXhsX26NZ+6WvriL1q8j9W7MfU3NgevHp7d3wR5AtE1cIG1lfpbR3I4aoQ/cC3d/jouhEPvfzpLdkld6TwWzj96rKibUeTXuetJAR5XoWxoPtyQ/fmnC3Q/kRmhOum1QqhdaE6xaVShFR3NKaGiKjuMW1G6GCFLe8pgaPKK5I7YZWIapKp5nPxTpZApC4BjOVAoy4hrJR5sv2o9aANUDUaCy7hs4ZJmdameuT6j4m7sxcF5jNMfJPVLC0iChw7Uugo1NmGXXvHsa0efhu/FZuIvKLMjxm2TxmO/8H';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Components\Form;
+
+use Illuminate\Contracts\View\View;
+
+class DatetimePicker extends BaseFormComponent
+{
+    public function __construct(
+        string $name,
+        ?string $label = null,
+        mixed $value = null,
+        public string $mode = 'date', // date, datetime, time
+        public string $calendar = 'jalali', // jalali, gregorian, hijri
+        public string $format = 'YYYY/MM/DD',
+        public string $outputFormat = 'YYYY-MM-DD',
+        public ?string $minDate = null,
+        public ?string $maxDate = null,
+        public bool $disablePast = false,
+        public bool $disableFuture = false,
+        public bool $inline = false,
+        public bool $withTime = false,
+        public int $timeStep = 15,
+        public ?string $placeholder = null,
+        bool $required = false,
+        bool $disabled = false,
+        bool $readonly = false,
+        ?string $hint = null,
+        string $dir = 'ltr',
+        ?string $id = null,
+        ?string $class = null,
+        ?string $error = null
+    ) {
+        if ($withTime && $mode === 'date') {
+            $this->mode = 'datetime';
+            if ($format === 'YYYY/MM/DD') {
+                $format = 'YYYY/MM/DD HH:mm';
+            }
+            if ($outputFormat === 'YYYY-MM-DD') {
+                $outputFormat = 'YYYY-MM-DD HH:mm:ss';
+            }
+        }
+
+        parent::__construct(
+            name: $name,
+            label: $label,
+            value: $value,
+            required: $required,
+            disabled: $disabled,
+            readonly: $readonly,
+            hint: $hint,
+            dir: $dir,
+            id: $id,
+            class: $class,
+            error: $error
+        );
+
+        $this->format = $format;
+        $this->outputFormat = $outputFormat;
+    }
+
+    public function render(): View
+    {
+        return view('core::components.form.datetime-picker');
+    }
+}

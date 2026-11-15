@@ -1,4 +1,4 @@
-<div class="core-timeline {{ $direction === 'horizontal' ? 'timeline-horizontal' : 'timeline-vertical' }} {{ $animated ? 'timeline-animated' : '' }} {{ $class }}" id="{{ $id }}">
+<div class="core-timeline {{ $direction === 'horizontal' ? 'timeline-horizontal' : 'timeline-vertical' }} {{ $animated ? 'timeline-animated' : '' }} {{ $class }}" id="{{ $id }}" data-component="timeline">
     @if(!empty($items))
         @foreach($items as $item)
             <div class="timeline-item mb-4 d-flex gap-3 position-relative">

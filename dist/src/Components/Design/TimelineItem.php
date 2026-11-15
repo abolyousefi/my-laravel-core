@@ -1,7 +1,26 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'hZLPagIxEMbv+xQ5FFZBfYBdSqF6Edpb6UmQdHaUgexkmUxsRXz3ZqNd7R9pDoHk++WbYb6wbTF0FtA875+s2B26uRdczX3beUbWsFpgoC3XRREDmqVzsSW22iOsYiERr4Tveaszc9Pp0QYcjskQnA3BvFCLjhiXiq3BD0VugvmGFofCpNXFN0dgNpFBybNZr8FzUImgowxcQemaeGvulNTh5Kf68CU3GECoy3b3hqNzt1lNff4LEWSncmOnQAIOy8mt1sA7Lz3bCbVW9lfkxa75VXHQTtM7yVkdm8OllpU0uKq6nlFym5yfjetMHos/B5ueNiijcWX6UDNycRbUKGx2SRmVkBKuKhginjX5s8z0nOmUUqjlUO34CQ==';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Components\Design;
+
+use Illuminate\Contracts\View\View;
+use MyLaravelCore\Components\BaseComponent;
+
+class TimelineItem extends BaseComponent
+{
+    public function __construct(
+        public string $title,
+        public ?string $description = null,
+        public ?string $time = null,
+        public ?string $icon = 'fa-circle',
+        public string $color = 'primary',
+        ?string $id = null,
+        ?string $class = null
+    ) {
+        parent::__construct($id, $class);
+    }
+
+    public function render(): View
+    {
+        return view('core::components.design.timeline-item');
+    }
+}

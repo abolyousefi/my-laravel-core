@@ -2174,3 +2174,17 @@ if (!function_exists('itemCollectorRules')) {
         return $rules;
     }
 }
+
+if (!function_exists('workflow')) {
+    /**
+     * Resolve the WorkflowManager or a specific registered workflow by name/class.
+     *
+     * @return \MyLaravelCore\Support\Workflow\WorkflowManager|\MyLaravelCore\Support\Workflow\BaseWorkflow
+     */
+    function workflow(?string $nameOrClass = null): \MyLaravelCore\Support\Workflow\WorkflowManager|\MyLaravelCore\Support\Workflow\BaseWorkflow
+    {
+        $manager = app(\MyLaravelCore\Support\Workflow\WorkflowManager::class);
+
+        return $nameOrClass === null ? $manager : $manager->for($nameOrClass);
+    }
+}

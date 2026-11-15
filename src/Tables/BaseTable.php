@@ -558,6 +558,12 @@ abstract class BaseTable
         $filters = is_array($filterList) ? $filterList : [];
         $bulkActions = $this->bulkActions();
 
+        $this->definedToolbarButtons = [];
+        $this->toolbar();
+
+        $this->definedColumnActions = [];
+        $this->columnActions();
+
         $html = '';
 
         if ($this->card) {
@@ -590,6 +596,15 @@ abstract class BaseTable
                     }
                 }
                 $html .= '</form>';
+            }
+
+            foreach ($this->definedToolbarButtons as $tb) {
+                $tbUrl = ($tb['route'] && \Illuminate\Support\Facades\Route::has($tb['route']))
+                    ? route($tb['route'])
+                    : ($tb['route'] ?? '#');
+                $tbVariant = is_object($tb['variant']) && property_exists($tb['variant'], 'value') ? $tb['variant']->value : (string) $tb['variant'];
+                $tbIcon = $tb['icon'] ? '<i class="fa ' . e($tb['icon']) . ' me-1"></i>' : '';
+                $html .= '<a href="' . e($tbUrl) . '" class="btn btn-sm btn-' . e($tbVariant) . ' rounded-pill px-3 ' . e($tb['class']) . '">' . $tbIcon . e($tb['title']) . '</a>';
             }
             $html .= '</div>';
             $html .= '</div>';
@@ -654,6 +669,10 @@ abstract class BaseTable
             $html .= '</th>';
         }
 
+        if (!empty($this->definedColumnActions)) {
+            $html .= '<th class="text-center">عملیات</th>';
+        }
+
         $html .= '</tr></thead><tbody>';
 
         // Top pinned rows
@@ -663,13 +682,14 @@ abstract class BaseTable
             foreach ($columns as $column) {
                 $html .= '<td>' . $column->renderCell($pRow) . '</td>';
             }
+            if (!empty($this->definedColumnActions)) $html .= '<td></td>';
             $html .= '</tr>';
         }
 
         $records = ($rows instanceof LengthAwarePaginator) ? $rows->items() : $rows;
 
         if (empty($records)) {
-            $colSpan = count($columns) + (!empty($bulkActions) ? 1 : 0);
+            $colSpan = count($columns) + (!empty($bulkActions) ? 1 : 0) + (!empty($this->definedColumnActions) ? 1 : 0);
             $html .= '<tr><td colspan="' . $colSpan . '" class="text-center py-5 text-muted">';
             if ($this->emptyIcon) {
                 $html .= '<i class="fa ' . $this->emptyIcon . ' fs-1 mb-2 d-block opacity-50"></i>';
@@ -690,6 +710,38 @@ abstract class BaseTable
                     };
                     $html .= '<td class="' . $alignClass . '">' . $column->renderCell($row) . '</td>';
                 }
+                if (!empty($this->definedColumnActions)) {
+                    $html .= '<td class="text-center"><div class="d-inline-flex align-items-center gap-1">';
+                    foreach ($this->definedColumnActions as $act) {
+                        if ($act['visibility'] instanceof Closure && !($act['visibility'])($row)) {
+                            continue;
+                        }
+                        $isDisabled = $act['disabled'] instanceof Closure ? (bool) ($act['disabled'])($row) : (bool) $act['disabled'];
+                        $targetUrl = $act['target'] instanceof Closure ? ($act['target'])($row) : (string) $act['target'];
+                        $variant = is_object($act['variant']) && property_exists($act['variant'], 'value') ? $act['variant']->value : (string) $act['variant'];
+                        $iconHtml = $act['iconClass'] ? '<i class="fa ' . e($act['iconClass']) . '"></i> ' : '';
+                        $method = strtoupper((string) $act['targetMethod']);
+                        $disTip = $act['disabledTooltip'] instanceof Closure ? ($act['disabledTooltip'])($row) : $act['disabledTooltip'];
+                        $tipAttr = ($isDisabled && $disTip) ? ' title="' . e((string) $disTip) . '"' : ($act['title'] ? ' title="' . e($act['title']) . '"' : '');
+
+                        if ($isDisabled) {
+                            $html .= '<span class="d-inline-block"' . $tipAttr . '><button type="button" class="btn btn-sm btn-outline-secondary" disabled>' . $iconHtml . e($act['title']) . '</button></span>';
+                        } elseif (in_array($method, ['DELETE', 'POST', 'PUT', 'PATCH'], true)) {
+                            $confirmMsg = $act['confirmationMessage'] instanceof Closure ? ($act['confirmationMessage'])($row) : ($act['confirmationMessage'] ?? 'آیا از انجام این عملیات اطمینان دارید؟');
+                            $onsubmit = $act['confirmation'] ? ' onsubmit="return confirm(\'' . e(addslashes((string) $confirmMsg)) . '\')"' : '';
+                            $html .= '<form action="' . e($targetUrl) . '" method="POST" class="d-inline"' . $onsubmit . '>';
+                            $html .= '<input type="hidden" name="_token" value="' . e(csrf_token()) . '">';
+                            if ($method !== 'POST') {
+                                $html .= '<input type="hidden" name="_method" value="' . e($method) . '">';
+                            }
+                            $html .= '<button type="submit" class="btn btn-sm btn-outline-' . e($variant) . ' ' . e($act['class']) . '"' . $tipAttr . '>' . $iconHtml . e($act['title']) . '</button>';
+                            $html .= '</form>';
+                        } else {
+                            $html .= '<a href="' . e($targetUrl) . '" class="btn btn-sm btn-outline-' . e($variant) . ' ' . e($act['class']) . '"' . $tipAttr . '>' . $iconHtml . e($act['title']) . '</a>';
+                        }
+                    }
+                    $html .= '</div></td>';
+                }
                 $html .= '</tr>';
             }
         }
@@ -701,6 +753,7 @@ abstract class BaseTable
             foreach ($columns as $column) {
                 $html .= '<td>' . $column->renderCell($pRow) . '</td>';
             }
+            if (!empty($this->definedColumnActions)) $html .= '<td></td>';
             $html .= '</tr>';
         }
 

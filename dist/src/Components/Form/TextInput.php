@@ -1,7 +1,52 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'hVRNa+MwEL37V+gQcAJtf4BKWWihUNiFPSx7KhRFmiSCseTVRzbZ0v++I8WWaztpdAiO3mNm9ObNGNGAb4UE9uP4XTixB3yyDl6fbNNaAyb412frmvuqih7YC2JstBEhEUxwQhL+W8Pf/EMkicJ79gsO4cW0MTD6AKM8exQeUpwStnqvGJ02rlFLtolGBm0Ne3uT1vjgogzLTEiH/muzZQtDtd6U22/9NYo1IHtgJiIOcKMPoNhiLzDCDOzS9hHCsU2cOlC59YxVErVIOu0sKnCziGtrkS0c/InaUd4HthHoYYor7cUaL+MOhLIGj3O8FLHTJlx6TyFpUvHaoxPnp/U6606Pd3q7O/P6nu71v6xRo84olGpaNOKAYLZhd7G8E02bK7SitwgBnLnKEzFYScZCCPNW9ySlU9PqxP2ixUKp68pl0mfpEDaflRvaoGahCnaalIswOGd7l2V0xd6HeoSjEeL87LSkkyaFTwcmnTwrvJuZMZQnhXcTM4Z6W/PB4WNC72s+WHwa4WRsPnh8TEi25id3T0O7HNWNr3XKpSdZsqa803YMZT15p2tBVvf586M6u4xIZBr15YqztN0yZeiBgxDJm3tClrWklcm5LDvzbkO77i6tk1ud9mBdEn38Bw==';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Components\Form;
+
+use Illuminate\Contracts\View\View;
+
+class TextInput extends BaseFormComponent
+{
+    public function __construct(
+        string $name,
+        ?string $label = null,
+        mixed $value = null,
+        public string $type = 'text',
+        public ?string $placeholder = null,
+        bool $required = false,
+        bool $disabled = false,
+        bool $readonly = false,
+        ?string $hint = null,
+        public ?string $icon = null,
+        public string $iconPosition = 'right',
+        public string $size = 'md',
+        public ?int $maxlength = null,
+        public ?int $minlength = null,
+        public ?string $pattern = null,
+        public ?string $autocomplete = null,
+        string $dir = 'auto',
+        public ?string $addon = null,
+        public string $addonPosition = 'left',
+        ?string $id = null,
+        ?string $class = null,
+        ?string $error = null
+    ) {
+        parent::__construct(
+            name: $name,
+            label: $label,
+            value: $value,
+            required: $required,
+            disabled: $disabled,
+            readonly: $readonly,
+            hint: $hint,
+            dir: $dir,
+            id: $id,
+            class: $class,
+            error: $error
+        );
+    }
+
+    public function render(): View
+    {
+        return view('core::components.form.text-input');
+    }
+}

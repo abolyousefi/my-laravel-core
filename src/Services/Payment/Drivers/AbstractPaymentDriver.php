@@ -11,6 +11,7 @@ abstract class AbstractPaymentDriver implements PaymentGatewayInterface
     protected string $description = '';
     protected ?string $mobile = null;
     protected ?string $email = null;
+    protected ?string $transactionId = null;
     protected array $config = [];
 
     public function __construct(array $config = [])
@@ -41,5 +42,16 @@ abstract class AbstractPaymentDriver implements PaymentGatewayInterface
         $this->mobile = clean_mobile($mobile);
         $this->email = $email;
         return $this;
+    }
+
+    public function transactionId(string $transactionId): static
+    {
+        $this->transactionId = $transactionId;
+        return $this;
+    }
+
+    public function purchase(array $meta = []): array
+    {
+        return $this->request();
     }
 }

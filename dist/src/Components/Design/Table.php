@@ -1,7 +1,54 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'jVTRatswFH3PV+gh4AQaf0BCNrqOQaGFPoy+LCMo8o0jpkhGkpOG0ofB1vWh/5EtFEJYYexP5PZndi0XJ1viZAbLsnTuOffq6l5Jx2ASyoCcz86ophMQJ0pD70SNEyVBWtN7C4bHslOrpQbIqRDpmEtqc4i0mjJEXNA4X+JK9s5AxnZ0PKUaXlaV7lRbXnKY+qHAVPrwhhoof9EVJqgx5D0dCCBwZUFGhvyFqV3XCD5JOhCckWEqWe4e6feZksbqlNmGB2yAqNZ0RupMoZ/SkC758PHoX8yYX0FE6lpNKwCvkZzLmNQtt+hbl8hUiGqUSQf/B+TodxVooJRAKqCajfyJdAlGCFu4UtQj33EQEUKD4jc4AL8QeElGSkSgcyP34H66hXvI7ohbuhVxc/cr+4Ljb3wXYRgGe4L2hMdFRvbHhBYJ5F4OqTBQgRqpiXdqZ9AFZKA0On6QiVEd7SdKyqt+6JRhnNjZORhD4zwjQfbt+f7plrjV04/szq3c8vmeuO84meMku82+5hP3SHCYZ5/dAtfco1uGwX6F0+JiBEPaGvrstFQCcsNofYWircMu94p6Krb9bpNcr2WxmKVttzeLB9mOXsyaHY+8qfnPzrLTYJSYwCUVKTTWNXRUhvIJZs12UV2eYC2uwaZakoha2o8Bhb2dNzisy03ZhBrIn6dwN33djrhpvfJ1zTFGKhmoIdndzTZUtwOVmIJcK29qu7UmuNMIGHa4dpuVLS6MfJsNbV7BQRnbzR8=';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Components\Design;
+
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\View\View;
+use MyLaravelCore\Components\BaseComponent;
+
+class Table extends BaseComponent
+{
+    public function __construct(
+        public array $columns = [],
+        public mixed $rows = [],
+        public ?string $title = null,
+        public ?string $subtitle = null,
+        public ?string $icon = null,
+        public bool $searchable = true,
+        public string $searchField = 'search',
+        public string $searchPlaceholder = 'جستجو در اطلاعات...',
+        public ?string $searchAction = null,
+        public bool $striped = false,
+        public bool $hover = true,
+        public bool $bordered = false,
+        public bool $card = true,
+        public bool $pagination = true,
+        public string $emptyMessage = 'هیچ رکوردی برای نمایش یافت نشد.',
+        public string $emptyIcon = 'fa-folder-open',
+        ?string $id = null,
+        ?string $class = null
+    ) {
+        parent::__construct($id, $class);
+    }
+
+    /**
+     * Resolve attribute value using dot notation.
+     */
+    public function resolveValue(mixed $row, string $key): mixed
+    {
+        return data_get($row, $key);
+    }
+
+    /**
+     * Determine if rows is a paginator instance.
+     */
+    public function isPaginator(): bool
+    {
+        return $this->rows instanceof LengthAwarePaginator;
+    }
+
+    public function render(): View
+    {
+        return view('core::components.design.table');
+    }
+}

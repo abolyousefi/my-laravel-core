@@ -12,7 +12,7 @@ interface SmsDriverInterface
      * @param string|null $sender
      * @return array{success: bool, message_id: string|null, status: string, raw_response: mixed}
      */
-    public function send(string|array $receptor, string $message, ?string $sender = null): array;
+    public function send(string|array $receptor, ?string $message = null, ?string $sender = null): array;
 
     /**
      * Send OTP / verification SMS using provider template/pattern.

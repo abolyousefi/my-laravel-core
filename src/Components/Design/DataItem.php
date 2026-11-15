@@ -2,6 +2,7 @@
 
 namespace MyLaravelCore\Components\Design;
 
+use Illuminate\Contracts\View\View;
 use MyLaravelCore\Components\BaseComponent;
 
 class DataItem extends BaseComponent
@@ -11,12 +12,16 @@ class DataItem extends BaseComponent
         public mixed $value = '-',
         public ?string $dir = null,
         public ?string $valueClass = null,
-        public ?string $badgeVariant = null
+        public ?string $badgeVariant = null,
+        ?string $id = null,
+        ?string $class = null,
+        ?string $permission = null
     ) {
+        parent::__construct($id, $class, null, $permission);
     }
 
-    protected function viewName(): string
+    public function render(): View
     {
-        return 'core::components.design.data-item';
+        return view('core::components.design.data-item');
     }
 }

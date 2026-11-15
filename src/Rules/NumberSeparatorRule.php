@@ -8,8 +8,9 @@ use Illuminate\Contracts\Validation\ValidationRule;
 class NumberSeparatorRule implements ValidationRule
 {
     public function __construct(
-        protected int|float $max,
-        protected bool $isString = false
+        protected int|float $max = 999999999999,
+        protected bool $isString = false,
+        protected int|float|null $min = null
     ) {
     }
 
@@ -27,6 +28,12 @@ class NumberSeparatorRule implements ValidationRule
         $clean = str_replace(',', '', function_exists('english_digits') ? english_digits((string) $value) : (string) $value);
         if (!is_numeric($clean) || (float) $clean > $this->max) {
             $fail("مقدار فیلد :attribute نباید بزرگ‌تر از {$formattedMax} باشد.");
+            return;
+        }
+
+        if ($this->min !== null && (float) $clean < $this->min) {
+            $formattedMin = function_exists('numberSeparator') ? numberSeparator($this->min) : number_format($this->min);
+            $fail("مقدار فیلد :attribute نباید کوچک‌تر از {$formattedMin} باشد.");
         }
     }
 }

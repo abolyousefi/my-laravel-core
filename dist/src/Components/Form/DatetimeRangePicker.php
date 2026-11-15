@@ -1,7 +1,58 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'hVXBahsxEL37K0Qw2AY7ucukgcQJFOpSWggUAkaWxolarbQdad0E1/9eSdZqvbbXnoMOem9GozczkmYF2JJxIPOPLwzZGtSDQXh5MEVpNGhnX54MFtNer7JAPitVFVIzFwjaIeMef5bwNy6exBWzlsw8wckCvjP9Ct8k/w1I4N2BFpbcMwshYj6gt+kRb2W1VJIT61DqV9JHsEatQfxwDN1Xn+T0HOtRiyNOId9BHAR6Zqo6y/KBEmeftKo0d9Joslhwo/3hFXfDSAhWJ6N9BuO8e1dvK7YERW6JrpRq4BQ5s2x9z4tM2N21i5cuZPN1LxAh3biLVh9bGBE4A+FrO+hkcaZ8QIaB+YsppmQ3d+W7gLnA/OntZj6/mc262aZyZeWeWj6T+XxyymdpjPrHENkH6Ze+tOCsd/Fl26tP4IS6/6kkeh1uyYope4QLadlSncJzPd6kdkfi1aCQUQrlcHDCVYojx4ztJqkTBkSDCY7oiGwaGRj6waL0ZLsGC61KDzs2WGxWmpq2Da1Dl9CDfILVGtJGzjahFpE2erYJQUK6U/LQE6MTtrdlCCUPgkTBaBKuDUWxaBItI6M05MH67k3ayaejV8crvDead5RcbaJq20XcvZp2RXjMU5oHdt/b711dOL6eSqPEsCu98f6gj84lcyZaSnXcvAUp0vb0I+h7SwAOR5SERz9SmtZDcBVqsvbIcMD9T0Ipz1/JdRj5a5F+hwmG72FSxv9hkM/c/gc=';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Components\Form;
+
+use Illuminate\Contracts\View\View;
+
+class DatetimeRangePicker extends BaseFormComponent
+{
+    public string $resolvedStartName;
+    public string $resolvedEndName;
+    public mixed $resolvedStartValue;
+    public mixed $resolvedEndValue;
+
+    public function __construct(
+        string $name,
+        ?string $label = null,
+        public ?string $startName = null,
+        public ?string $endName = null,
+        public mixed $startValue = null,
+        public mixed $endValue = null,
+        public string $mode = 'date',
+        public string $calendar = 'jalali',
+        public string $format = 'YYYY/MM/DD',
+        public string $outputFormat = 'YYYY-MM-DD',
+        public bool|array $presets = true,
+        bool $required = false,
+        bool $disabled = false,
+        ?string $hint = null,
+        string $dir = 'ltr',
+        ?string $id = null,
+        ?string $class = null,
+        ?string $error = null
+    ) {
+        parent::__construct(
+            name: $name,
+            label: $label,
+            value: null,
+            required: $required,
+            disabled: $disabled,
+            hint: $hint,
+            dir: $dir,
+            id: $id,
+            class: $class,
+            error: $error
+        );
+
+        $this->resolvedStartName = $startName ?: "{$name}_start";
+        $this->resolvedEndName = $endName ?: "{$name}_end";
+
+        $this->resolvedStartValue = old($this->resolvedStartName, $startValue);
+        $this->resolvedEndValue = old($this->resolvedEndName, $endValue);
+    }
+
+    public function render(): View
+    {
+        return view('core::components.form.datetime-range-picker');
+    }
+}

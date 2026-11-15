@@ -235,4 +235,19 @@ return [
             ],
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Workflow & Role-Based Time Window Engine
+    |--------------------------------------------------------------------------
+    */
+    'workflow' => [
+        'default_timezone' => 'Asia/Tehran',
+        'super_admin_roles' => [],
+        'role_resolver' => null,
+        'log_transitions' => true,
+        'workflows' => [
+            // 'purchase' => \App\Workflows\PurchaseWorkflow::class,
+        ],
+    ],
 ];

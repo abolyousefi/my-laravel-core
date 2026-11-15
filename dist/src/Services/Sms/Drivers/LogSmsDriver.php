@@ -1,7 +1,65 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = '3ZNNj9owEIbv/IrRCilBylZqj0ELWgGtqPhSQ0+AItcZwN1gR7bDarXlv3cShwALq730VJ9iz+t3PvxEsh2ajHGE8cuIabbHtKc0LiPUe8HRLKOdWfa12KM27UYjNwjDNM13QjJLqjzLlLbLr4yzhMQjtWm/p4msdrHLRD0lrWbclplcoqG0qNdUEyXkKTMGyLeOgthlKe5QWgPXVxqvDaCV5b9SwWGdS26FkhDHXEljdc6tn2llkVtMgGnNXqBJobXYwAMsVq3ytvM4NG5aGZSJT1ZCbv5UBho5ZlbpANw5NGmohm0wgO7xpLhGxT+AzNO0FbrcZ9mKVRsZ0gkTlxq/Pm1Bt2xeJeh7gRfAWSQ8bdonv6qMYUJ+3mj6LfbgE9BDhKFmMlE7//OXVrtR62nMYci3TEpM/abdCnPfccNZeNWxt4JuFzxjGX/yWvcdIdfKv1sUTwnROFrB2KUsxmTBKng9NXUIaVeVdLg7T6zR5lrCoj4olmdyTgQaDx46QE+HwWW4copFUipOzb7RUa02dy5eUZX3Jq7Zc6zpJyBAsFRdluE0VQ8uU91RcK2sqrgo6YbM4eBU7vtStDptV+2PcJwxS/hL/8jaNY8WiRv6G4Mj81Y9oTSO+XdgvIJn9jifD35MbkNUXyudKUy3fhslY5S8ALbKGMD3aDqJf04GUe9xNujT17A37Q/+LYZQTWQF86pxIu84g8MNNg/wLOwWXI0Fpscu/gtOb/B3HIYT1njcEJYjqWTuCT8E9fAX';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Services\Sms\Drivers;
+
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use MyLaravelCore\Contracts\SmsDriverInterface;
+
+class LogSmsDriver implements SmsDriverInterface
+{
+    protected string|array|null $recipient = null;
+
+    public function __construct(protected array $config = [])
+    {
+    }
+
+    public function to(string|array $receptor): static
+    {
+        $this->recipient = $receptor;
+        return $this;
+    }
+
+    public function send(string|array $receptor, ?string $message = null, ?string $sender = null): array
+    {
+        if ($message === null && $this->recipient !== null) {
+            $message = is_string($receptor) ? $receptor : implode(' ', $receptor);
+            $receptor = $this->recipient;
+        }
+
+        $receptors = is_array($receptor) ? implode(',', $receptor) : $receptor;
+        $messageId = 'LOG_' . Str::random(12);
+
+        Log::channel($this->config['channel'] ?? 'stack')->info("[AbolFrame SMS] Message sent to {$receptors}: {$message}");
+
+        return [
+            'success' => true,
+            'message_id' => $messageId,
+            'status' => 'sent',
+            'raw_response' => [
+                'receptor' => $receptors,
+                'message' => $message,
+                'sender' => $sender,
+            ],
+        ];
+    }
+
+    public function sendPattern(string $receptor, string $template, array $tokens = []): array
+    {
+        $messageId = 'LOG_PATTERN_' . Str::random(12);
+        $tokenStr = json_encode($tokens, JSON_UNESCAPED_UNICODE);
+
+        Log::channel($this->config['channel'] ?? 'stack')->info("[AbolFrame SMS Pattern] Template {$template} sent to {$receptor} with tokens: {$tokenStr}");
+
+        return [
+            'success' => true,
+            'message_id' => $messageId,
+            'status' => 'sent',
+            'raw_response' => [
+                'receptor' => $receptor,
+                'template' => $template,
+                'tokens' => $tokens,
+            ],
+        ];
+    }
+}

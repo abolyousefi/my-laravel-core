@@ -1,7 +1,45 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'dVTbauMwEH33V0zBEBvSfoBCN9DAQmH3bdmX7RIm9sQVyJJXlzSl9N93JDt27abzYLDOkWbmHI00tuQ6rAh+vv5AiydSO2PpaWfazmjS3j19N7bdZFlwBI9KhVZq9JGgvcWK8d+SXtKHSZVC5+AXNo+6Cx7o7EnXDh7QUTxmPDV7y4CjCwclKzgGXXlpNOz3ldHO21D5IhFi8L/UDeSaS12Pq9vLssIDKbgHHZSa4FaeqYb8hCoQg3/+TtCQFK3FV8hdaBpyMbu7zttK7SFv8cxduU95BtLBGAU5KmVedsF50zKR26BPxEvVjjpW2xvLxNV6NfH6kyz9C9JyB/dwROVoidfS4UFdw0ddnmPdy3JHVNZfY72JX8JkbSo7wgkt4W1qEy3bK8RVJ2NEF8XSzBjJRzH4OYeSi2Jwcw5dhBKTZnPCRSkxiTYnRJ1EL9cckHGPXLCTNmLQaA4lXcSgz4iUPBXjiUcobqTbp6tX5P5Zuttvqanyo4YxPoKs9Q21nV9sgS3PV6dMTZf18VKtoejdKmG+RfAN34yJ3rP+e3UW2ceabFEKiLOdKFOJlnywGk6MFKuKHwwhqvHFuDvyqN95bG5lfAVW5WbI8/4f';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Components\Form;
+
+use Illuminate\Contracts\View\View;
+
+class TagInput extends BaseFormComponent
+{
+    public function __construct(
+        string $name,
+        ?string $label = null,
+        mixed $value = [],
+        public array $suggestions = [],
+        public ?int $maxTags = null,
+        public bool $allowCustom = true,
+        public string $separator = ',',
+        bool $required = false,
+        bool $disabled = false,
+        ?string $hint = null,
+        ?string $id = null,
+        ?string $class = null,
+        ?string $error = null
+    ) {
+        parent::__construct(
+            name: $name,
+            label: $label,
+            value: $value,
+            required: $required,
+            disabled: $disabled,
+            hint: $hint,
+            id: $id,
+            class: $class,
+            error: $error
+        );
+
+        if (!is_array($this->value)) {
+            $this->value = !empty($this->value) ? explode($this->separator, (string) $this->value) : [];
+        }
+    }
+
+    public function render(): View
+    {
+        return view('core::components.form.tag-input');
+    }
+}

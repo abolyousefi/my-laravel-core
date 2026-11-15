@@ -1,7 +1,51 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'jZRNa9wwEIbv+yt0MHgX0tBeFUIhKYFA20uhp0CQ7dmsQB45I2mzIcl/70j+qu01rQ7G1vt6xn5GM6hqcI0qQfx4/a5IHcHcWoKHW1s3FgG9e7izVF9tNsGBuDcm1BqVjwb0pErWf2t4SRc2lUY5J36GugC6xyZ4AScPWDlxoxzESEPgzdtG8GpCYXQp9gFLry2Kx8fSovMUSr9Nhrj4WeOTyJC/9mLY/dpvG1WAEdcCgzGjXOsTVCI7KhNgIXZpNfr3vbHKv0dZZPxz/21Vp39aReY8NGz7cs4jsgpKXSvj2PF54Sis5TT+YINTWP2ChsvjLbGX6cDC3sNwfxnzi3wlrDvYl5vgPbNeC9gaGyCnFX7TT9qvWodKBNR+jcpgagyft4M1FdDC2yYleA6auHrXYs94YK5X2qnCrOsEqrJoXpf68BGHWIB59l6sdKJnPOVnXtXV4sVBaxtgVQYi2/90UnfibeSkiPtCyrMtEFc8/nLeBXGlBpBdI0yldPxl1wZTqacsR+BTQ49ZjsTnEVrOckQ+NUTKsoU9D00pKk23dcylZ1kSU9mxnUqJp+y4DsruKt1+bM5OGIbMJ2+7kyIOrWQZa0DgA6E4srLNS56EUpbDKLzc8wC7xDTdPuk43vIh1ccf';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Components\Form;
+
+use Illuminate\Contracts\View\View;
+
+class NumberInput extends BaseFormComponent
+{
+    public function __construct(
+        string $name,
+        ?string $label = null,
+        mixed $value = null,
+        public int|float|null $min = null,
+        public int|float|null $max = null,
+        public int|float $step = 1,
+        public int $decimals = 0,
+        public bool $thousandSeparator = true,
+        public string $separator = ',',
+        public bool $showButtons = true,
+        public bool $persianDigits = true,
+        public ?string $unit = null,
+        public ?string $placeholder = null,
+        bool $required = false,
+        bool $disabled = false,
+        bool $readonly = false,
+        ?string $hint = null,
+        string $dir = 'ltr',
+        ?string $id = null,
+        ?string $class = null,
+        ?string $error = null
+    ) {
+        parent::__construct(
+            name: $name,
+            label: $label,
+            value: $value,
+            required: $required,
+            disabled: $disabled,
+            readonly: $readonly,
+            hint: $hint,
+            dir: $dir,
+            id: $id,
+            class: $class,
+            error: $error
+        );
+    }
+
+    public function render(): View
+    {
+        return view('core::components.form.number-input');
+    }
+}

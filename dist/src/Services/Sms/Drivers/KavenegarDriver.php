@@ -1,7 +1,89 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = '7VbBbuIwEL3zFVZVKYlECaU3EHDoqtqqu9JK1Z4ARW4YqJfEjmyHCrX8+45jJyQBFlV72cPmZDxvZt68GY/gNAWV0RjI9903KukWknshYf4McstiUPPnVM2/SLYFqUadTq6APCZJnjJONaLyLBNSzx9oTJcI/qp1NipAzWj3gmtJY12Es9EeuQa5wsQYNU6oUuQJ4RzWVFoAYWmWQApcK3Ls1XnvEPwyKTTEGpZEacn4mlzTjD3BbnTGqoAvQZ6zvlAFP2WCjAp7/pKwmKxyHmsmOImiWHCE5rH2D75USroj12hasTUZk9kiKLwtP/Nd61embiaWGCIcdubhTbSBnbcg0ynxvFHbw5Kte9ibsw6OP3pcvWIn1DAMMUdvUwrbi0Uabm/D9walfXhlI+1P122S+laiD1ethBgyLWS3kg6nSNE1dMm0KTVy4XmSBEMrVFuaMpBCHFNRgfGr24BMiykQS/C9rte1MaKUZr4XJ0B5lIoXlgBaDj4BGZK6sRauJthBW3eaDpuyuyFwLFWGrQeEmwkfDql6EDL1g5tJJpT2W/L3iKdSFZo4vV9KcKQ3q4KZzysZeWQ8qYnQbaJctwuMPbcATnSLKDtQQRZBq4Y80abgspqbiSHnN1TRVOfKgRA+Q6Y6l9xb4OwVNjt7/bpPHuOeME5+5T8ek0G/X89v47R1cL6uRPvjdI0RWxYophRov6KH20EyQFazPlJ0WIQuzOi4oQ3IZTjOjBnTdgNsya5JbUFK9e1rzPmGizfsdavT9C0qBa8HqrXp4uP7QTVuPe6XL+v49WnAV4ILuVuuIy02wJVdR2eeXob7OS0gf5jNMw+pVWSZ3hZYkWmBDCWHKNjN3FWhn19e9t1yCxoKVWe2Ir6bgUaUgWn5xwdp2m4XuA7eGzxc3Qc3M+3tUIbCIcZh2PcXedyd5DG4xOPuBI+7Jo/Bp3jc9r1LOQ3kKKm5/EyeweU8g1N5Bq08f7Ns8X8BW+3CRIhNnpUb13Gob7f/K/BfX4H73w==';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Services\Sms\Drivers;
+
+use Illuminate\Support\Facades\Http;
+use MyLaravelCore\Contracts\SmsDriverInterface;
+
+class KavenegarDriver implements SmsDriverInterface
+{
+    protected string $apiKey;
+    protected string $sender;
+    protected string $baseUrl;
+
+    public function __construct(protected array $config = [])
+    {
+        $this->apiKey = $config['api_key'] ?? '';
+        $this->sender = $config['sender'] ?? '';
+        $this->baseUrl = "https://api.kavenegar.com/v1/{$this->apiKey}/";
+    }
+
+    protected string|array|null $recipient = null;
+
+    public function to(string|array $receptor): static
+    {
+        $this->recipient = $receptor;
+        return $this;
+    }
+
+    public function send(string|array $receptor, ?string $message = null, ?string $sender = null): array
+    {
+        if ($message === null && $this->recipient !== null) {
+            $message = is_string($receptor) ? $receptor : implode(' ', $receptor);
+            $receptor = $this->recipient;
+        }
+        $receptors = is_array($receptor) ? implode(',', array_map('clean_mobile', $receptor)) : clean_mobile($receptor);
+        $sender = $sender ?: $this->sender;
+
+        $response = Http::asForm()->post($this->baseUrl . 'sms/send.json', [
+            'receptor' => $receptors,
+            'sender' => $sender,
+            'message' => $message,
+        ]);
+
+        $result = $response->json();
+        $status = $result['return']['status'] ?? 0;
+        $success = ($status === 200);
+
+        return [
+            'success' => $success,
+            'message_id' => isset($result['entries'][0]['messageid']) ? (string) $result['entries'][0]['messageid'] : null,
+            'status' => $result['return']['message'] ?? 'unknown',
+            'raw_response' => $result,
+        ];
+    }
+
+    public function sendPattern(string $receptor, string $template, array $tokens = []): array
+    {
+        $params = [
+            'receptor' => clean_mobile($receptor),
+            'template' => $template,
+            'token' => $tokens['token'] ?? ($tokens[0] ?? ''),
+        ];
+
+        if (isset($tokens['token2']) || isset($tokens[1])) {
+            $params['token2'] = $tokens['token2'] ?? $tokens[1];
+        }
+        if (isset($tokens['token3']) || isset($tokens[2])) {
+            $params['token3'] = $tokens['token3'] ?? $tokens[2];
+        }
+        if (isset($tokens['token10'])) {
+            $params['token10'] = $tokens['token10'];
+        }
+        if (isset($tokens['token20'])) {
+            $params['token20'] = $tokens['token20'];
+        }
+
+        $response = Http::asForm()->post($this->baseUrl . 'verify/lookup.json', $params);
+        $result = $response->json();
+        $status = $result['return']['status'] ?? 0;
+        $success = ($status === 200);
+
+        return [
+            'success' => $success,
+            'message_id' => isset($result['entries'][0]['messageid']) ? (string) $result['entries'][0]['messageid'] : null,
+            'status' => $result['return']['message'] ?? 'unknown',
+            'raw_response' => $result,
+        ];
+    }
+}

@@ -1,7 +1,202 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = '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';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Commands;
+
+use Illuminate\Console\Command;
+use MyLaravelCore\Services\CodeProtector;
+use MyLaravelCore\Services\StubGenerator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use ZipArchive;
+
+class ProtectCommand extends Command
+{
+    protected $signature = 'core:protect 
+                            {--output=dist : Target distribution directory for the protected package}
+                            {--zip : Create a distributable .zip package archive}
+                            {--stubs-only : Only generate constructor-only IDE stubs}';
+    protected $description = 'Compile, obfuscate, and build a closed-source distribution with constructor-only IDE stubs';
+
+    public function handle(CodeProtector $protector, StubGenerator $stubGen): int
+    {
+        $this->newLine();
+        $this->info("🔒 Building Closed-Source Distribution for MyLaravelCore...");
+        $this->line("   Source code will be obfuscated & sealed, while IDE stubs preserve full constructor autocomplete.");
+
+        $targetDir = base_path($this->option('output'));
+        if (str_contains(base_path(), 'testbench-core')) {
+            $targetDir = getcwd() . DIRECTORY_SEPARATOR . $this->option('output');
+        }
+
+        // Step 1: Generate clean constructor stubs
+        $this->call('core:stubs', [
+            '--output' => $this->option('output') . '/stubs',
+        ]);
+
+        if ($this->option('stubs-only')) {
+            return self::SUCCESS;
+        }
+
+        // Step 2: Prepare distribution directory structure
+        $this->line("   📦 Copying config, views, and assets...");
+        $this->copyDirectory(realpath(__DIR__ . '/../../config'), $targetDir . '/config');
+        $this->copyDirectory(realpath(__DIR__ . '/../../resources'), $targetDir . '/resources');
+
+        // Step 3: Obfuscate PHP files from src into targetDir/src
+        $srcDir = realpath(__DIR__ . '/..');
+        $destSrcDir = $targetDir . '/src';
+        if (!is_dir($destSrcDir)) {
+            mkdir($destSrcDir, 0755, true);
+        }
+
+        $filesCount = 0;
+        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($srcDir));
+        foreach ($iterator as $file) {
+            if ($file->isDir() || $file->getExtension() !== 'php') {
+                continue;
+            }
+
+            $sourcePath = $file->getRealPath();
+            $relPath = substr($sourcePath, strlen($srcDir) + 1);
+            $targetPath = $destSrcDir . DIRECTORY_SEPARATOR . $relPath;
+
+            $targetSubDir = dirname($targetPath);
+            if (!is_dir($targetSubDir)) {
+                mkdir($targetSubDir, 0755, true);
+            }
+
+            $originalCode = file_get_contents($sourcePath);
+            $protectedCode = $protector->protectCode($originalCode);
+            file_put_contents($targetPath, $protectedCode);
+
+            $filesCount++;
+        }
+
+        // Step 4: Generate client distribution composer.json
+        $composerJson = [
+            'name' => 'my-laravel/core',
+            'version' => '1.0.0',
+            'description' => 'Enterprise-grade Core Infrastructure (Protected Distribution).',
+            'type' => 'library',
+            'license' => 'proprietary',
+            'require' => [
+                'php' => '^8.2',
+                'illuminate/support' => '^10.0|^11.0|^12.0|^13.0',
+                'illuminate/view' => '^10.0|^11.0|^12.0|^13.0',
+                'illuminate/console' => '^10.0|^11.0|^12.0|^13.0',
+                'illuminate/database' => '^10.0|^11.0|^12.0|^13.0',
+                'illuminate/http' => '^10.0|^11.0|^12.0|^13.0',
+                'illuminate/filesystem' => '^10.0|^11.0|^12.0|^13.0',
+            ],
+            'autoload' => [
+                'psr-4' => [
+                    'MyLaravelCore\\' => 'src/',
+                ],
+                'files' => [
+                    'src/Helpers/helpers.php',
+                ],
+            ],
+            'extra' => [
+                'laravel' => [
+                    'providers' => [
+                        'MyLaravelCore\\Providers\\CoreServiceProvider',
+                    ],
+                    'aliases' => [
+                        'Core' => 'MyLaravelCore\\Facades\\Core',
+                    ],
+                ],
+            ],
+        ];
+
+        file_put_contents(
+            $targetDir . '/composer.json',
+            json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+        );
+
+        // Copy IDE helper file into distribution root
+        $ideHelperSrc = realpath(__DIR__ . '/../../_ide_helper_blade.php');
+        if ($ideHelperSrc && file_exists($ideHelperSrc)) {
+            copy($ideHelperSrc, $targetDir . '/_ide_helper_blade.php');
+        }
+
+        $this->info("   🔐 Obfuscated {$filesCount} source files with proprietary shield!");
+
+        // Step 5: Optional Zip Archive
+        if ($this->option('zip')) {
+            $zipPath = dirname($targetDir) . '/my-laravel-core-dist.zip';
+            $this->createZipArchive($targetDir, $zipPath);
+            $this->line("   📦 Zip package created at: <fg=green>{$zipPath}</>");
+        }
+
+        $this->newLine();
+        $this->info("✨ Closed-source distribution ready at: {$targetDir}");
+        $this->line("   ➜ Users receive: 100% functional package with zero readable source code.");
+        $this->line("   ➜ IDEs inspect: Only clean constructors and method signatures in stubs.");
+        $this->newLine();
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Recursively copy a directory.
+     */
+    protected function copyDirectory(string $src, string $dst): void
+    {
+        if (!is_dir($src)) {
+            return;
+        }
+
+        $dir = opendir($src);
+        @mkdir($dst, 0755, true);
+
+        while (false !== ($file = readdir($dir))) {
+            if ($file !== '.' && $file !== '..') {
+                if (is_dir($src . '/' . $file)) {
+                    $this->copyDirectory($src . '/' . $file, $dst . '/' . $file);
+                } else {
+                    copy($src . '/' . $file, $dst . '/' . $file);
+                }
+            }
+        }
+
+        closedir($dir);
+    }
+
+    /**
+     * Create zip archive of directory.
+     */
+    protected function createZipArchive(string $sourceDir, string $outZipPath): void
+    {
+        @unlink($outZipPath);
+
+        if (PHP_OS_FAMILY === 'Windows') {
+            $cmd = "powershell -NoProfile -Command \"Compress-Archive -Path '{$sourceDir}\\*' -DestinationPath '{$outZipPath}' -Force\"";
+            exec($cmd);
+            return;
+        }
+
+        if (!class_exists(ZipArchive::class)) {
+            return;
+        }
+
+        $zip = new ZipArchive();
+        if ($zip->open($outZipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+            return;
+        }
+
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($sourceDir),
+            RecursiveIteratorIterator::LEAVES_ONLY
+        );
+
+        foreach ($files as $file) {
+            if (!$file->isDir()) {
+                $filePath = $file->getRealPath();
+                $relativePath = substr($filePath, strlen($sourceDir) + 1);
+                $zip->addFile($filePath, $relativePath);
+            }
+        }
+
+        $zip->close();
+    }
+}

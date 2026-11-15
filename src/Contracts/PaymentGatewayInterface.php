@@ -38,5 +38,5 @@ interface PaymentGatewayInterface
      * @param int|float|null $expectedAmount
      * @return array{success: bool, ref_id: string|null, message: string, card_pan: string|null, raw_response: mixed}
      */
-    public function verify(string $authority, int|float|null $expectedAmount = null): array;
+    public function verify(?string $authority = null, int|float|null $expectedAmount = null): array;
 }

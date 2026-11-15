@@ -1,7 +1,82 @@
 <?php
-/**
- * Protected by MyLaravelCore Infrastructure Shield.
- * Proprietary software - Unauthorized modification, reverse engineering or extraction is prohibited.
- */
-$__CORE_ENC__ = 'jVRNj9owEL3zK2ZX0cbRwqHXrGCl3VZq1W4vtNpDqVYmTMCqccAf0Ajlv9eJnZBAoJsDCeN54zfzni3oGtWGJggv+Tcq6Q75cyZx9kNSptXDYGAUwhfOzZoJqnH2kWo6pwpnn3i2NSj07MkwvkD58P/Ml2yB3JbUZW34TNWUm+XgMAD7VD8bmWlMNC5AaapZAqkRiWaZgHmWaQ8gUQy7jC0qhAOXj0PEcSLRfoglabCk2heCdfmKWpDyCZQtOc2MtBMY+5zRZIl62sSfM9uTINHDOdAtnQNd/LudbQnr4FgKBNcbnZMac2iVKiK4u4ObvgRHpohOO6jI9JXq0BIorSg/BbNSVFPsL97tsWj+1SvFoKWWmfO2Rr1Di60w0spxolY5Bav2BqXO3/AvU1qRQK+YGkJ45BOeNStRGymgSh1NjplH3sVx3D6ZKYWaeAjVls7caFS/Qs00x/B3BI/gvyGGUFjVwnd321b6Qq+exrV2XZWwZNJqzbsrdjnv4nQms2MEwY5yg5cYVhawdilfLM3fUko84DjXIJNsaU82n7rcCtNaTjIjtI1/aPn95Iy4znqPSIP4g3kZ66R/dbHOUdqvGEcg9anfr1Aiae03dJtHHfeMJjZP1FZwOgwhtVdEsI1gPIFgW6WUpTwRK9DNOBx22ZAoOi3sRT0zrJvL/X3P5WF7vD10xlqMDi6/uL1m6Nbor7lBJdZwr2U3lRP8PW17NCjzIdTOqMYUg1/u967DNLO5KGQ99YvkTu/1lInFU95xqufz6FL7+XRlJwL3PhRdpTWapEwqTRp+xT8=';
-eval(gzinflate(base64_decode($__CORE_ENC__)));
+
+namespace MyLaravelCore\Traits;
+
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+
+trait HasSlug
+{
+    /**
+     * Boot the trait.
+     */
+    protected static function bootHasSlug(): void
+    {
+        static::creating(function (Model $model) {
+            $slugSource = $model->getSlugSourceColumn();
+            $slugColumn = $model->getSlugColumnName();
+
+            if (empty($model->{$slugColumn}) && !empty($model->{$slugSource})) {
+                $model->{$slugColumn} = $model->generateUniqueSlug($model->{$slugSource});
+            }
+        });
+    }
+
+    /**
+     * Source attribute to generate slug from (default: 'title' or 'name').
+     */
+    public function getSlugSourceColumn(): string
+    {
+        if (property_exists($this, 'slugSource')) {
+            return $this->slugSource;
+        }
+
+        return isset($this->attributes['title']) ? 'title' : 'name';
+    }
+
+    /**
+     * Target column to store slug in (default: 'slug').
+     */
+    public function getSlugColumnName(): string
+    {
+        return property_exists($this, 'slugColumn') ? $this->slugColumn : 'slug';
+    }
+
+    /**
+     * Generate unique slug by checking database.
+     */
+    public function generateUniqueSlug(string $value): string
+    {
+        $slug = slugify_fa($value);
+        $originalSlug = $slug;
+        $count = 1;
+
+        $slugColumn = $this->getSlugColumnName();
+        $keyName = $this->getKeyName();
+
+        while (static::where($slugColumn, $slug)
+            ->when($this->exists, fn ($q) => $q->where($keyName, '!=', $this->getKey()))
+            ->exists()) {
+            $count++;
+            $slug = "{$originalSlug}-{$count}";
+        }
+
+        return $slug;
+    }
+
+    /**
+     * Scope query by slug.
+     */
+    public function scopeWhereSlug(Builder $query, string $slug): Builder
+    {
+        return $query->where($this->getSlugColumnName(), $slug);
+    }
+
+    /**
+     * Find model by slug.
+     */
+    public static function findBySlug(string $slug): ?static
+    {
+        return static::where((new static)->getSlugColumnName(), $slug)->first();
+    }
+}
